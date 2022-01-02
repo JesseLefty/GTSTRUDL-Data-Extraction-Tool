@@ -1,0 +1,46 @@
+########################################################################################################################
+##                                                                                                                    ##
+##                                              Version 0.0.1 (12/1/2021)                                             ##
+##                                                                                                                    ##
+########################################################################################################################
+Documents uploaded to Github:
+
+    main.py
+    extract_member_forces.py
+    generate_mem_array_info.py
+
+Description:
+    Initial commit of working prototype for extracting member forces. Program can parse .gto file and search for
+    instances of 'LIST FOR' and return a csv file of results based on inputs from the user. This includes, specific
+    beams, loads, and joints as well as which instance of 'LIST FOR' is requested.
+########################################################################################################################
+##                                                                                                                    ##
+##                                              Version 0.0.2  (1/2/2022)                                             ##
+##                                                                                                                    ##
+########################################################################################################################
+Documents uploaded to Github:
+
+    save_output.py (formerly main.py)
+    change_log.txt
+    generate_mem_array_info.py
+    extract_member_forces.py
+    main.py
+
+Description:
+
+    Added class structure to all files
+    Added 'change_log.txt' to track high level changes between program versions
+
+    Functionality Changes:
+
+        Added ability to select output results from multiple member data sets at the same time
+        Added ability to modify or delete parameters from selected data sets
+        Added functionality to chose from single .csv file or .xlsx file with each member set as a separate tab
+
+    Interface Changes:
+
+        Added GUI with the following features:
+
+            Select working directory and select output file to parse
+            Choose from list of available member force results to create new result set
+            Modify, delete, or add new results sets
