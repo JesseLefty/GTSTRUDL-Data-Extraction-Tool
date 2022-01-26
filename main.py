@@ -4,39 +4,25 @@ from tkinter import filedialog
 import os
 import generate_mem_array_info
 import save_output
+import json
+import timeit
+import Error_Handling
 
 
-def help():
+def help_doc():
     # open some help documentation
     pass
 
 
 class FirstWindow:
 
-    def __init__(self):
-        pass
+    def __init__(self, initial_window):
+        self.initial_window = initial_window
 
-    def select_dir(self, show_dir):
-        global directory
-        directory = filedialog.askdirectory()
-        show_dir.config(state='normal')
-        show_dir.insert(END, directory)
-        show_dir.config(state='disabled')
-
-    def select_file(self, show_file):
-        global input_file
-        file_types = [('*.gto - GTSTRUDL Output', '*.gto'), ('*.txt - Text Files', '*.txt'),
-                      ('*.csv - Comma Separated Values', '*.csv'), ('*.* - All types', '*.*')]
-        input_file = filedialog.askopenfilename(initialdir=directory, title="select file", filetypes=file_types)
-        input_file = os.path.basename(input_file)
-        show_file.config(state='normal')
-        show_file.insert(END, input_file)
-        show_file.config(state='disabled')
-
-    def landing_window_display(self, root):
-        root.title("GTstrudl Extractor")
-        root.geometry('600x400')
-        program_description_frame = Frame(root, height=380, width=180)
+        self.initial_window.title("GTstrudl Extractor")
+        self.initial_window.geometry('600x400')
+        self.initial_window.minsize(width=600, height=400)
+        program_description_frame = Frame(self.initial_window, height=380, width=180)
         program_title = Label(program_description_frame, text='GTstrudl Extractor', font=('Helvetica', 12))
         program_description = Label(program_description_frame, text='GTstrudl Extractor was developed\n'
                                                                     'to facilitate parsing analysis\n'
@@ -59,82 +45,142 @@ class FirstWindow:
         program_dev_date.grid(row=3, column=0)
         program_description.grid(row=4, column=0)
 
-        banner = Frame(root, height=110, width=390)
+        banner = Frame(self.initial_window, height=110, width=390)
         banner.grid(row=0, column=1, pady=(10, 5), padx=(0, 10), sticky='n')
         banner_text = Label(banner, text='Future Banner Of Some Sort')
         banner_text.grid(row=0, column=0, sticky='n')
         banner.grid_propagate(0)
 
-        set_directory_frame = LabelFrame(root, text='Select Directory & File', height=190, width=390)
+        set_directory_frame = LabelFrame(self.initial_window, text='Select Directory & File', height=190, width=390)
         set_directory_frame.grid(row=1, column=1, pady=(5, 5), padx=(0, 10), sticky='n')
         dir_label = Label(set_directory_frame, text='Select working directory.\n'
                                                     '(default save location for all files)')
         dir_label.grid(row=0, column=0, columnspan=1, pady=5, padx=5, sticky='nw')
         set_directory_frame.grid_propagate(0)
-        show_dir = Text(set_directory_frame, height=1, width=50, font=('Arial', 10), xscrollcommand=True)
-        show_dir.grid(row=1, column=0, columnspan=2, sticky='nw')
-        show_dir.config(state='disabled')
+        self.show_dir = Text(set_directory_frame, height=1, width=50, font=('Arial', 10), wrap=NONE)
+        dir_scrollx = Scrollbar(set_directory_frame)
+        dir_scrollx.configure(command=self.show_dir.xview, orient=HORIZONTAL)
+        self.show_dir.configure(xscrollcommand=dir_scrollx.set)
+        dir_scrollx.grid(row=2, column=0, columnspan=2, sticky='sew')
+        self.show_dir.grid(row=1, column=0, columnspan=2, sticky='nw')
+        self.show_dir.config(state='disabled')
 
-        show_file = Text(set_directory_frame, height=1, width=50, font=('Arial', 10), xscrollcommand=True)
-        show_file.grid(row=3, column=0, columnspan=2, sticky='nw')
-        show_file.config(state='disabled')
+        self.show_file = Text(set_directory_frame, height=1, width=50, font=('Arial', 10), wrap=NONE)
+        self.show_file.grid(row=4, column=0, columnspan=2, sticky='nw')
+        self.show_file.config(state='disabled')
+        file_scrollx = Scrollbar(set_directory_frame)
+        file_scrollx.configure(command=self.show_file.xview, orient=HORIZONTAL)
+        self.show_file.configure(xscrollcommand=file_scrollx.set)
+        file_scrollx.grid(row=5, column=0, columnspan=2, sticky='sew')
 
         select_file = Label(set_directory_frame, text='Select .gto file to parse')
-        select_file.grid(row=2, column=0, pady=10, sticky='nw')
+        select_file.grid(row=3, column=0, pady=10, sticky='nw')
 
-        continue_frame = Frame(root, height=60, width=390)
+        continue_frame = Frame(self.initial_window, height=60, width=390)
         continue_frame.grid(row=2, column=1, pady=(5, 10), padx=(0, 10), sticky='se')
 
-        exit_button = Button(continue_frame, text="Exit", command=root.quit)
+        exit_button = Button(continue_frame, text="Exit", command=self.initial_window.quit)
         exit_button.grid(row=0, column=1, padx=5, pady=5)
-        help_button = Button(continue_frame, text='Help (?)', command=help)
+        help_button = Button(continue_frame, text='Help (?)', command=help_doc)
         help_button.grid(row=0, column=0, padx=5, pady=5)
-        dir_open = Button(set_directory_frame, text="Select New", command=lambda: FirstWindow().select_dir(show_dir))
+        dir_open = Button(set_directory_frame, text="Select New", command=lambda: self.select_dir())
         dir_open.grid(row=0, column=1, pady=5, padx=0, sticky='ne')
-        dir_open = Button(set_directory_frame, text="Select File", command=lambda: FirstWindow().select_file(show_file))
-        dir_open.grid(row=2, column=1, pady=10, padx=0, sticky='ne')
-        continue_button = Button(continue_frame, text='Continue', command=SecondWindow().open_second_window)
-        continue_button.grid(row=0, column=2, padx=5, pady=5)
+        file_open = Button(set_directory_frame, text="Select File", command=lambda: self.select_file())
+        file_open.grid(row=3, column=1, pady=10, padx=0, sticky='ne')
+        self.continue_button = Button(continue_frame, text='Continue', command=SecondWindow().open_second_window)
+        self.continue_button.grid(row=0, column=2, padx=5, pady=5)
+        self.continue_button['state'] = 'disabled'
+
+        self.show_file.bind('<<Modified>>', lambda event, : self.check_continue())
+        self.show_dir.bind('<<Modified>>', lambda event, : self.check_continue())
+
+    def select_dir(self):
+        global directory
+        directory = filedialog.askdirectory()
+        self.show_dir.config(state='normal')
+        self.show_dir.delete('1.0', END)
+        self.show_dir.insert(END, directory)
+        self.show_dir.config(state='disabled')
+
+    def select_file(self):
+        global input_file_path
+        file_types = [('*.gto - GTSTRUDL Output', '*.gto'), ('*.txt - Text Files', '*.txt')]
+        try:
+            input_file_path = filedialog.askopenfilename(initialdir=directory, title="select file", filetypes=file_types)
+            input_file_name = os.path.basename(input_file_path)
+            self.show_file.config(state='normal')
+            self.show_file.delete('1.0', END)
+            self.show_file.insert(END, input_file_name)
+            self.show_file.config(state='disabled')
+        except NameError:
+            Error_Handling.ErrorHandling(initial_window).no_selection('Directory')
+
+    def check_continue(self):
+        if self.show_dir.get("1.0", END) and self.show_file.get("1.0", END) != '\n':
+            self.continue_button['state'] = 'enabled'
+            self.initial_window.bind('<Return>', (lambda event, : self.continue_button.invoke()))
 
 
 class SecondWindow:
 
-    def __init__(self):
-        pass
+    def __init__(self, modify=False):
+        self.jt_rb = StringVar()
+        self.load_rb = IntVar()
+        self.beam_rb = IntVar()
+        self.replace = modify
 
     window_open = False
-    replace = False
     delete = False
+    file_types = [('*.prop - properties file', '*.prop')]
     sel_rlist = "none"
     joint = []
     load_id = []
     member_set = []
     beam_id = []
+    key = [1, 2, 3, 4, 5]
+    value = ['', 'Starts With: ', 'Ends With: ', 'Contains: ', 'List: ']
+    d_tree = {}
+    for row, item in enumerate(key):
+        d_tree[key[row]] = value[row]
 
     def open_second_window(self):
         self.joint.clear()
         self.load_id.clear()
         self.beam_id.clear()
         self.member_set.clear()
-        member_force_list, file_as_list = generate_mem_array_info.GenerateDisplayData(input_file).get_force_display()
-        available_results_list = StringVar(value=member_force_list)
+        member_force_list, file_as_list = generate_mem_array_info.GenerateDisplayData(
+            input_file_path).get_force_display()
         result_tree_headings = ['Set #', 'Set Name', 'Joint Spec.', 'Load Spec.', 'Beam Spec.']
-        out_format_rb = BooleanVar()
+        if member_force_list:
+            available_results_list = StringVar(value=member_force_list)
+            not_valid_list = False
+        else:
+            available_results_list = StringVar(value=['No Member Forces Found in Output', ])
+            not_valid_list = True
 
         initial_window.withdraw()
         member_force_window = Toplevel(initial_window)
         member_force_window.geometry('600x400')
+        member_force_window.minsize(width=600, height=400)
         member_force_window.grid_propagate(0)
 
         def on_list_select(event):
-            new_mem_result_set['state'] = 'enabled'
-            modify_force_result['state'] = 'disabled'
-            delete_force_result['state'] = 'disabled'
+            if not_valid_list:
+                new_mem_result_set['state'] = 'disabled'
+            else:
+                new_mem_result_set['state'] = 'enabled'
+                modify_force_result['state'] = 'disabled'
+                delete_force_result['state'] = 'disabled'
 
         def on_tree_select(event):
             modify_force_result['state'] = 'enabled'
             delete_force_result['state'] = 'enabled'
             new_mem_result_set['state'] = 'disabled'
+            if len(results_tree.selection()) > 1:
+                modify_force_result['state'] = 'disabled'
+            elif not results_tree.get_children():
+                delete_force_result['state'] = 'disabled'
+                modify_force_result['state'] = 'disabled'
 
         def list_select():
             selection_index = int(available_result_box.curselection()[0])
@@ -153,14 +199,12 @@ class SecondWindow:
         result_set_frame = LabelFrame(member_force_window, text='Available Member Results', height=160, width=420)
         display_result_set_frame = LabelFrame(member_force_window, text='Requested Results', height=135, width=580)
         button_frame = Frame(member_force_window, height=160, width=150)
-        output_format_frame = LabelFrame(member_force_window, text='Output Format', height=30, width=100)
-        continue_frame = Frame(member_force_window, height=30, width=280)
+        continue_frame = Frame(member_force_window, height=30, width=580)
 
         temp_header.grid(row=0, column=0, columnspan=1, padx=10, pady=(5, 0))
         result_set_frame.grid(row=1, column=1, padx=(0, 10), pady=(5, 0), sticky='nw')
         display_result_set_frame.grid(row=2, column=0, columnspan=3, padx=10, pady=(5, 0), sticky='nsew')
         button_frame.grid(row=1, column=0, padx=10, pady=(5, 0))
-        output_format_frame.grid(row=3, column=0, pady=(5, 10), padx=(10, 0), sticky='nw')
         continue_frame.grid(row=3, column=0, columnspan=3, pady=(5, 10), padx=(0, 10), sticky='se')
 
         result_set_frame.grid_propagate(0)
@@ -173,6 +217,10 @@ class SecondWindow:
         list_xscroll.configure(command=available_result_box.xview, orient=HORIZONTAL)
         list_yscroll.configure(command=available_result_box.yview, orient=VERTICAL)
         available_result_box.configure(xscrollcommand=list_xscroll.set, yscrollcommand=list_yscroll.set)
+
+        for index in range(len(member_force_list)):
+            available_result_box.itemconfig(index, bg='white' if index % 2 == 0 else 'grey80')
+
         list_yscroll.pack(side=RIGHT, fill=Y)
         list_xscroll.pack(side=BOTTOM, fill=X)
         available_result_box.pack(side=LEFT, expand=True)
@@ -199,52 +247,202 @@ class SecondWindow:
 
         Label(button_frame, text='Member Result Set Options').grid(column=0, row=0)
         new_mem_result_set = Button(button_frame, text="Create New",
-                                    command=lambda: self.new_mem_result_set(list_select(), results_tree, tree_select()))
+                                    command=lambda: NewResultsWindow(self.jt_rb, self.load_rb, self.beam_rb).new_mem_result_set(list_select(), results_tree, tree_select(), False))
         load_exist_mem_result_set = Button(button_frame, text="Load Existing",
-                                           command=lambda: self.load_existing_mem_result_set())
+                                           command=lambda: self.load_existing_mem_result_set(results_tree))
         modify_force_result = Button(button_frame, text='Modify Result',
-                                     command=lambda: self.modify_force_result(list_select(), results_tree,
+                                     command=lambda: self.modify_force_result(results_tree,
                                                                               tree_select()))
         delete_force_result = Button(button_frame, text='Delete Result',
                                      command=lambda: self.delete_force_result(results_tree))
 
-        new_mem_result_set.grid(row=2, column=0, padx=5, pady=5)
-        load_exist_mem_result_set.grid(row=3, column=0, padx=5, pady=5)
-        modify_force_result.grid(row=4, column=0, padx=5, pady=5)
-        delete_force_result.grid(row=5, column=0, padx=5, pady=5)
-
-        new_mem_result_set['state'] = 'disabled'
-        modify_force_result['state'] = 'disabled'
-        delete_force_result['state'] = 'disabled'
-
-        csv_rb = Radiobutton(output_format_frame, text='.csv', variable=out_format_rb, value=False)
-        xlsx_rb = Radiobutton(output_format_frame, text='.xlsx', variable=out_format_rb, value=True)
-
-        csv_rb.grid(row=0, column=0, padx=10, pady=5)
-        xlsx_rb.grid(row=0, column=1, padx=10, pady=5)
+        new_mem_result_set.grid(row=2, column=0, padx=15, pady=5, sticky='ew')
+        load_exist_mem_result_set.grid(row=3, column=0, padx=15, pady=5, sticky='ew')
+        modify_force_result.grid(row=4, column=0, padx=15, pady=5, sticky='ew')
+        delete_force_result.grid(row=5, column=0, padx=15, pady=5, sticky='ew')
 
         generate_button = Button(continue_frame, text="Generate",
-                                 command=lambda: SecondWindow().run_member_forces(file_as_list, self.joint,
-                                                                                  out_format_rb.get()))
+                                 command=lambda: SecondWindow().run_member_forces(file_as_list, self.joint))
         back_button = Button(continue_frame, text="Back", command=lambda: [initial_window.deiconify(),
                                                                            member_force_window.destroy()])
-        help_button = Button(continue_frame, text='Help (?)', command=help)
+        help_button = Button(continue_frame, text='Help (?)', command=help_doc)
 
-        generate_button.grid(row=0, column=2, padx=5, pady=5)
-        back_button.grid(row=0, column=1, padx=5, pady=5)
-        help_button.grid(row=0, column=0, padx=5, pady=5)
+        store_mem_results_prop = Button(continue_frame, text='Store Input',
+                                        command=lambda: self.store_inputs(results_tree))
 
-    def new_mem_result_set(self, selection_index, results_tree, tree_selection_index):
-        jt_rb = StringVar()
-        load_rb = IntVar()
-        beam_rb = IntVar()
-        jt_rb.set('ALL')
-        load_rb.set("1")
-        beam_rb.set("1")
+        store_mem_results_prop.grid(row=0, column=0, padx=(10, 250), pady=5)
+        generate_button.grid(row=0, column=3, padx=5, pady=5)
+        back_button.grid(row=0, column=2, padx=5, pady=5)
+        help_button.grid(row=0, column=1, padx=5, pady=5)
 
+        new_mem_result_set['state'] = 'disabled'
+        delete_force_result['state'] = 'disabled'
+        modify_force_result['state'] = 'disabled'
+
+    def store_member_force_info(self, force_select_window, joint, beam_id_tpl, load_id_tpl, selection_index,
+                                results_tree, tree_select):
+        force_select_window.destroy()
+        selection_index, stored_value = selection_index
+        if tree_select == 0:
+            tree_selection = 0
+        else:
+            tree_selection = int(results_tree.selection()[0])
+
+        if self.replace:
+            set_name = results_tree.set(tree_selection, column=1)
+            set_num_index = int(results_tree.set(tree_selection, column=0)) - 1
+            self.joint[set_num_index] = joint
+            self.load_id[set_num_index] = load_id_tpl
+            self.beam_id[set_num_index] = beam_id_tpl
+            results_tree.item(tree_selection, values=(tree_selection, set_name, joint,
+                                                      f'{self.d_tree[load_id_tpl[0]]} {load_id_tpl[1]}',
+                                                      f'{self.d_tree[beam_id_tpl[0]]} {beam_id_tpl[1]}'))
+        else:
+            self.load_id.append(load_id_tpl)
+            self.joint.append(joint)
+            self.beam_id.append(beam_id_tpl)
+            self.member_set.append(selection_index)
+            try:
+                next_avail_idd = max([int(x) for x in results_tree.get_children()]) + 1
+            except ValueError:
+                next_avail_idd = 1
+            results_tree.insert(parent='', index='end', iid=next_avail_idd, text=stored_value,
+                                values=(next_avail_idd, stored_value, joint,
+                                        f'{self.d_tree[load_id_tpl[0]]} {load_id_tpl[1]}',
+                                        f'{self.d_tree[beam_id_tpl[0]]} {beam_id_tpl[1]}'))
+
+        for row, item in enumerate(results_tree.get_children()):
+            results_tree.set(item, column=0, value=row + 1)
+
+    def store_inputs(self, results_tree):
+        d_data = {}
+        set_name = []
+        item_type = 'Results set'
+        if not results_tree.get_children():
+            Error_Handling.ErrorHandling(initial_window).no_selection(item_type)
+        else:
+            prop_file_name = filedialog.asksaveasfilename(filetypes=self.file_types, defaultextension='*.prop')
+            for rows, count in enumerate(results_tree.get_children()):
+                set_name.append(results_tree.set(count, column=1))
+                d_data[count] = {'set name': set_name[rows],
+                                 'joint spec': self.joint[rows],
+                                 'load spec': self.load_id[rows],
+                                 'beam spec': self.beam_id[rows],
+                                 'member set': self.member_set[rows]}
+            d_force_results = {'Member Force Results': d_data}
+
+            try:
+                with open(prop_file_name, 'w') as f:
+                    json.dump(d_force_results, f, indent=4)
+            except FileNotFoundError:
+                pass
+
+    def load_existing_mem_result_set(self, results_tree):
+        load_existing_file_path = filedialog.askopenfilename(initialdir=directory, title="select file",
+                                                             filetypes=self.file_types)
+        try:
+            with open(load_existing_file_path) as json_file:
+                data = json.load(json_file)
+
+            for rows in range(len(data['Member Force Results'].keys())):
+                if results_tree.get_children():
+                    next_avail_idd = max([int(x) for x in results_tree.get_children()]) + 1
+                else:
+                    next_avail_idd = 1
+                key_num = str(rows + 1)
+                self.joint.append(data['Member Force Results'][key_num]['joint spec'])
+                self.load_id.append(data['Member Force Results'][key_num]['load spec'])
+                self.beam_id.append(data['Member Force Results'][key_num]['beam spec'])
+                self.member_set.append(data['Member Force Results'][key_num]['member set'])
+                set_name = data['Member Force Results'][key_num]['set name']
+                results_tree.insert(parent='', index='end', iid=next_avail_idd, text=set_name,
+                                    values=(next_avail_idd, set_name, self.joint[-1],
+                                            f'{self.d_tree[self.load_id[-1][0]]} {self.load_id[-1][1]}',
+                                            f'{self.d_tree[self.beam_id[-1][0]]} {self.beam_id[-1][1]}'))
+                print(results_tree.get_children())
+                for row, item in enumerate(results_tree.get_children()):
+                    results_tree.set(item, column=0, value=row + 1)
+
+        except FileNotFoundError:
+            print('file not found')
+            pass
+        except UnboundLocalError:
+            pass
+
+    def modify_force_result(self, results_tree, tree_select):
+        if tree_select == 0:
+            tree_selection = 0
+        else:
+            tree_selection = int(results_tree.selection()[0])
+        set_num_index = int(results_tree.set(tree_selection, column=0)) - 1
+        self.jt_rb.set(self.joint[set_num_index])
+        self.load_rb.set(self.load_id[set_num_index][0])
+        self.beam_rb.set(self.beam_id[set_num_index][0])
+        beam_text = self.beam_id[set_num_index][1]
+        load_text = self.load_id[set_num_index][1]
+        NewResultsWindow(self.jt_rb, self.load_rb, self.beam_rb, beam_text, load_text).new_mem_result_set((0, 0), results_tree, tree_select, True)
+
+    def delete_force_result(self, results_tree):
+        for tree_selection in results_tree.selection():
+            set_num = int(results_tree.set(tree_selection, column=0)) - 1
+            results_tree.delete(tree_selection)
+            del self.joint[set_num]
+            del self.load_id[set_num]
+            del self.beam_id[set_num]
+            del self.member_set[set_num]
+            for row, item in enumerate(results_tree.get_children()):
+                results_tree.set(item, column=0, value=row + 1)
+        if results_tree.get_children():
+            next_idd = results_tree.get_children()[0]
+            results_tree.selection_set(next_idd)
+        else:
+            pass
+
+    def run_member_forces(self, file_as_list, joint):
+        file_types = [('Excel File', '*.xlsx'), ('csv Files', '*.csv')]
+        output_file_path = filedialog.asksaveasfilename(filetypes=file_types, defaultextension='xlsx')
+        out_format = os.path.splitext(output_file_path)[1]
+        print(out_format)
+        print(type(out_format))
+        save_output.RunProgram(initial_window).run_program(output_file_path, joint, self.member_set, out_format, input_file_path, file_as_list,
+                                    self.beam_id, self.load_id)
+        # print(output_file_name)
+        # print(joint)
+        # print(self.member_set)
+        # print(out_format)
+        # print(input_file_path)
+        # print(self.beam_id)
+        # print(self.load_id)
+
+
+        # iterations = 10
+        # time3 = timeit.timeit(lambda: save_output.RunProgram(initial_window).run_program(output_file_path, joint, self.member_set, out_format, input_file_path, file_as_list,
+        #                             self.beam_id, self.load_id), number=iterations)
+        #
+        # print(f' Run Full Program: {round(time3, 2)} or {round((time3 / iterations), 5)} per iteration')
+
+
+class NewResultsWindow:
+
+    def __init__(self, jt_rb, load_rb, beam_rb, beam_text='ALL', load_text='ALL'):
+        self.jt_rb = jt_rb
+        self.load_rb = load_rb
+        self.beam_rb = beam_rb
+        self.mod_beam_text = beam_text
+        self.mod_load_text = load_text
+
+    def new_mem_result_set(self, selection_index, results_tree, tree_selection_index, modify):
+        if not modify:
+            self.jt_rb.set('ALL')
+            self.load_rb.set("1")
+            self.beam_rb.set("1")
+        else:
+            pass
         force_select_window = Toplevel(initial_window)
         force_select_window.geometry('400x400')
+        force_select_window.minsize(width=400, height=400)
         force_select_window.grid_propagate(0)
+        force_select_window.grab_set()
 
         def beam_text_get(beam_rb_val):
             if beam_rb_val == 1:
@@ -259,6 +457,9 @@ class SecondWindow:
             else:
                 load_id = load_text.get('1.0', 'end-1c')
             return load_rb_val, load_id
+
+        def text_return():
+            return 'break'
 
         new_result_set_header = Label(force_select_window, text="Member Force Results Parameter Selection")
         joint_select = LabelFrame(force_select_window, text='JOINT', height=50, width=380)
@@ -276,20 +477,22 @@ class SecondWindow:
         load_select.grid_propagate(0)
         beam_select.grid_propagate(0)
 
-        jt_all_rb = Radiobutton(joint_select, text='ALL', variable=jt_rb, value='ALL')
-        jt_sta_rb = Radiobutton(joint_select, text='START', variable=jt_rb, value='START')
-        jt_end_rb = Radiobutton(joint_select, text='END', variable=jt_rb, value='END')
+        jt_all_rb = Radiobutton(joint_select, text='ALL', variable=self.jt_rb, value='ALL')
+        jt_sta_rb = Radiobutton(joint_select, text='START', variable=self.jt_rb, value='START')
+        jt_end_rb = Radiobutton(joint_select, text='END', variable=self.jt_rb, value='END')
 
         jt_all_rb.grid(row=0, column=0)
         jt_sta_rb.grid(row=0, column=1)
         jt_end_rb.grid(row=0, column=2)
 
-        load_all_rb = Radiobutton(load_select, text='ALL', variable=load_rb, value=1)
-        load_sta_wth_rb = Radiobutton(load_select, text='STARTS WITH', variable=load_rb, value=2)
-        load_end_wth_rb = Radiobutton(load_select, text='ENDS WITH', variable=load_rb, value=3)
-        load_contains_rb = Radiobutton(load_select, text='CONTAINS', variable=load_rb, value=4)
-        load_list_rb = Radiobutton(load_select, text='LIST', variable=load_rb, value=5)
-        load_text = Text(load_select, height=1, width=50, font=('Arial', 10))
+        load_all_rb = Radiobutton(load_select, text='ALL', variable=self.load_rb, value=1)
+        load_sta_wth_rb = Radiobutton(load_select, text='STARTS WITH', variable=self.load_rb, value=2)
+        load_end_wth_rb = Radiobutton(load_select, text='ENDS WITH', variable=self.load_rb, value=3)
+        load_contains_rb = Radiobutton(load_select, text='CONTAINS', variable=self.load_rb, value=4)
+        load_list_rb = Radiobutton(load_select, text='LIST', variable=self.load_rb, value=5)
+        load_text = Text(load_select, height=1, width=50, font=('Arial', 10), wrap=NONE)
+        load_scrollx = Scrollbar(load_select)
+        load_scrollx.configure(command=load_text.xview, orient=HORIZONTAL)
 
         load_all_rb.grid(row=0, column=0)
         load_sta_wth_rb.grid(row=0, column=1)
@@ -297,14 +500,21 @@ class SecondWindow:
         load_contains_rb.grid(row=0, column=3)
         load_list_rb.grid(row=0, column=4)
         load_text.grid(row=1, column=0, columnspan=5, sticky='nw', pady=5, padx=5)
-        load_text.config(state='normal')
+        load_scrollx.grid(row=2, column=0, columnspan=5, sticky='ew')
 
-        beam_all_rb = Radiobutton(beam_select, text='ALL', variable=beam_rb, value=1)
-        beam_sta_wth_rb = Radiobutton(beam_select, text='STARTS WITH', variable=beam_rb, value=2)
-        beam_end_wth_rb = Radiobutton(beam_select, text='ENDS WITH', variable=beam_rb, value=3)
-        beam_contains_rb = Radiobutton(beam_select, text='CONTAINS', variable=beam_rb, value=4)
-        beam_list_rb = Radiobutton(beam_select, text='LIST', variable=beam_rb, value=5)
-        beam_text = Text(beam_select, height=1, width=50, font=('Arial', 10))
+        load_text.configure(xscrollcommand=load_scrollx.set)
+        load_text.config(state='normal')
+        load_text.insert('1.0', 'ALL')
+        load_text.bind('<Return>', lambda event, : text_return())
+
+        beam_all_rb = Radiobutton(beam_select, text='ALL', variable=self.beam_rb, value=1)
+        beam_sta_wth_rb = Radiobutton(beam_select, text='STARTS WITH', variable=self.beam_rb, value=2)
+        beam_end_wth_rb = Radiobutton(beam_select, text='ENDS WITH', variable=self.beam_rb, value=3)
+        beam_contains_rb = Radiobutton(beam_select, text='CONTAINS', variable=self.beam_rb, value=4)
+        beam_list_rb = Radiobutton(beam_select, text='LIST', variable=self.beam_rb, value=5)
+        beam_text = Text(beam_select, height=1, width=50, font=('Arial', 10), wrap=NONE)
+        beam_scrollx = Scrollbar(beam_select)
+        beam_scrollx.configure(command=beam_text.xview, orient=HORIZONTAL)
 
         beam_all_rb.grid(row=0, column=0)
         beam_sta_wth_rb.grid(row=0, column=1)
@@ -312,93 +522,32 @@ class SecondWindow:
         beam_contains_rb.grid(row=0, column=3)
         beam_list_rb.grid(row=0, column=4)
         beam_text.grid(row=1, column=0, columnspan=5, sticky='nw', pady=5, padx=5)
+        beam_scrollx.grid(row=2, column=0, columnspan=5, sticky='ew')
+
+        beam_text.configure(xscrollcommand=beam_scrollx.set)
         beam_text.config(state='normal')
+        beam_text.insert('1.0', 'ALL')
+        beam_text.bind('<Return>', lambda event, : text_return())
+
+        if modify:
+            beam_text.insert('1.0', self.mod_beam_text)
+            load_text.insert('1.0', self.mod_load_text)
 
         store_button = Button(continue_frame, text="Store",
-                              command=lambda: self.store_member_force_info(force_select_window, jt_rb.get(),
-                                                                           beam_text_get(beam_rb.get()),
-                                                                           load_text_get(load_rb.get()),
-                                                                           selection_index[0], selection_index[1],
+                              command=lambda: SecondWindow(modify).store_member_force_info(force_select_window, self.jt_rb.get(),
+                                                                           beam_text_get(self.beam_rb.get()),
+                                                                           load_text_get(self.load_rb.get()),
+                                                                           selection_index,
                                                                            results_tree, tree_selection_index))
         cancel_button = Button(continue_frame, text="Cancel", command=lambda: force_select_window.destroy())
-        help_button = Button(continue_frame, text='Help (?)', command=help)
+        help_button = Button(continue_frame, text='Help (?)', command=help_doc)
 
         store_button.grid(row=0, column=2, padx=5, pady=5)
         cancel_button.grid(row=0, column=1, padx=5, pady=5)
         help_button.grid(row=0, column=0, padx=5, pady=5)
 
-    def store_member_force_info(self, force_select_window, joint, beam_id_tpl, load_id_tpl, selection_index,
-                                stored_value, results_tree, tree_select):
-        force_select_window.destroy()
-        key = [1, 2, 3, 4, 5]
-        value = ['', 'Starts With: ', 'Ends With: ', 'Contains: ', 'List: ']
-        d_tree = {}
-
-        for row, item in enumerate(key):
-            d_tree[key[row]] = value[row]
-
-        if tree_select == 0:
-            tree_selection = 0
-        else:
-            tree_selection = int(results_tree.selection()[0])
-
-        if self.replace:
-            set_name = results_tree.set(tree_selection, column=1)
-            set_num_index = results_tree.set(tree_selection, column=0) - 1
-            self.replace = False
-            self.joint[set_num_index] = joint
-            self.load_id[set_num_index] = load_id_tpl
-            self.beam_id[set_num_index] = beam_id_tpl
-            results_tree.item(tree_selection, values=(tree_selection, set_name, joint,
-                                                      f'{d_tree[load_id_tpl[0]]} {load_id_tpl[1]}',
-                                                      f'{d_tree[beam_id_tpl[0]]} {beam_id_tpl[1]}'))
-        else:
-            self.load_id.append(load_id_tpl)
-            self.joint.append(joint)
-            self.beam_id.append(beam_id_tpl)
-            self.member_set.append(selection_index)
-            tree_length = len(results_tree.get_children()) + 1
-
-            if not results_tree.exists(tree_length):
-                results_tree.insert(parent='', index='end', iid=tree_length, text=stored_value,
-                                    values=(tree_length, stored_value, joint,
-                                            f'{d_tree[load_id_tpl[0]]} {load_id_tpl[1]}',
-                                            f'{d_tree[beam_id_tpl[0]]} {beam_id_tpl[1]}'))
-            else:
-                results_tree.insert(parent='', index=tree_length + 1, iid=tree_length + 1, text=stored_value,
-                                    values=(tree_length, stored_value, joint,
-                                            f'{d_tree[load_id_tpl[0]]} {load_id_tpl[1]}',
-                                            f'{d_tree[beam_id_tpl[0]]} {beam_id_tpl[1]}'))
-
-        for row, item in enumerate(results_tree.get_children()):
-            results_tree.set(item, column=0, value=row + 1)
-
-    def load_existing_mem_result_set(self):
-        # need to generate a config file of all requested data which will be read into the program though this
-        # function
-        pass
-
-    def modify_force_result(self, selection_index, results_tree, tree_select):
-        self.new_mem_result_set(selection_index, results_tree, tree_select)
-        self.replace = True
-
-    def delete_force_result(self, results_tree):
-        tree_selection = int(results_tree.selection()[0]) - 1
-        del self.joint[tree_selection]
-        del self.load_id[tree_selection]
-        del self.beam_id[tree_selection]
-        del self.member_set[tree_selection]
-        results_tree.delete(tree_selection + 1)
-        for row, item in enumerate(results_tree.get_children()):
-            results_tree.set(item, column=0, value=row + 1)
-
-    def run_member_forces(self, file_as_list, joint, out_format):
-        output_file_name = 'member_forces'
-        save_output.run_program(output_file_name, joint, self.member_set, out_format, input_file, file_as_list,
-                                self.beam_id, self.load_id)
-
 
 if __name__ == '__main__':
     initial_window = Tk()
-    FirstWindow().landing_window_display(initial_window)
+    FirstWindow(initial_window)
     initial_window.mainloop()

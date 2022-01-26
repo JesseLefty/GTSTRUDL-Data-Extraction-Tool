@@ -44,3 +44,45 @@ Description:
             Select working directory and select output file to parse
             Choose from list of available member force results to create new result set
             Modify, delete, or add new results sets
+########################################################################################################################
+##                                                                                                                    ##
+##                                              Version 0.0.3  (1/2/2022)                                             ##
+##                                                                                                                    ##
+########################################################################################################################
+Documents uploaded to Github:
+
+    save_output.py
+    generate_mem_array_info.py
+    extract_member_forces.py
+    error_handling.py
+    main.py
+    change_log.txt
+
+Description:
+
+    This version mainly focused on addressing error handling for the GUI and Member Force Extraction portion of the
+    program. Functionality was added as described below.
+
+    Functionality Changes:
+
+        Added ability to store generated result sets in a 'properties' file and added the ability to read from the file
+        and restore generated results.
+        Added ability to delete multiple selected member results sets at once
+        Added checks to insure a directory and file are selected
+        Added 'safety' by changing which buttons are enabled or disabled at a given time, preventing unexpected user
+        inputs.
+        Changed from manipulating array with numpy concatenate to using lists and list comprehension. Run time is now
+        an O(n) operation instead of O(n^2). Yay!
+        Added error window and warning popups for invalid inputs into the 'store member forces' window
+        Changed save to excel option to write contents to rows and columns rather than just rows. This results in each
+        piece of data going into its own cell - results in not having to do text to columns manually.
+        When result is modified, the previous results are repopulated in the 'new member results' window
+
+
+    Interface Changes:
+
+        Added button to store created results sets
+        modified button size on member force extraction page to be consistent
+        Added error popups for several error types
+        Removed output format frame and radio buttons. User is now allowed to save file using Windows file dialog
+

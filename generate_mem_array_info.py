@@ -1,6 +1,3 @@
-import numpy as np
-
-
 class ReadInputFile:
 
     def __init__(self, input_file):
@@ -18,12 +15,11 @@ class GenerateDisplayData:
 
     def __init__(self, input_file):
         self.input_file = input_file
-        pass
 
     def get_force_display(self):
         file_list = ReadInputFile(self.input_file).file_list()
         trigger_string = 'LIST FOR'
-        result = [v for v in file_list if trigger_string in v]
+        result = [row for row in file_list if trigger_string in row]
         result = [v[v.find(trigger_string):] for v in result]
         return result, file_list
 
@@ -43,7 +39,6 @@ class ParseFileForData:
         self.num_mem_set = num_mem_set
         self.input_file = input_file
         self.member_set = member_set
-        pass
 
     def get_force_positions(self):
         """
@@ -106,4 +101,4 @@ class ParseFileForData:
             truss_member = True
         else:
             lc_count = int((end_index - first_useful_line - blanks) / (mem_num * 2))
-        return np.array(member_forces), lc_count, truss_member, mem_num, end_index, first_useful_line
+        return member_forces, lc_count, truss_member, mem_num, end_index, first_useful_line
