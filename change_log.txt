@@ -85,4 +85,43 @@ Description:
         modified button size on member force extraction page to be consistent
         Added error popups for several error types
         Removed output format frame and radio buttons. User is now allowed to save file using Windows file dialog
+########################################################################################################################
+##                                                                                                                    ##
+##                                              Version 0.1.0  (1/29/2022)                                            ##
+##                                                                                                                    ##
+########################################################################################################################
+Documents uploaded to Github:
+
+    joint_reactions_GUI
+    member_force_GUI
+    error_handling.py
+    main.py
+    change_log.txt
+    utilities_GUI.py
+
+Description:
+
+    Mostly bug fixes and small GUI cleanup. Split GUI into different scripts for ease of tracking. Updated version to
+    0.1.0 - Member force extraction module is functionally and graphically complete. Program runs as intended with full
+    initial functionality for that module. Added utilities_GUI.py to capture all commonly used GUI functions.
+
+    Functionality Changes:
+
+        Fixed bug where deleting a member force result set and then storing a properties file would assign the first
+        dictionary entry "2" instead of starting at "1"
+        Fixed bug where clicking on "modify Result" would paste "ALL" in the beam and load text input sometimes
+        resulting in "ALLALL" being displayed.
+
+
+    Interface Changes:
+
+        Moved second main window to tabs with each tab representing a different functionality of the program (i.e.
+        member forces, joint reactions, code check, etc.)
+        Added exit button to second main window.
+        Cleaned up error popup window to be consistent size for all errors, only changing the text which is displayed.
+        When error popup occurs all other windows are frozen (cannot be interacted with) until the error window is
+        closed.
+        Fixed spelling mistakes in error popups and program description.
+        Added tooltips to the member force selection load_text and beam_text box to explain acceptable inputs
+        Centered windows on screen where it made sense.
 

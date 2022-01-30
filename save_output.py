@@ -1,4 +1,4 @@
-import Error_Handling
+import error_handling
 import extract_member_forces as emf
 import generate_mem_array_info as g_mem
 import csv
@@ -72,7 +72,7 @@ class RunProgram:
 
         if len(self.member_set_errors) or len(self.list_errors) > 0:
             error_set_list = list(set(self.list_errors + self.member_set_errors))
-            Error_Handling.ErrorHandling(self.initial_window).item_not_found(error_set_list)
+            error_handling.ErrorHandling(self.initial_window).item_not_found(error_set_list)
         else:
             success_window = Toplevel(self.initial_window)
             success_window.geometry('200x50')
