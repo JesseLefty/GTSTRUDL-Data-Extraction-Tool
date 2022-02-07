@@ -1,20 +1,21 @@
-class TupleDict(dict):
-    """
-    Rebuilds a dictionary which allows searching a key of type tuple for any value. If any item in the tuple matches the
-    requested value, the entire key is returned.
-
-            Parameters:
-                dict:   dictionary which is to be converted to searchable
-
-            Returns:    a dictionary which has a searchable tuple key
-    """
-    def __contains__(self, key):
-        if super(TupleDict, self).__contains__(key):
-            return True
-        return any(key in k for k in self)
+import utilities_GUI
+import re
 
 
 class GenerateOutputArray:
+    """
+            Formats the joint reaction list and compiles a dictionary of requested joint, load combinations, members
+            and the corresponding results.
+
+            Parameters:
+                joint (list):               list indicating start, end, or all joints are requested
+                mem_set_index (int):        index of the user generated result set for which the data is requested
+                member_forces (list):       flattened list of all lines in requested data block
+                lc_count (int):             number of load combinations
+                truss_member (bool):        True / False to indicated whether data has a truss member
+                beam_id (list):             list of tuples containing joint parameter id and user joint input text
+                load_id (list):             list of tuples containing load parameter id and user load input text
+            """
     def __init__(self, joint, mem_set_index, member_forces, lc_count, truss_member, beam_id, load_id):
         self.joint = joint[mem_set_index]
         self.mem_set_index = mem_set_index
@@ -29,92 +30,115 @@ class GenerateOutputArray:
 
     def member_force_array(self):
         """
-        Generates list used for generating dictionary key / value pairs and a 2d array of all elements in data block
-        with empty spaces filled with applicable data in which the key / value pairs are used.
+        Generates a formatted list of member forces with all elements in list containing beam, load, joint,
+        and 6 results. Also returns the subset of joints and loads which meet the user requested joint and load specs.
 
             Parameters:
                 self
 
             Returns:
-                 all_member_force (array):      2d array (x, 9) of member results with empty spaces filled with correct
-                                                member names and load combinations
-                 beam (list(str)):              list of unique beam names in data block corresponding to selected
-                                                beam option
-                 load (list(str)):              list of unique load combinations in data block corresponding to selected
-                                                load option
+                 formatted_member_forces_array (list):      nested list of formatted member results
+                 user_beams (list):                         list beams meeting user beam_spec criteria
+                 user_loads (list):                         list of loads meeting user load_spec criteria
         """
-        standard_member_force = [' ']*9
-        len_first_truss_mem = len("".join(self.member_forces[0]).split())
-        for all_rows in range(len(self.member_forces)):
-            raw_member_force_array = "".join(self.member_forces[all_rows]).split()
-            array_length = len(raw_member_force_array)
-            if array_length < 9 and not self.truss_member:
-                extend = 9 - array_length
-                raw_member_force_array = [' ']*extend + raw_member_force_array
-            elif self.truss_member:
-                extend_back = 9 - len_first_truss_mem
-                raw_member_force_array = raw_member_force_array + [' '] * extend_back
-                extend_front = 9 - len(raw_member_force_array)
-                raw_member_force_array = [' '] * extend_front + raw_member_force_array
+        formatted_force_list = []
+        beam_names = []
+        load_names = []
+        header_line = self.member_forces[0]
+        headers = re.split(r'\s{2,}', header_line)[1:]
+        member_forces = self.member_forces[1:]
+        column_start = []
+        column_width = 16
+        for i in range(len(headers)):
+            column_start.append(28 + (column_width + 1) * i)
+        idx_load = 0
+        idx_beam = - 1
+        for all_rows, line in enumerate(member_forces):
+            numbers = []
+            raw_member_force_array = "".join(line).split()
+            if self.truss_member:
+                if all_rows % self.lc_count == 0:
+                    beam_names.append(raw_member_force_array[0])
+                if 0 < all_rows < self.lc_count:
+                    load_names.append(raw_member_force_array[0])
+                if all_rows == 0:
+                    load_names.append(raw_member_force_array[1])
             else:
-                pass
-            standard_member_force.extend(raw_member_force_array)
-        formatted_member_forces_array = [standard_member_force[i:i + 9] for i in range(0, len(standard_member_force), 9)]
-        del formatted_member_forces_array[0]
-        for rows in range(len(formatted_member_forces_array)):
-            if formatted_member_forces_array[rows][0] == " " and formatted_member_forces_array[rows][1] == " ":
-                formatted_member_forces_array[rows][0] = formatted_member_forces_array[rows - 1][0]
-                formatted_member_forces_array[rows][1] = formatted_member_forces_array[rows - 1][1]
-            elif formatted_member_forces_array[rows][0] == " ":
-                formatted_member_forces_array[rows][0] = formatted_member_forces_array[rows - 1][0]
+                if all_rows % (self.lc_count*2) == 0:
+                    beam_names.append(raw_member_force_array[0])
+                if 0 < all_rows < self.lc_count*2 - 1 and all_rows % 2 == 0:
+                    load_names.append(raw_member_force_array[0])
+                if all_rows == 0:
+                    load_names.append((raw_member_force_array[1]))
+            formatted_force_list.append(raw_member_force_array)
+            for ih, header in enumerate(headers):
+                pos = column_start[ih]
+                if pos > len(line):
+                    numbers.append(False)
+                elif "." in line[pos:pos + column_width]:
+                    numbers.append(True)
+                else:
+                    numbers.append(False)
+            if self.truss_member:
+                if not all_rows % self.lc_count == 0:
+                    joint_insert = len(beam_names) - 1
+                    raw_member_force_array.insert(0, beam_names[joint_insert])
+                else:
+                    pass
             else:
-                pass
-        if not self.truss_member:
-            beam = [el[0] for el in formatted_member_forces_array[::2*self.lc_count + 1]]
-            load = [el[1] for el in formatted_member_forces_array[::self.lc_count + 1]]
-        else:
-            beam = [el[0] for el in formatted_member_forces_array[::self.lc_count + 1]]
-            load = [el[1] for el in formatted_member_forces_array[:self.lc_count]]
-        if self.beam_id[self.mem_set_index][0] == 1:
-            pass
-        elif self.beam_id[self.mem_set_index][0] == 2:
+                if not all_rows % (self.lc_count*2) == 0:
+                    if not all_rows % 2 == 0:
+                        raw_member_force_array.insert(0, load_names[idx_load])
+                        raw_member_force_array.insert(0, beam_names[idx_beam])
+                    else:
+                        raw_member_force_array.insert(0, beam_names[idx_beam])
+                        idx_load += 1
+                else:
+                    idx_beam += 1
+                    idx_load = 0
+            for idx_numbers, value in enumerate(numbers):
+                if value:
+                    pass
+                else:
+                    raw_member_force_array.insert(3 + idx_numbers, " ")
+        if self.beam_id[self.mem_set_index][0] == 2:
             beam_starts_with = self.beam_id[self.mem_set_index][1]
-            beam = [b for b in beam if b.startswith(beam_starts_with)]
+            beam = [b for b in beam_names if b.startswith(beam_starts_with)]
         elif self.beam_id[self.mem_set_index][0] == 3:
             beam_ends_with = self.beam_id[self.mem_set_index][1]
-            beam = [b for b in beam if b.endswith(beam_ends_with)]
+            beam = [b for b in beam_names if b.endswith(beam_ends_with)]
         elif self.beam_id[self.mem_set_index][0] == 4:
             beam_contains = self.beam_id[self.mem_set_index][1]
-            beam = [b for b in beam if beam_contains in b]
+            beam = [b for b in beam_names if beam_contains in b]
         elif self.beam_id[self.mem_set_index][0] == 5:
             beam = self.beam_id[self.mem_set_index][1].upper()
             beam = "".join(beam).replace(" ", "").split(',')
-        if self.load_id[self.mem_set_index][0] == 1:
-            pass
-        elif self.load_id[self.mem_set_index][0] == 2:
+        else:
+            beam = beam_names
+        if self.load_id[self.mem_set_index][0] == 2:
             load_starts_with = self.load_id[self.mem_set_index][1]
-            load = [l for l in load if l.startswith(load_starts_with)]
+            load = [l for l in load_names if l.startswith(load_starts_with)]
         elif self.load_id[self.mem_set_index][0] == 3:
             load_ends_with = self.load_id[self.mem_set_index][1]
-            load = [l for l in load if l.endswith(load_ends_with)]
+            load = [l for l in load_names if l.endswith(load_ends_with)]
         elif self.load_id[self.mem_set_index][0] == 4:
             load_contains = self.load_id[self.mem_set_index][1]
-            load = [l for l in load if load_contains in l]
+            load = [l for l in load_names if load_contains in l]
         elif self.load_id[self.mem_set_index][0] == 5:
             load = self.load_id[self.mem_set_index][1].upper()
             load = "".join(load).replace(" ", "").split(',')
-        return formatted_member_forces_array, beam, load
+        else:
+            load = load_names
+        return formatted_force_list, beam, load
 
     def requested_member_force_array(self):
         """
-        Builds a dictionary key / value pairs which match the beam and load criteria requested by the user.
-        Generates a second dictionary based on the joint specification(all, start, end)
-
+        Builds a dictionary key / value pairs which match the joint, load, and beam criteria requested by the user.
             Parameters:
                 self
 
             Returns:
-                 output (dict):     dictionary of key / value pairs which match all beam, load, and joint criteria
+                 output (dict):     dictionary of key / value pairs which match all joint, load, and beam criteria
                                     specified by the user
         """
         formatted_member_forces_array, user_beams, user_loads = self.member_force_array()
@@ -130,7 +154,7 @@ class GenerateOutputArray:
                 pass
             else:
                 d_joints[''.join(beam_names[row])] = [joint_names[row], joint_names[row + 1]]
-        d = TupleDict(d)
+        d = utilities_GUI.TupleDict(d)
         output = {}
         self.key_err_beam.clear()
         self.key_err_load.clear()

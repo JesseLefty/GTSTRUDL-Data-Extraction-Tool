@@ -1,12 +1,14 @@
 from tkinter import *
 from tkinter.ttk import *
 
+
 def center(win, x_offset=0, y_offset=0):
     """
-    centers a tkinter window
-    :param      win: the main window or Toplevel window to center
-    :param      x_offset: option offset for x coordinate
-    :param      y_offset: optional offset for y coordinate
+    Centers a tkinter window
+        Parameters:
+            win: the main window or Toplevel window to center
+            x_offset: option offset for x coordinate
+            y_offset: optional offset for y coordinate
     """
     win.update_idletasks()
     width = win.winfo_width()
@@ -21,9 +23,30 @@ def center(win, x_offset=0, y_offset=0):
     win.deiconify()
 
 
+class ReadInputFile:
+    """
+    Reads .gto file and returns each row in file as element in list
+        Parameters:
+            input_file: .gto file selected to parse
+    """
+    def __init__(self, input_file):
+        self.input_file = input_file
+
+    def file_list(self):
+        with open(self.input_file, 'r') as f:
+            file_as_list = []
+            for lines in f:
+                file_as_list.append(lines.rstrip())
+        return file_as_list
+
+
 class CreateToolTip(object):
     """
     create a tooltip for a given widget
+
+    parameters:
+        widget:     tkinter widget to which the tool tip is attached
+        text:       text to display on tool tip
     """
     def __init__(self, widget, text='widget info'):
         self.waittime = 500     #miliseconds
@@ -73,3 +96,45 @@ class CreateToolTip(object):
         self.tw = None
         if tw:
             tw.destroy()
+
+
+class GenerateDisplayData:
+    """
+    Generates data to display in the "available results" window
+        Parameters:
+            input_file: .gto file selected to parse
+    """
+    def __init__(self, input_file):
+        self.input_file = input_file
+        self.file_list = ReadInputFile(input_file).file_list()
+
+    def get_force_display(self):
+        """
+        Generates data to display in the "available results" window
+            Parameters:
+                self
+
+            Returns:
+                result (list): list containing the lines with the trigger string
+        """
+        trigger_string = 'LIST FOR'
+        result = [row for row in self.file_list if trigger_string in row]
+        result = [v[v.find(trigger_string):] for v in result]
+        return result
+
+
+class TupleDict(dict):
+    """
+    Rebuilds a dictionary which allows searching a key of type tuple for any value. If any item in the tuple matches the
+    requested value, the entire key is returned.
+
+            Parameters:
+                dict:   dictionary which is to be converted to searchable
+
+            Returns:    a dictionary which has a searchable tuple key
+    """
+    def __contains__(self, key):
+        if super(TupleDict, self).__contains__(key):
+            return True
+        return any(key in k for k in self)
+

@@ -1,102 +1,67 @@
-class ReadInputFile:
-
-    def __init__(self, input_file):
-        self.input_file = input_file
-
-    def file_list(self):
-        with open(self.input_file, 'r') as f:
-            file_as_list = []
-            for lines in f:
-                file_as_list.append(lines.rstrip())
-        return file_as_list
-
-
-class GenerateDisplayData:
-
-    def __init__(self, input_file):
-        self.input_file = input_file
-
-    def get_force_display(self):
-        file_list = ReadInputFile(self.input_file).file_list()
-        trigger_string = 'LIST FOR'
-        result = [row for row in file_list if trigger_string in row]
-        result = [v[v.find(trigger_string):] for v in result]
-        return result, file_list
-
-    def get_reactions_display(self):
-        pass
-
-    def get_IRs_display(self):
-        pass
-
-    def get_section_cuts_display(self):
-        pass
+import utilities_GUI
 
 
 class ParseFileForData:
+    """
+            Parses the input file for data specific to joint reactions.
 
+            Parameters:
+                num_mem_set (int): index of the user generated result set for which the data is requested
+                input_file (str): input file to be parsed
+                member_set (list): list of all requested joint sets
+            """
     def __init__(self, num_mem_set, input_file, member_set):
         self.num_mem_set = num_mem_set
         self.input_file = input_file
         self.member_set = member_set
+        self.file_list = utilities_GUI.ReadInputFile(input_file).file_list()
 
     def get_force_positions(self):
         """
-        Searches the input file for trigger. Returns a list of lines in input file which contain the strings
-        and a list of the index (line number) for each of the lines containing the trigger.
+        Searches the input file for trigger. Returns a list of line numbers in input file which contain the trigger.
                 Parameters:
                     self
 
                 Returns:
-                    index_list (int): the index position of the specific member set being requested
-                    result list(str): list of GTSTRUDL input lines for 'LIST FOR'
-
-                Triggers:
-                    'LIST FOR': Obtains line which lists member forces
-                    'OTHER TRIGGERS': Reserved for future triggers / expansion (i.e, displacements, reactions, etc.)
+                    index_list (int): the index position of the specific joint set being requested
         """
-        file_list = ReadInputFile(self.input_file).file_list()
         trigger_string = 'LIST FOR'
-        result = [v for v in file_list if trigger_string in v]
-        index_list = [file_list.index(result[i]) for i in range(len(result))]
-        result = [v[v.find(trigger_string):] for v in result]
-        return index_list[self.member_set[self.num_mem_set]], result
+        result = [v for v in self.file_list if trigger_string in v]
+        index_list = [self.file_list.index(result[i]) for i in range(len(result))]
+        return index_list[self.member_set[self.num_mem_set]]
 
-    def get_member_force_list_info(self, file_list):
+    def get_member_force_list_info(self):
         """
         Determines the index (line number) of first useful line and last useful line of the input file which contains
-        the block of requested data. Uses the size of the block to calculate the number of blank lines
-        (spaces between subsets of data), the number of members in the requested data set, whether the data set contains
-        truss type members (or any members that do not have moments), and the number of load combinations for each
-        subset of the data.
+        the block of requested data for the joint set. Determines the number of load combinations and number of joints
+        in the requested data set. Generates a list containing every line of the input file in the requested data block.
 
             Parameters:
                 self
-                file_list
 
             Returns:
-                 member_results (array):    a 1d array of the member results
-                 lc_count (int):            the number of load combinations
-                 truss_member (bool):      truss member type (True or False)
-                 mem_num (int):             the number of members in the data block
-                 first_useful_line (int):   index of start of requested data block
-                 end_index (int):           index of end of requested data block
+                joint_reactions (list):    flattened list of all lines in requested data block
+                lc_count (int):            the number of load combinations
+                truss_member (bool):       True / False to indicate whether the data block contains a truss member
+                joint_num (int):           number of joints in data block
+                end_index (int):           index at end of requested data block
+                first_useful_line (int):   index at start of requested data block
         """
-        index_for_mem_set, ph_1 = self.get_force_positions()
+        index_for_mem_set = self.get_force_positions()
         first_useful_line = index_for_mem_set + 24
         end_index = 0
         next_line = 0
-        for i, line in enumerate(file_list):
-            if not file_list[first_useful_line + next_line].startswith('1'):
+        for i, line in enumerate(self.file_list):
+            if not self.file_list[first_useful_line + next_line].startswith('1'):
                 next_line += 1
             else:
                 end_index = first_useful_line + next_line
                 break
-        blanks = file_list[first_useful_line:end_index].count("")
+        blanks = self.file_list[first_useful_line:end_index].count("")
         mem_num = blanks + 1
-        member_forces = list(filter(None, file_list[first_useful_line:end_index]))
+        member_forces = list(filter(None, self.file_list[first_useful_line - 2:end_index]))
         truss_member = False
-        if not any('MOMENT' in st for st in file_list[index_for_mem_set:first_useful_line - 2]):
+        if not any('MOMENT' in st for st in self.file_list[index_for_mem_set:first_useful_line - 2]):
             lc_count = int((end_index - first_useful_line - blanks) / mem_num)
             truss_member = True
         else:
