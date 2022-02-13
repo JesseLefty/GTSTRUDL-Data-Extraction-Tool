@@ -126,7 +126,7 @@ Description:
         Centered windows on screen where it made sense.
 ########################################################################################################################
 ##                                                                                                                    ##
-##                                              Version 0.1.1  (2/6/2022)                                             ##
+##                                              Version 0.1.1  (2/13/2022)                                            ##
 ##                                                                                                                    ##
 ########################################################################################################################
 Documents uploaded to Github:
@@ -135,20 +135,21 @@ Documents uploaded to Github:
     utilities_GUI.py
     extract_member_forces.py
     Generate_mem_array_info.py
+    save_output.py
 
 
 Description:
 
     Bug fixes related to member force extraction discovered while developing joint reaction extraction. Member
-    extraction is now based on a fixed column with of 16 characters for FX, FY, FZ, MX, MY, MZ. Also made minor
-    improvements in how the formatted list is put together.
+    extraction is now based on a fixed column widths for FX, FY, FZ, MX, MY, MZ.
 
     Functionality Changes:
 
         Revised parsing of member forces based on fixed column width depending on the number of headers
-        Revised how the list of load cases and beam names is captured by building a list as each line is parsed
-        The load and beam name is added to the formatted array while the program is parsing the same line before
-        moving onto the next line.
+        Major revision to how the member force dats sets are parsed. The data is now subdivided into "blocks" which
+        are the size of the individual member. Each block is searched for number of load cases and joints and checked
+        for any GTSTRUDL warning messages. This change resolves a bug which occurred when there were warning messages
+        in the output or if truss members and non truss members were combined in a single output.
 
 
     Interface Changes:

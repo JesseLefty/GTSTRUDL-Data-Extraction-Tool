@@ -33,37 +33,28 @@ class ParseFileForData:
     def get_member_force_list_info(self):
         """
         Determines the index (line number) of first useful line and last useful line of the input file which contains
-        the block of requested data for the joint set. Determines the number of load combinations and number of joints
-        in the requested data set. Generates a list containing every line of the input file in the requested data block.
+        the block of requested data for the joint set. Generates a list containing every line of the input file in the
+        requested data block.
 
             Parameters:
                 self
 
             Returns:
-                joint_reactions (list):    flattened list of all lines in requested data block
-                lc_count (int):            the number of load combinations
-                truss_member (bool):       True / False to indicate whether the data block contains a truss member
-                joint_num (int):           number of joints in data block
+                member_forces (list):      flattened list of all lines in requested data block
                 end_index (int):           index at end of requested data block
                 first_useful_line (int):   index at start of requested data block
         """
         index_for_mem_set = self.get_force_positions()
-        first_useful_line = index_for_mem_set + 24
+        first_useful_line = index_for_mem_set + 22
         end_index = 0
-        next_line = 0
-        for i, line in enumerate(self.file_list):
-            if not self.file_list[first_useful_line + next_line].startswith('1'):
-                next_line += 1
-            else:
-                end_index = first_useful_line + next_line
+        member_forces = []
+        for i, line in enumerate(self.file_list[first_useful_line:]):
+            if self.file_list[first_useful_line + i].startswith('1'):
+                end_index = first_useful_line + i
+                member_forces.append(line)
                 break
-        blanks = self.file_list[first_useful_line:end_index].count("")
-        mem_num = blanks + 1
-        member_forces = list(filter(None, self.file_list[first_useful_line - 2:end_index]))
-        truss_member = False
-        if not any('MOMENT' in st for st in self.file_list[index_for_mem_set:first_useful_line - 2]):
-            lc_count = int((end_index - first_useful_line - blanks) / mem_num)
-            truss_member = True
-        else:
-            lc_count = int((end_index - first_useful_line - blanks) / (mem_num * 2))
-        return member_forces, lc_count, truss_member, mem_num, end_index, first_useful_line
+            else:
+                member_forces.append(line)
+        member_forces = [x for x in member_forces if x != ""]
+
+        return member_forces, end_index, first_useful_line
