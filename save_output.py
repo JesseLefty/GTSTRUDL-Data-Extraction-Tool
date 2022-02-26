@@ -9,7 +9,7 @@ from tkinter.ttk import *
 
 class RunProgram:
 
-    def __init__(self, initial_window):
+    def __init__(self, initial_window=True):
         self.initial_window = initial_window
 
     member_set_errors = []
