@@ -126,16 +126,16 @@ Description:
         Centered windows on screen where it made sense.
 ########################################################################################################################
 ##                                                                                                                    ##
-##                                              Version 0.1.1  (2/13/2022)                                            ##
+##                                              Version 0.1.1  (2/26/2022)                                            ##
 ##                                                                                                                    ##
 ########################################################################################################################
 Documents uploaded to Github:
 
     change_log.txt
-    utilities_GUI.py
     extract_member_forces.py
-    Generate_mem_array_info.py
+    generate_mem_array_info.py
     save_output.py
+    error_handling.py
 
 
 Description:

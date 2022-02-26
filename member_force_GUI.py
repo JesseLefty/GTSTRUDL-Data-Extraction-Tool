@@ -1,7 +1,6 @@
 from tkinter import *
 from tkinter.ttk import *
 from tkinter import filedialog
-import generate_mem_array_info
 import error_handling
 import json
 import os
@@ -40,8 +39,7 @@ class MemberForceFrame:
         self.load_id.clear()
         self.beam_id.clear()
         self.member_set.clear()
-        member_force_list, file_as_list = generate_mem_array_info.GenerateDisplayData(
-            self.input_file_path).get_force_display()
+        member_force_list = utilities_GUI.GenerateDisplayData(self.input_file_path).get_force_display()
         result_tree_headings = ['Set #', 'Set Name', 'Joint Spec.', 'Load Spec.', 'Beam Spec.']
         if member_force_list:
             available_results_list = StringVar(value=member_force_list)
@@ -152,7 +150,7 @@ class MemberForceFrame:
         delete_force_result.grid(row=5, column=0, padx=15, pady=5, sticky='ew')
 
         generate_button = Button(continue_frame, text="Generate",
-                                 command=lambda: self.run_member_forces(file_as_list, self.joint))
+                                 command=lambda: self.run_member_forces(self.joint))
 
         store_mem_results_prop = Button(continue_frame, text='Store Input',
                                         command=lambda: self.store_inputs(results_tree))
@@ -207,9 +205,6 @@ class MemberForceFrame:
         else:
             prop_file_name = filedialog.asksaveasfilename(filetypes=self.file_types, defaultextension='*.prop')
             for rows, count in enumerate(results_tree.get_children()):
-                print(f'tree children = {results_tree.get_children()}')
-                print(f'rows = {rows}')
-                print(f'count = {count}')
                 set_name.append(results_tree.set(count, column=1))
                 d_data[rows + 1] = {'set name': set_name[rows],
                                     'joint spec': self.joint[rows],
@@ -246,7 +241,6 @@ class MemberForceFrame:
                                     values=(next_avail_idd, set_name, self.joint[-1],
                                             f'{self.d_tree[self.load_id[-1][0]]} {self.load_id[-1][1]}',
                                             f'{self.d_tree[self.beam_id[-1][0]]} {self.beam_id[-1][1]}'))
-                print(results_tree.get_children())
                 for row, item in enumerate(results_tree.get_children()):
                     results_tree.set(item, column=0, value=row + 1)
 
@@ -287,28 +281,13 @@ class MemberForceFrame:
         else:
             pass
 
-    def run_member_forces(self, file_as_list, joint):
+    def run_member_forces(self, joint):
         file_types = [('Excel File', '*.xlsx'), ('csv Files', '*.csv')]
         output_file_path = filedialog.asksaveasfilename(filetypes=file_types, defaultextension='xlsx')
         out_format = os.path.splitext(output_file_path)[1]
-        print(out_format)
-        print(type(out_format))
         save_output.RunProgram(self.initial_window).run_program(output_file_path, joint, self.member_set, out_format,
-                                                                self.input_file_path, file_as_list, self.beam_id,
+                                                                self.input_file_path, self.beam_id,
                                                                 self.load_id)
-        # print(output_file_name)
-        # print(joint)
-        # print(self.member_set)
-        # print(out_format)
-        # print(input_file_path)
-        # print(self.beam_id)
-        # print(self.load_id)
-
-        # iterations = 10
-        # time3 = timeit.timeit(lambda: save_output.RunProgram(initial_window).run_program(output_file_path, joint, self.member_set, out_format, input_file_path, file_as_list,
-        #                             self.beam_id, self.load_id), number=iterations)
-        #
-        # print(f' Run Full Program: {round(time3, 2)} or {round((time3 / iterations), 5)} per iteration')
 
 
 class NewResultsWindow:
