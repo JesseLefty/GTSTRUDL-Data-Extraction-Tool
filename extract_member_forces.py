@@ -1,6 +1,6 @@
 import utilities_GUI
 import re
-
+import generate_mem_array_info
 
 class GenerateOutputArray:
     """
@@ -43,10 +43,11 @@ class GenerateOutputArray:
         header_line = self.member_forces[0]
         headers = re.split(r'\s{2,}', header_line)[1:]
         member_forces = self.member_forces[1:]
-        complete_column_start_idx = [0, 10, 19, 28, 45, 61, 77, 93, 109]
+        complete_column_start_idx = [0, 10, 19, 28, 44, 60, 76, 92, 108]
         line_end = [124]
+        #TODO: Get rid of these magic numbers
         column_start = complete_column_start_idx[0:len(headers) + 3] + line_end
-        value_columns = column_start[4:]
+        value_columns = complete_column_start_idx[4: 4 + len(headers)] + line_end
         full_d = {}
         full_d = utilities_GUI.TupleDict(full_d)
         load_cases = []
@@ -63,8 +64,18 @@ class GenerateOutputArray:
             block = member_forces[block_start:block_end]
             for row_id, row in enumerate(block):
                 numbers = []
-                formatted_array = "".join(block[row_id]).split()
                 column_2 = row[column_start[1]: column_start[2]].strip()
+                formatted_array = "".join(block[row_id]).split()
+                if '****' in formatted_array[0]:
+                    pass
+                else:
+                    if row_id > 0:
+                        formatted_array.insert(0, beam[0])
+                    if column_2:
+                        load = row[column_start[1]: column_start[2]].strip()
+                        block_load.append(load)
+                    if column_2 == "":
+                        formatted_array.insert(1, load)
                 for ih, col_id in enumerate(value_columns):
                     if col_id > len(row) + 1:
                         numbers.append(False)
@@ -77,22 +88,12 @@ class GenerateOutputArray:
                         pass
                     else:
                         formatted_array.insert(3 + number_id, " ")
-                if '****' in formatted_array[0]:
-                    pass
-                else:
-                    if row_id > 0:
-                        formatted_array.insert(0, beam[0])
-                    if column_2:
-                        load = row[column_start[1]: column_start[2]].strip()
-                        block_load.append(load)
-                    if column_2 == "":
-                        formatted_array.insert(1, load)
-                    k = tuple(formatted_array[0:3])
-                    full_d[k] = formatted_array[3:]
+                k = tuple(formatted_array[0:3])
+                full_d[k] = formatted_array[3:]
             load_cases.append(block_load)
         return full_d, beam_names, load_cases
 
-    def beam_names(self, beam_names, load_names):
+    def user_input_sorting(self, beam_names, load_names):
         """
         Takes the full list of beam and load names and generates a sub list based on the user specified beam_id
         requirements. The returned values are nested lists in which the index of the nested list is the same for
@@ -208,7 +209,7 @@ class GenerateOutputArray:
                  errors (list):     list of beam and load errors (items requested by user not in result set)
         """
         d, all_beams, all_loads = self.member_force_array()
-        user_beams, user_loads = self.beam_names(all_beams, all_loads)
+        user_beams, user_loads = self.user_input_sorting(all_beams, all_loads)
         d_joints = {}
         output = {}
         for key, value in d.items():

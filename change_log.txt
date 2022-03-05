@@ -127,6 +127,7 @@ Description:
 ########################################################################################################################
 ##                                                                                                                    ##
 ##                                              Version 0.1.1  (2/26/2022)                                            ##
+##                                                                                                                    ##
 ########################################################################################################################
 Documents uploaded to Github:
 
@@ -135,6 +136,7 @@ Documents uploaded to Github:
     generate_mem_array_info.py
     save_output.py
     error_handling.py
+
 
 Description:
 
@@ -153,3 +155,36 @@ Description:
     Interface Changes:
 
         None
+########################################################################################################################
+##                                                                                                                    ##
+##                                              Version 0.1.2  (3/04/2022)                                            ##
+##                                                                                                                    ##
+########################################################################################################################
+Documents uploaded to Github:
+
+    change_log.txt
+    extract_joint_reactions.py
+    extract_member_forces.py
+    generate_joint_array_info.py
+    generate_mem_array_info.py
+    joint_reactions_GUI.py
+    main.py
+    member_forces_GUI
+    save_output.py
+    error_handling.py
+
+
+Description:
+
+    Added handling of joint reaction results
+
+    Functionality Changes:
+
+        Added parsing of file to search for joint reactions
+        Added ability to generate result sets based on joint reaction input criteria
+
+
+    Interface Changes:
+
+        Filled out tab for joint reactions
+        Removed joint radio buttons in the joint reactions selection window.

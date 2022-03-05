@@ -122,6 +122,11 @@ class GenerateDisplayData:
         result = [v[v.find(trigger_string):] for v in result]
         return result
 
+    def get_reaction_display(self):
+        trigger_string = 'RESULTANT JOINT LOADS SUPPORTS'
+        result = [row for row in self.file_list if trigger_string in row]
+        result = [v[v.find(trigger_string):] for v in result]
+        return result
 
 class TupleDict(dict):
     """
