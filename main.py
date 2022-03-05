@@ -37,9 +37,9 @@ class FirstWindow:
                                                                     f' or as an excel workbook with each set of'
                                                                     f' desired data stored in a separate worksheet.',
                                     wraplength=160, justify='center')
-        program_version = Label(program_description_frame, text='Version: 0.1.0')
+        program_version = Label(program_description_frame, text='Version: 0.1.2')
         program_developer = Label(program_description_frame, text='Developed by Jesse Wagoner')
-        program_dev_date = Label(program_description_frame, text='12/11/2021')
+        program_dev_date = Label(program_description_frame, text='3/04/2022')
         program_description_frame.grid(row=0, column=0, rowspan=4, padx=10, pady=10, sticky='nsew')
         program_description_frame.grid_propagate(0)
         program_title.grid(row=0, column=0)
@@ -172,7 +172,6 @@ def tab_window_generate():
     initial_window.withdraw()
     member_force_GUI.MemberForceFrame(member_force_frame, initial_window, directory, input_file_path).main_tab()
     joint_reactions_GUI.JointReactionsFrame(joint_reaction_frame, initial_window, directory, input_file_path).main_tab()
-
 
 if __name__ == '__main__':
     initial_window = Tk()

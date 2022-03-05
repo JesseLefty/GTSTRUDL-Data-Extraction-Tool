@@ -285,9 +285,9 @@ class MemberForceFrame:
         file_types = [('Excel File', '*.xlsx'), ('csv Files', '*.csv')]
         output_file_path = filedialog.asksaveasfilename(filetypes=file_types, defaultextension='xlsx')
         out_format = os.path.splitext(output_file_path)[1]
-        save_output.RunProgram(self.initial_window).run_program(output_file_path, joint, self.member_set, out_format,
-                                                                self.input_file_path, self.beam_id,
-                                                                self.load_id)
+        save_output.RunProgram(self.initial_window).run_member_forces(output_file_path, joint, self.member_set, out_format,
+                                                                      self.input_file_path, self.beam_id,
+                                                                      self.load_id)
 
 
 class NewResultsWindow:
