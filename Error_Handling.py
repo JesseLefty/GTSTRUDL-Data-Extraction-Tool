@@ -36,41 +36,54 @@ class ErrorHandling:
         self.error_window.grab_set()
 
     def no_result_set(self):
+        self.error_window.geometry('300x125')
         Label(self.error_mid_frame, text=f'No result sets have been generated. Please generate results before storing'
                                          f' the inputs', wraplength=280,
               justify='center', style='mid.TLabel').grid(row=0, column=0, sticky='nsew', padx=(10, 10))
 
     def no_directory(self):
+        self.error_window.geometry('300x125')
         Label(self.error_mid_frame,
               text=f'No working directory has been selected. Please select directory before selecting file',
               wraplength=280, justify='center',
               style='mid.TLabel').grid(row=0, column=0, sticky='nsew', padx=(10, 10))
 
-    def item_not_found(self, item, beam, load):
-        text_label_top = Label(self.error_mid_frame, style='mid.TLabel', wraplength=380, justify='left',
-                               text=f'The following result set(s) contain incorrect inputs:')
-        text_label_top.grid(row=0, column=0, sticky='nw', padx=(10, 10))
-        text_label_bot = Label(self.error_mid_frame, style='mid.TLabel', wraplength=380, justify='left',
-                               text=f'This is generally means the requested'
-                                    f' Beam Spec. or Load Spec. cannot be found in the file. Please check the inputs'
-                                    f' carefully to ensure everything has been entered properly')
-        set_text = ", ".join(str(e) for e in item)
-        beam_text = ", ".join(str(e) for e in beam)
-        load_text = ", ".join(str(e) for e in load)
-        text_label_bot.grid(row=2, column=0, sticky='w', padx=(10, 10))
-        list_label = Label(self.error_mid_frame, style='mid.TLabel', text=f'{set_text}, {beam_text}, {load_text}')
-        list_label.grid(row=1, column=0, sticky='ns', padx=(10, 10))
+    def item_not_found(self, item, beam_or_joint, load, member_force=False, joint_reaction=False):
+        self.error_window.geometry('400x300')
+        if member_force:
+            col_2 = "Beam"
+        else:
+            col_2 = "Joint"
 
-    def missing_key(self, missing_key):
-        self.error_window.title("WARNING")
-        self.error_top_label.configure(text='WARNING')
         text_label_top = Label(self.error_mid_frame, style='mid.TLabel', wraplength=380, justify='left',
-                               text=f'The following beam, load, joint group does not exist:')
-        text_label_top.grid(row=0, column=0, sticky='nw', padx=(10, 10))
-        text_label_bot = Label(self.error_mid_frame, style='mid.TLabel', wraplength=380, justify='left',
-                               text=f'Check inputs for errors and check GTSTRUDL output for warnings. '
-                                    f'All other requested results have completed successfully.')
-        text_label_bot.grid(row=2, column=0, sticky='w', padx=(10, 10))
-        list_label = Label(self.error_mid_frame, style='mid.TLabel', text=f'{", ".join(str(e) for e in missing_key)}',
-                           wraplength=380, justify='center')
-        list_label.grid(row=1, column=0, sticky='ns', padx=(10, 10))
+                               text=f'The following result set(s) contain incorrect inputs in the {col_2} or "Load" '
+                                    f'spec:')
+        text_label_top.pack(side=TOP, padx=(10, 10))
+
+        tree_header = ['Set #', col_2, 'Load']
+        error_tree = Treeview(self.error_mid_frame, columns=tree_header, show='headings', height=4)
+        for idx, col in enumerate(tree_header):
+            error_tree.heading(col, text=col.title())
+            tree_width = [20, 60, 60]
+            tree_anchor = [CENTER, CENTER, CENTER]
+            error_tree.column(col, width=tree_width[idx], minwidth=tree_width[idx], anchor=tree_anchor[idx])
+        tree_scrollx = Scrollbar(self.error_mid_frame)
+        tree_scrolly = Scrollbar(self.error_mid_frame)
+        tree_scrollx.configure(command=error_tree.xview, orient=HORIZONTAL)
+        tree_scrolly.configure(command=error_tree.yview)
+        error_tree.configure(xscrollcommand=tree_scrollx.set, yscrollcommand=tree_scrolly.set)
+        tree_scrolly.pack(side=RIGHT, fill=Y)
+        tree_scrollx.pack(side=BOTTOM, fill=X)
+        error_tree.pack(side=LEFT, fill=X, expand=True, padx=(10, 0))
+
+        for index, set_num in enumerate(item):
+            error_tree.insert(parent='', index='end', iid=index, text=set_num, values=(set_num, beam_or_joint[index],
+                                                                                       load[index]))
+
+    def wrong_properties_file(self, result_type):
+        self.error_window.geometry('300x160')
+        Label(self.error_mid_frame,
+              text=f'Selected property file is incorrect for {result_type} results. Please select a file that contains'
+                   f'{result_type}',
+              wraplength=280, justify='center',
+              style='mid.TLabel').grid(row=0, column=0, sticky='nsew', padx=(10, 10))

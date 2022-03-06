@@ -86,7 +86,7 @@ class RunProgram:
         if len(self.result_set_errors) or len(self.list_errors) > 0:
             error_set_list = list(set(self.list_errors + self.result_set_errors))
             error_handling.ErrorHandling(self.initial_window).item_not_found(error_set_list, self.beam_errors,
-                                                                             self.load_errors)
+                                                                             self.load_errors, member_force=True)
         else:
             success_window = Toplevel(self.initial_window)
             success_window.geometry('200x120')
@@ -162,10 +162,10 @@ class RunProgram:
         if len(self.result_set_errors) or len(self.list_errors) > 0:
             error_set_list = list(set(self.list_errors + self.result_set_errors))
             error_handling.ErrorHandling(self.initial_window).item_not_found(error_set_list, self.joint_errors,
-                                                                             self.load_errors)
+                                                                             self.load_errors, joint_reaction=True)
         else:
             success_window = Toplevel(self.initial_window)
-            success_window.geometry('200x120')
+            success_window.geometry('200x60')
             success_window.title('Complete')
             success_window.resizable(False, False)
             success_window.grab_set()

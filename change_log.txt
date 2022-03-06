@@ -188,3 +188,43 @@ Description:
 
         Filled out tab for joint reactions
         Removed joint radio buttons in the joint reactions selection window.
+########################################################################################################################
+##                                                                                                                    ##
+##                                              Version 0.1.3  (3/05/2022)                                            ##
+##                                                                                                                    ##
+########################################################################################################################
+Documents uploaded to Github:
+
+    change_log.txt
+    extract_joint_reactions.py
+    extract_member_forces.py
+    joint_reactions_GUI.py
+    member_forces_GUI
+    save_output.py
+    error_handling.py
+    utilities_GUI.py
+
+
+Description:
+
+    Improvements to GUI as described below. Improvements to error handling.
+
+    Functionality Changes:
+
+        Fixed incorrect naming of .json dictionary in joint reactions. Joint reactions still used the "member results"
+        and "beam" keys rather than "joint results" and "joint" keys.
+        Fixed bug where if there were no valid beams meeting the criteria input by the user an 'invalid index' error
+        would occur when looping through the beam list. This is addressed by checking to make sure there are items
+        in the beam or load list and if there are not throwing an exception.
+        Fixed incorrect variable names in extract_joint_reactions left over from using similar code
+        paired down list of reported errors to unique values rather than reporting the same error multiple times
+        Addressed key errors when user tries to import result sets from incompatible file
+
+    Interface Changes:
+
+        Changed available results list box into a treeview to assign a set number to all available results
+        Resized error windows to match the length of contents (manually). Shorter errors have smaller error windows
+        Added beam/joint, and load spec errors to a tree view for easier error viewing
+        Added corresponding input file line number to available results treeview such that the user can easily navigate
+        to the specific line in the input file where the command was entered.
+

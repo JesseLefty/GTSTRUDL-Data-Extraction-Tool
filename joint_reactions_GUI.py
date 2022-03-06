@@ -12,7 +12,6 @@ class JointReactionsFrame:
 
     def __init__(self, joint_reaction_frame, initial_window, directory, input_file_path, modify=False):
 
-        # self.jt_rb = StringVar()
         self.load_rb = IntVar()
         self.joint_rb = IntVar()
         self.replace = modify
@@ -25,7 +24,6 @@ class JointReactionsFrame:
     delete = False
     file_types = [('*.prop - properties file', '*.prop')]
     sel_rlist = "none"
-    # joint = []
     load_id = []
     member_set = []
     joint_id = []
@@ -36,17 +34,16 @@ class JointReactionsFrame:
         d_tree[key[row]] = value[row]
 
     def main_tab(self):
-        # self.joint.clear()
         self.load_id.clear()
         self.joint_id.clear()
         self.member_set.clear()
-        joint_reaction_list = utilities_GUI.GenerateDisplayData(self.input_file_path).get_reaction_display()
+        joint_reaction_list, input_index = utilities_GUI.GenerateDisplayData(self.input_file_path).get_reaction_display()
         result_tree_headings = ['Set #', 'Set Name', 'Joint Spec.', 'Load Spec.']
+        available_results_headings = ['Set #', 'Set Name', 'Input Line #']
         if joint_reaction_list:
-            available_results_list = StringVar(value=joint_reaction_list)
             not_valid_list = False
         else:
-            available_results_list = StringVar(value=['No Joint Reactions Found in Output', ])
+            available_results_list = 'No Member Forces Found in Output'
             not_valid_list = True
 
         def on_list_select(event):
@@ -68,17 +65,17 @@ class JointReactionsFrame:
                 modify_joint_result['state'] = 'disabled'
 
         def list_select():
-            selection_index = int(available_result_box.curselection()[0])
-            stored_value = available_result_box.get(selection_index)
-
+            selection_index = int(available_results_tree.selection()[0]) - 1
+            display_index = int(available_results_tree.selection()[0])
+            stored_value = available_results_tree.item(display_index, "text")
             return selection_index, stored_value
 
         def tree_select():
             if modify_joint_result['state'] == 'enabled':
-                tree_selection_index = results_tree.selection()[0]
+                tree_selection_index = int(results_tree.selection()[0])
             else:
                 tree_selection_index = 0
-            return int(tree_selection_index)
+            return tree_selection_index
 
         temp_header = Label(self.joint_reaction_frame, text="Joint Reactions Extraction")
         result_set_frame = LabelFrame(self.joint_reaction_frame, text='Available Joint Results', height=160, width=420)
@@ -96,20 +93,33 @@ class JointReactionsFrame:
         display_result_set_frame.grid_propagate(0)
         button_frame.grid_propagate(0)
 
-        available_result_box = Listbox(result_set_frame, listvariable=available_results_list, height=8, width=65)
+        available_results_tree = Treeview(result_set_frame, columns=available_results_headings, show='headings', height=5)
+
+        for idx, col in enumerate(available_results_headings):
+            available_results_tree.heading(col, text=col.title())
+            tree_width = [40, 275, 75]
+            tree_anchor = [CENTER, W, CENTER]
+            available_results_tree.column(col, width=tree_width[idx], minwidth=tree_width[idx], anchor=tree_anchor[idx])
+        for idx, value in enumerate(joint_reaction_list, start=1):
+            display_text = f'{value} ({idx})'
+            if not_valid_list:
+                available_results_tree.insert(parent='', index='end', iid=idx, text=available_results_list,
+                                              values=(idx, available_results_list))
+            else:
+                available_results_tree.insert(parent='', index='end', iid=idx, text=display_text,
+                                              values=(idx, display_text, input_index[idx - 1]))
+
+        available_results_tree.bind('<<TreeviewSelect>>', on_list_select)
+
         list_yscroll = Scrollbar(result_set_frame)
         list_xscroll = Scrollbar(result_set_frame)
-        list_xscroll.configure(command=available_result_box.xview, orient=HORIZONTAL)
-        list_yscroll.configure(command=available_result_box.yview, orient=VERTICAL)
-        available_result_box.configure(xscrollcommand=list_xscroll.set, yscrollcommand=list_yscroll.set)
-
-        for index in range(len(joint_reaction_list)):
-            available_result_box.itemconfig(index, bg='white' if index % 2 == 0 else 'grey80')
+        list_xscroll.configure(command=available_results_tree.xview, orient=HORIZONTAL)
+        list_yscroll.configure(command=available_results_tree.yview, orient=VERTICAL)
+        available_results_tree.configure(xscrollcommand=list_xscroll.set, yscrollcommand=list_yscroll.set)
 
         list_yscroll.pack(side=RIGHT, fill=Y)
         list_xscroll.pack(side=BOTTOM, fill=X)
-        available_result_box.pack(side=LEFT, expand=True)
-        available_result_box.bind('<<ListboxSelect>>', on_list_select)
+        available_results_tree.pack(side=LEFT, expand=True)
 
         results_tree = Treeview(display_result_set_frame, columns=result_tree_headings, show='headings', height=3)
         tree_scrollx = Scrollbar(display_result_set_frame)
@@ -124,7 +134,7 @@ class JointReactionsFrame:
         for col in result_tree_headings:
             results_tree.heading(col, text=col.title())
             tree_width = [40, 200, 100, 100]
-            tree_anchor = [CENTER, W, CENTER, W, W]
+            tree_anchor = [CENTER, W, CENTER, W]
             results_tree.column(col, width=tree_width[tree_index], minwidth=tree_width[tree_index],
                                 anchor=tree_anchor[tree_index])
             tree_index += 1
@@ -175,7 +185,6 @@ class JointReactionsFrame:
         if self.replace:
             set_name = results_tree.set(tree_selection, column=1)
             set_num_index = int(results_tree.set(tree_selection, column=0)) - 1
-            # self.joint[set_num_index] = joint
             self.load_id[set_num_index] = load_id_tpl
             self.joint_id[set_num_index] = joint_id_tpl
             results_tree.item(tree_selection, values=(tree_selection, set_name,
@@ -183,7 +192,6 @@ class JointReactionsFrame:
                                                       f'{self.d_tree[joint_id_tpl[0]]} {joint_id_tpl[1]}'))
         else:
             self.load_id.append(load_id_tpl)
-            # self.joint.append(joint)
             self.joint_id.append(joint_id_tpl)
             self.member_set.append(selection_index)
             try:
@@ -209,7 +217,7 @@ class JointReactionsFrame:
                 set_name.append(results_tree.set(count, column=1))
                 d_data[rows + 1] = {'set name': set_name[rows],
                                     'load spec': self.load_id[rows],
-                                    'beam spec': self.joint_id[rows],
+                                    'joint spec': self.joint_id[rows],
                                     'member set': self.member_set[rows]}
             d_joint_results = {'Joint Reaction Results': d_data}
 
@@ -226,16 +234,16 @@ class JointReactionsFrame:
             with open(load_existing_file_path) as json_file:
                 data = json.load(json_file)
 
-            for rows in range(len(data['Member Force Results'].keys())):
+            for rows in range(len(data['Joint Reaction Results'].keys())):
                 if results_tree.get_children():
                     next_avail_idd = max([int(x) for x in results_tree.get_children()]) + 1
                 else:
                     next_avail_idd = 1
                 key_num = str(rows + 1)
-                self.load_id.append(data['Member Force Results'][key_num]['load spec'])
-                self.joint_id.append(data['Member Force Results'][key_num]['beam spec'])
-                self.member_set.append(data['Member Force Results'][key_num]['member set'])
-                set_name = data['Member Force Results'][key_num]['set name']
+                self.load_id.append(data['Joint Reaction Results'][key_num]['load spec'])
+                self.joint_id.append(data['Joint Reaction Results'][key_num]['joint spec'])
+                self.member_set.append(data['Joint Reaction Results'][key_num]['member set'])
+                set_name = data['Joint Reaction Results'][key_num]['set name']
                 results_tree.insert(parent='', index='end', iid=next_avail_idd, text=set_name,
                                     values=(next_avail_idd, set_name,
                                             f'{self.d_tree[self.load_id[-1][0]]} {self.load_id[-1][1]}',
@@ -243,6 +251,8 @@ class JointReactionsFrame:
                 for row, item in enumerate(results_tree.get_children()):
                     results_tree.set(item, column=0, value=row + 1)
 
+        except KeyError:
+            error_handling.ErrorHandling(self.initial_window).wrong_properties_file('member force results')
         except FileNotFoundError:
             print('file not found')
             pass
@@ -255,7 +265,6 @@ class JointReactionsFrame:
         else:
             tree_selection = int(results_tree.selection()[0])
         set_num_index = int(results_tree.set(tree_selection, column=0)) - 1
-        # self.jt_rb.set(self.joint[set_num_index])
         self.load_rb.set(self.load_id[set_num_index][0])
         self.joint_rb.set(self.joint_id[set_num_index][0])
         beam_text = self.joint_id[set_num_index][1]
@@ -268,7 +277,6 @@ class JointReactionsFrame:
         for tree_selection in results_tree.selection():
             set_num = int(results_tree.set(tree_selection, column=0)) - 1
             results_tree.delete(tree_selection)
-            # del self.joint[set_num]
             del self.load_id[set_num]
             del self.joint_id[set_num]
             del self.member_set[set_num]
