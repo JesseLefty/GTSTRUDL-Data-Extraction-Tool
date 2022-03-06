@@ -39,13 +39,13 @@ class MemberForceFrame:
         self.load_id.clear()
         self.beam_id.clear()
         self.member_set.clear()
-        member_force_list = utilities_GUI.GenerateDisplayData(self.input_file_path).get_force_display()
+        member_force_list, input_index = utilities_GUI.GenerateDisplayData(self.input_file_path).get_force_display()
         result_tree_headings = ['Set #', 'Set Name', 'Joint Spec.', 'Load Spec.', 'Beam Spec.']
+        available_results_headings = ['Set #', 'Set Name', 'Input line #']
         if member_force_list:
-            available_results_list = StringVar(value=member_force_list)
             not_valid_list = False
         else:
-            available_results_list = StringVar(value=['No Member Forces Found in Output', ])
+            available_results_list = 'No Member Forces Found in Output'
             not_valid_list = True
 
         def on_list_select(event):
@@ -67,17 +67,17 @@ class MemberForceFrame:
                 modify_force_result['state'] = 'disabled'
 
         def list_select():
-            selection_index = int(available_result_box.curselection()[0])
-            stored_value = available_result_box.get(selection_index)
-
+            selection_index = int(available_results_tree.selection()[0]) - 1
+            display_index = int(available_results_tree.selection()[0])
+            stored_value = available_results_tree.item(display_index, "text")
             return selection_index, stored_value
 
         def tree_select():
             if modify_force_result['state'] == 'enabled':
-                tree_selection_index = results_tree.selection()[0]
+                tree_selection_index = int(results_tree.selection()[0])
             else:
                 tree_selection_index = 0
-            return int(tree_selection_index)
+            return tree_selection_index
 
         temp_header = Label(self.member_force_frame, text="Member Force Extraction")
         result_set_frame = LabelFrame(self.member_force_frame, text='Available Member Results', height=160, width=420)
@@ -95,20 +95,31 @@ class MemberForceFrame:
         display_result_set_frame.grid_propagate(0)
         button_frame.grid_propagate(0)
 
-        available_result_box = Listbox(result_set_frame, listvariable=available_results_list, height=8, width=65)
+        available_results_tree = Treeview(result_set_frame, columns=available_results_headings, show='headings', height=5)
+
+        for idx, col in enumerate(available_results_headings):
+            available_results_tree.heading(col, text=col.title())
+            tree_width = [40, 275, 75]
+            tree_anchor = [CENTER, W, CENTER]
+            available_results_tree.column(col, width=tree_width[idx], minwidth=tree_width[idx], anchor=tree_anchor[idx])
+        for idx, value in enumerate(member_force_list, start=1):
+            if not_valid_list:
+                available_results_tree.insert(parent='', index='end', iid=idx, text=available_results_list,
+                                              values=(idx, available_results_list))
+            else:
+                available_results_tree.insert(parent='', index='end', iid=idx, text=value,
+                                              values=(idx, value, input_index[idx - 1]))
+
+        available_results_tree.bind('<<TreeviewSelect>>', on_list_select)
+
         list_yscroll = Scrollbar(result_set_frame)
         list_xscroll = Scrollbar(result_set_frame)
-        list_xscroll.configure(command=available_result_box.xview, orient=HORIZONTAL)
-        list_yscroll.configure(command=available_result_box.yview, orient=VERTICAL)
-        available_result_box.configure(xscrollcommand=list_xscroll.set, yscrollcommand=list_yscroll.set)
-
-        for index in range(len(member_force_list)):
-            available_result_box.itemconfig(index, bg='white' if index % 2 == 0 else 'grey80')
+        list_xscroll.configure(command=available_results_tree.xview, orient=HORIZONTAL)
+        list_yscroll.configure(command=available_results_tree.yview, orient=VERTICAL)
 
         list_yscroll.pack(side=RIGHT, fill=Y)
         list_xscroll.pack(side=BOTTOM, fill=X)
-        available_result_box.pack(side=LEFT, expand=True)
-        available_result_box.bind('<<ListboxSelect>>', on_list_select)
+        available_results_tree.pack(side=LEFT, expand=True)
 
         results_tree = Treeview(display_result_set_frame, columns=result_tree_headings, show='headings', height=3)
         tree_scrollx = Scrollbar(display_result_set_frame)
@@ -244,6 +255,8 @@ class MemberForceFrame:
                 for row, item in enumerate(results_tree.get_children()):
                     results_tree.set(item, column=0, value=row + 1)
 
+        except KeyError:
+            error_handling.ErrorHandling(self.initial_window).wrong_properties_file('member force results')
         except FileNotFoundError:
             print('file not found')
             pass

@@ -119,14 +119,19 @@ class GenerateDisplayData:
         """
         trigger_string = 'LIST FOR'
         result = [row for row in self.file_list if trigger_string in row]
+        index = [v[:v.find("}") + 1].lstrip() for v in result]
         result = [v[v.find(trigger_string):] for v in result]
-        return result
+        return result, index
 
     def get_reaction_display(self):
         trigger_string = 'RESULTANT JOINT LOADS SUPPORTS'
+        index_string = 'LIST REA'
+        index = [row for row in self.file_list if index_string in row]
+        index = [v[:v.find("}") + 1].lstrip() for v in index]
         result = [row for row in self.file_list if trigger_string in row]
         result = [v[v.find(trigger_string):] for v in result]
-        return result
+        return result, index
+
 
 class TupleDict(dict):
     """
@@ -142,4 +147,3 @@ class TupleDict(dict):
         if super(TupleDict, self).__contains__(key):
             return True
         return any(key in k for k in self)
-

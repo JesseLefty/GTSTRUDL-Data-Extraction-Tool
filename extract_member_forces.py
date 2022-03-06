@@ -168,7 +168,6 @@ class GenerateOutputArray:
                 for l_idx, loads in enumerate(load):
                     matching_loads = [l for l in loads if l.endswith(load_ends_with)]
                     user_loads.append(matching_loads)
-                    print(user_loads)
                 if not user_loads[0]:
                     self.load_error.append(load_ends_with)
             elif load_choice == 4:
@@ -191,10 +190,16 @@ class GenerateOutputArray:
                 user_loads = load
         else:
             pass
-        for b_idx, beams in enumerate(user_beams):
-            if not user_loads[b_idx]:
-                del user_beams[b_idx]
-                del user_loads[b_idx]
+        if user_beams:
+            if user_loads:
+                for b_idx, beams in enumerate(user_beams):
+                    if not user_loads[b_idx]:
+                        del user_beams[b_idx]
+                        del user_loads[b_idx]
+            else:
+                user_beams.clear()
+        else:
+            user_loads.clear()
         return user_beams, user_loads
 
     def requested_member_force_array(self):
@@ -219,14 +224,17 @@ class GenerateOutputArray:
                 d_joints[key[0]] = key_list
             else:
                 d_joints[key[0]] = [key[2]]
-        for b_idx, beams in enumerate(user_beams):
-            current_beam = beams[0]
-            indices = [0] if self.joint == 'START' else [1] if self.joint == 'END' else \
-                range(len(d_joints[current_beam]))
-            for l_idx, loads in enumerate(user_loads[b_idx]):
-                current_load = loads
-                for index in indices:
-                    t = (current_beam, current_load, d_joints[current_beam][index])
-                    output[t] = d[t]
-        errors = (self.beam_error, self.load_error)
+        if not user_beams or not user_loads:
+            pass
+        else:
+            for b_idx, beams in enumerate(user_beams):
+                current_beam = beams[0]
+                indices = [0] if self.joint == 'START' else [1] if self.joint == 'END' else \
+                    range(len(d_joints[current_beam]))
+                for l_idx, loads in enumerate(user_loads[b_idx]):
+                    current_load = loads
+                    for index in indices:
+                        t = (current_beam, current_load, d_joints[current_beam][index])
+                        output[t] = d[t]
+        errors = (list(set(self.beam_error)), list(set(self.load_error)))
         return output, errors

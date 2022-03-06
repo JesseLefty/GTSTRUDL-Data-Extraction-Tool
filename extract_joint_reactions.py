@@ -102,53 +102,53 @@ class GenerateOutputArray:
                  user_loads (list):      list of lists of load names which meet the user criteria
         """
 
-        beam_choice = self.joint_spec[self.num_joint_set][0]
+        joint_choice = self.joint_spec[self.num_joint_set][0]
         load_choice = self.load_spec[self.num_joint_set][0]
         user_loads = []
-        user_beams = []
+        user_joints = []
         load = []
-        if beam_choice == 2:
-            beam_starts_with = self.joint_spec[self.num_joint_set][1]
-            for b_idx, beams in enumerate(joint_names):
-                if beams[0].startswith(beam_starts_with):
-                    user_beams.append(beams)
+        if joint_choice == 2:
+            joint_starts_with = self.joint_spec[self.num_joint_set][1]
+            for b_idx, joints in enumerate(joint_names):
+                if joints[0].startswith(joint_starts_with):
+                    user_joints.append(joints)
                     load.append(load_names[b_idx])
                 else:
                     pass
-            if not user_beams:
-                self.joint_error.append(beam_starts_with)
-        elif beam_choice == 3:
-            beam_ends_with = self.joint_spec[self.num_joint_set][1]
-            for b_idx, beams in enumerate(joint_names):
-                if beams[0].endswith(beam_ends_with):
-                    user_beams.append(beams)
+            if not user_joints:
+                self.joint_error.append(joint_starts_with)
+        elif joint_choice == 3:
+            joint_ends_with = self.joint_spec[self.num_joint_set][1]
+            for b_idx, joints in enumerate(joint_names):
+                if joints[0].endswith(joint_ends_with):
+                    user_joints.append(joints)
                     load.append(load_names[b_idx])
                 else:
                     pass
-            if not user_beams:
-                self.joint_error.append(beam_ends_with)
-        elif beam_choice == 4:
-            beam_contains = self.joint_spec[self.num_joint_set][1]
-            for b_idx, beams in enumerate(joint_names):
-                if beam_contains in beams[0]:
-                    user_beams.append(beams)
+            if not user_joints:
+                self.joint_error.append(joint_ends_with)
+        elif joint_choice == 4:
+            joint_contains = self.joint_spec[self.num_joint_set][1]
+            for b_idx, joints in enumerate(joint_names):
+                if joint_contains in joints[0]:
+                    user_joints.append(joints)
                     load.append(load_names[b_idx])
                 else:
                     pass
-            if not user_beams:
-                self.joint_error.append(beam_contains)
-        elif beam_choice == 5:
-            beam_text = self.joint_spec[self.num_joint_set][1].upper()
-            beam_list = "".join(beam_text).replace(" ", "").split(',')
-            for item in beam_list:
+            if not user_joints:
+                self.joint_error.append(joint_contains)
+        elif joint_choice == 5:
+            joint_text = self.joint_spec[self.num_joint_set][1].upper()
+            joint_list = "".join(joint_text).replace(" ", "").split(',')
+            for item in joint_list:
                 try:
                     b_idx = joint_names.index([item])
-                    user_beams.append([item])
+                    user_joints.append([item])
                     load.append(load_names[b_idx])
                 except ValueError:
                     self.joint_error.append(item)
         else:
-            user_beams = joint_names
+            user_joints = joint_names
             load = load_names
         if load:
             if load_choice == 2:
@@ -185,11 +185,17 @@ class GenerateOutputArray:
                 user_loads = load
         else:
             pass
-        for b_idx, beams in enumerate(user_beams):
-            if not user_loads[b_idx]:
-                del user_beams[b_idx]
-                del user_loads[b_idx]
-        return user_beams, user_loads
+        if user_joints:
+            if user_loads:
+                for b_idx, joints in enumerate(user_joints):
+                    if not user_loads[b_idx]:
+                        del user_joints[b_idx]
+                        del user_loads[b_idx]
+            else:
+                user_joints.clear()
+        else:
+            user_loads.clear()
+        return user_joints, user_loads
 
     def requested_joint_reaction_dict(self):
         """
@@ -204,27 +210,14 @@ class GenerateOutputArray:
         d, all_joints, all_loads = self.joint_reaction_list()
         user_joints, user_loads = self.user_input_sorting(all_joints, all_loads)
         output = {}
-        for j_idx, joints in enumerate(user_joints):
-            current_joint = joints[0]
-            for l_idx, loads in enumerate(user_loads[j_idx]):
-                current_load = loads
-                t = (current_joint, current_load)
-                output[t] = d[t]
-        errors = (self.joint_error, self.load_error)
+        if not user_joints or not user_loads:
+            pass
+        else:
+            for j_idx, joints in enumerate(user_joints):
+                current_joint = joints[0]
+                for l_idx, loads in enumerate(user_loads[j_idx]):
+                    current_load = loads
+                    t = (current_joint, current_load)
+                    output[t] = d[t]
+        errors = (list(set(self.joint_error)), list(set(self.load_error)))
         return output, errors
-
-# input_file = 'C:/Users/Jesse/PycharmProjects/GTSTRUDL_Load_Pulling/Supporting Documents/RB_Steel_Framing_v34.gto'
-# member_set = [0, 1, 2, 3, 4]
-# num_mem_set = 1
-# file_list = utilities_GUI.ReadInputFile
-# items = 0
-# beam_id = [(1, 'ALL')]
-# load_id = [(1, 'ALL')]
-#
-#
-# member_forces, end_index, first_useful_line \
-#                     = generate_joint_array_info.ParseFileForData(num_mem_set, input_file, member_set).get_joint_reaction_list_info()
-# GenerateOutputArray(items, member_forces, beam_id, load_id).joint_reaction_list()
-#
-# output1 = GenerateOutputArray(items, member_forces, beam_id, load_id).requested_joint_reaction_dict()
-# print(output1)
