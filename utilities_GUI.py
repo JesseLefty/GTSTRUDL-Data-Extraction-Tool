@@ -116,6 +116,7 @@ class GenerateDisplayData:
 
             Returns:
                 result (list): list containing the lines with the trigger string
+                index (list):  list containing the GTSTRUDL output line number
         """
         trigger_string = 'LIST FOR'
         result = [row for row in self.file_list if trigger_string in row]
@@ -131,6 +132,21 @@ class GenerateDisplayData:
         result = [row for row in self.file_list if trigger_string in row]
         result = [v[v.find(trigger_string):] for v in result]
         return result, index
+
+    def get_code_check_display(self):
+        trigger_string = 'DESIGN TRACE OUTPUT'
+        result = []
+        line_index = []
+        for index, row in enumerate(self.file_list):
+            if trigger_string in row:
+                display_text = self.file_list[index - 4]
+                text = display_text[display_text.find(">") + 2:]
+                line_num = display_text[:display_text.find("}") + 1].lstrip()
+                line_index.append(line_num)
+                result.append(text)
+            else:
+                pass
+        return result, line_index
 
 
 class TupleDict(dict):

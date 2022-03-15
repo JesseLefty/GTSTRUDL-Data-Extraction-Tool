@@ -56,7 +56,7 @@ class ErrorHandling:
             col_2 = "Joint"
 
         text_label_top = Label(self.error_mid_frame, style='mid.TLabel', wraplength=380, justify='left',
-                               text=f'The following result set(s) contain incorrect inputs in the {col_2} or "Load" '
+                               text=f'The following result set(s) contain incorrect inputs in the "{col_2}" or "Load" '
                                     f'spec:')
         text_label_top.pack(side=TOP, padx=(10, 10))
 
