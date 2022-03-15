@@ -1,10 +1,10 @@
 import utilities_GUI
 import re
-import generate_mem_array_info
+
 
 class GenerateOutputArray:
     """
-            Formats the joint reaction list and compiles a dictionary of requested joint, load combinations, members
+            Formats the member force list and compiles a dictionary of requested joint, load combinations, members
             and the corresponding results.
 
             Parameters:

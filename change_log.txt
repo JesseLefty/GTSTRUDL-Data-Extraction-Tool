@@ -227,4 +227,36 @@ Description:
         Added beam/joint, and load spec errors to a tree view for easier error viewing
         Added corresponding input file line number to available results treeview such that the user can easily navigate
         to the specific line in the input file where the command was entered.
+########################################################################################################################
+##                                                                                                                    ##
+##                                              Version 0.2.0  (3/14/2022)                                            ##
+##                                                                                                                    ##
+########################################################################################################################
+Documents uploaded to Github:
 
+    change_log.txt
+    extract_member_forces.py
+    save_output.py
+    error_handling.py
+    utilities_GUI.py
+    extract_code_check.py
+    generate_code_check_array.py
+
+
+Description:
+
+    Added new module for handing the code check results.
+
+    Functionality Changes:
+
+        Added modules to parse the code check results searching for 'DESIGN TRACE OUTPUT' and returning the code
+        check result sets.
+        Added functions for parsing the code check results for user requested beam names, profile names, and IRs falling
+        within a certain range. Also added functionality to return only members which failed the code check.
+        Added functions for sorting the results based on beam name, profile name, or IR.
+        Added ability to save results as .csv or .xlsx for code check results.
+        Minor code cleanup on other files
+
+    Interface Changes:
+
+        None
