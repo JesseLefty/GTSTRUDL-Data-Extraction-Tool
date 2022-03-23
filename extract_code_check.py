@@ -1,7 +1,6 @@
-import pprint
 from operator import itemgetter
-import generate_code_check_array_info
 from natsort import natsorted
+
 
 class GenerateOutputArray:
     """
@@ -178,7 +177,7 @@ class GenerateOutputArray:
         for idx, row in enumerate(code_check_list):
             ir.append(row[5])
         if self.ir_range[0] == 2:
-            ir_less_than = self.ir_range[1][0]
+            ir_less_than = self.ir_range[1][1]
             user_ir = [p for p in ir if float(p) < ir_less_than]
             if not user_ir:
                 self.ir_error.append(f'< {ir_less_than}')
@@ -188,8 +187,8 @@ class GenerateOutputArray:
             if not user_ir:
                 self.ir_error.append(f'> {ir_greater_than}')
         elif self.ir_range[0] == 4:
-            lower_ir = self.ir_range[1][0]
-            upper_ir = self.ir_range[1][1]
+            lower_ir = float(self.ir_range[1][0])
+            upper_ir = float(self.ir_range[1][1])
             if lower_ir > upper_ir or (lower_ir or upper_ir) < 0:
                 self.ir_error.append('invalid IR range')
             else:
@@ -256,22 +255,26 @@ class GenerateOutputArray:
         return parsed_list
 
     def sorted_list(self, sort_order, reverse):
-        # TODO: address how to handle sorting numbers as strings
         """
             Parameter:
                  sort_order (list):     list corresponding to the preferred user sort order for name, profile, and IR
+                 reverse (list):        list corresponding to the sort order and true/false for reverse flag
             Returns:
                  sorted_list (list):     nested list of code check results which meet the user name, profile, and IR
-                                         criteria. Sorted based on the user requested sort order
+                                         criteria. Sorted based on the user requested sort criteria
         """
-        sorted_list = self.build_parsed_list()
+        parsed_list = self.build_parsed_list()
+        reverse_idx = len(reverse[self.code_set_index]) - 1
+        sorted_list = []
         for key, flag in reversed(sort_order[self.code_set_index]):
+            print(key, flag)
             if flag:
-                sorted_list.sort(key=itemgetter(key), reverse=reverse[self.code_set_index])
+                sorted_list = natsorted(parsed_list, key=itemgetter(key), reverse=reverse[self.code_set_index][reverse_idx])
             else:
                 pass
-        # for line in sorted_list:
-        #     print(line)
+            reverse_idx -= 1
+        for line in sorted_list:
+            print(line[0], line[5], line[8])
         return sorted_list
 
     def output_list(self, sort_request, sort_order, reverse):
