@@ -260,3 +260,31 @@ Description:
     Interface Changes:
 
         None
+########################################################################################################################
+##                                                                                                                    ##
+##                                              Version 0.2.1  (3/22/2022)                                            ##
+##                                                                                                                    ##
+########################################################################################################################
+Documents uploaded to Github:
+
+    change_log.txt
+    error_handling.py
+    extract_code_check.py
+    save_output.py
+    code_check_gui.py
+    main.py
+
+
+Description:
+
+    Added code check results to GUI. Fixed bugs in old code that came up along the way
+
+    Functionality Changes:
+
+        Changed error handling to accept member, joint, or code check results in same function
+        Added ability to save code check results to file
+        Added ability to store previously generated code check result sets
+
+    Interface Changes:
+
+        Added code check window frame

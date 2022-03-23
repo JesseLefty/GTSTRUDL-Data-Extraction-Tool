@@ -4,6 +4,7 @@ from tkinter import filedialog
 import os
 import member_force_GUI
 import joint_reactions_GUI
+import code_check_GUI
 import error_handling
 import utilities_GUI
 
@@ -37,9 +38,9 @@ class FirstWindow:
                                                                     f' or as an excel workbook with each set of'
                                                                     f' desired data stored in a separate worksheet.',
                                     wraplength=160, justify='center')
-        program_version = Label(program_description_frame, text='Version: 0.1.2')
+        program_version = Label(program_description_frame, text='Version: 0.2.1')
         program_developer = Label(program_description_frame, text='Developed by Jesse Wagoner')
-        program_dev_date = Label(program_description_frame, text='3/04/2022')
+        program_dev_date = Label(program_description_frame, text='3/22/2022')
         program_description_frame.grid(row=0, column=0, rowspan=4, padx=10, pady=10, sticky='nsew')
         program_description_frame.grid_propagate(0)
         program_title.grid(row=0, column=0)
@@ -136,29 +137,21 @@ def tab_window_generate():
 
     member_force_frame = Frame(my_notebook, width=600, height=370)
     joint_reaction_frame = Frame(my_notebook, width=600, height=370)
-    member_ir_frame = Frame(my_notebook, width=600, height=370)
-    joint_disp_frame = Frame(my_notebook, width=600, height=370)
-    section_forces_frame = Frame(my_notebook, width=600, height=370)
+    code_check_frame = Frame(my_notebook, width=600, height=370)
     navigate_frame = Frame(tab_window, width=600, height=50)
 
     member_force_frame.grid(row=0, column=0, sticky='n')
     joint_reaction_frame.grid(row=0, column=0, sticky='n')
-    member_ir_frame.grid(row=0, column=0, sticky='n')
-    joint_disp_frame.grid(row=0, column=0, sticky='n')
-    section_forces_frame.grid(row=0, column=0, sticky='n')
+    code_check_frame.grid(row=0, column=0, sticky='n')
     navigate_frame.pack(side='right', padx=(0, 10))
 
     member_force_frame.grid_propagate(0)
     joint_reaction_frame.grid_propagate(0)
-    member_ir_frame.grid_propagate(0)
-    joint_disp_frame.grid_propagate(0)
-    section_forces_frame.grid_propagate(0)
+    code_check_frame.grid_propagate(0)
 
     my_notebook.add(member_force_frame, text='Member Forces')
     my_notebook.add(joint_reaction_frame, text='Joint Reactions')
-    my_notebook.add(member_ir_frame, text='Code Check')
-    my_notebook.add(joint_disp_frame, text='Joint Displacements')
-    my_notebook.add(section_forces_frame, text='Section Forces')
+    my_notebook.add(code_check_frame, text='Code Check')
 
     back_button = Button(navigate_frame, text="Back", command=lambda: [initial_window.deiconify(),
                                                                        tab_window.destroy()])
@@ -172,6 +165,7 @@ def tab_window_generate():
     initial_window.withdraw()
     member_force_GUI.MemberForceFrame(member_force_frame, initial_window, directory, input_file_path).main_tab()
     joint_reactions_GUI.JointReactionsFrame(joint_reaction_frame, initial_window, directory, input_file_path).main_tab()
+    code_check_GUI.CodeCheckFrame(code_check_frame, initial_window, directory, input_file_path).main_tab()
 
 if __name__ == '__main__':
     initial_window = Tk()
