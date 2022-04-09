@@ -288,3 +288,43 @@ Description:
     Interface Changes:
 
         Added code check window frame
+########################################################################################################################
+##                                                                                                                    ##
+##                                              Version 0.2.2  (4/8/2022)                                             ##
+##                                                                                                                    ##
+########################################################################################################################
+Documents uploaded to Github:
+
+    change_log.txt
+    code_check_GUI.py
+    config.py
+    data_storage.py
+    frame_display_window.py
+    generate_joint_array_info.py
+    joint_reactions_GUI.py
+    main.py
+    member_force_GUI.py
+    process_data.py
+    results_selection_window.py
+    utilities_GUI.py
+
+Description:
+
+    ** currently does not generate results but the interface development has been streamlined **
+
+
+    Functionality Changes:
+
+        Fixed that importing stored code check results would display the incorrect IR range
+        Fixed that imported result sets for code check results could not be modified
+        Added a results parameters class which contains a dictionary of all selected user results which can then be
+        accessed at any time
+        Developed a configuration file to store internal data which is used multiple times such as headings and file
+        types such that any updates can occur in a single location and will propagate throughout the files.
+
+
+    Interface Changes:
+
+        Changed button frame on main tab to label frame
+        Unified the generation of the widgets on the tabs - consolidated to single file instead of copied 3 times. Now
+        all tabs look the same with only small differences unique to the specific tab requirements

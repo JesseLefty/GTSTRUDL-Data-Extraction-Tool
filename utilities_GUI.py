@@ -108,7 +108,7 @@ class GenerateDisplayData:
         self.input_file = input_file
         self.file_list = ReadInputFile(input_file).file_list()
 
-    def get_force_display(self):
+    def get_display(self, tab_name):
         """
         Generates data to display in the "available results" window
             Parameters:
@@ -118,35 +118,35 @@ class GenerateDisplayData:
                 result (list): list containing the lines with the trigger string
                 index (list):  list containing the GTSTRUDL output line number
         """
-        trigger_string = 'LIST FOR'
-        result = [row for row in self.file_list if trigger_string in row]
-        index = [v[:v.find("}") + 1].lstrip() for v in result]
-        result = [v[v.find(trigger_string):] for v in result]
-        return result, index
+        if tab_name == 'Member Force':
+            trigger_string = 'LIST FOR'
+            result = [row for row in self.file_list if trigger_string in row]
+            index = [v[:v.find("}") + 1].lstrip() for v in result]
+            result = [v[v.find(trigger_string):] for v in result]
 
-    def get_reaction_display(self):
-        trigger_string = 'RESULTANT JOINT LOADS SUPPORTS'
-        index_string = 'LIST REA'
-        index = [row for row in self.file_list if index_string in row]
-        index = [v[:v.find("}") + 1].lstrip() for v in index]
-        result = [row for row in self.file_list if trigger_string in row]
-        result = [v[v.find(trigger_string):] for v in result]
-        return result, index
+        elif tab_name == 'Joint Reaction':
+            trigger_string = 'RESULTANT JOINT LOADS SUPPORTS'
+            index_string = 'LIST REA'
+            index = [row for row in self.file_list if index_string in row]
+            index = [v[:v.find("}") + 1].lstrip() for v in index]
+            result = [row for row in self.file_list if trigger_string in row]
+            result = [v[v.find(trigger_string):] for v in result]
 
-    def get_code_check_display(self):
-        trigger_string = 'DESIGN TRACE OUTPUT'
-        result = []
-        line_index = []
-        for index, row in enumerate(self.file_list):
-            if trigger_string in row:
-                display_text = self.file_list[index - 4]
-                text = display_text[display_text.find(">") + 2:]
-                line_num = display_text[:display_text.find("}") + 1].lstrip()
-                line_index.append(line_num)
-                result.append(text)
-            else:
-                pass
-        return result, line_index
+        else:
+            trigger_string = 'DESIGN TRACE OUTPUT'
+            result = []
+            index = []
+            for idx, row in enumerate(self.file_list):
+                if trigger_string in row:
+                    display_text = self.file_list[idx - 4]
+                    text = display_text[display_text.find(">") + 2:]
+                    line_num = display_text[:display_text.find("}") + 1].lstrip()
+                    index.append(line_num)
+                    result.append(text)
+                else:
+                    pass
+
+        return result, index
 
 
 class TupleDict(dict):
