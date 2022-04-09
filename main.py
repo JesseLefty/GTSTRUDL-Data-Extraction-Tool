@@ -2,6 +2,8 @@ from tkinter import *
 from tkinter.ttk import *
 from tkinter import filedialog
 import os
+
+import frame_display_window
 import member_force_GUI
 import joint_reactions_GUI
 import code_check_GUI
@@ -18,6 +20,8 @@ class FirstWindow:
 
     def __init__(self, initial_window):
         self.initial_window = initial_window
+
+    def win_display(self):
 
         self.initial_window.title("GTSTRUDL Data Extraction Tool")
         self.initial_window.geometry('600x440')
@@ -127,6 +131,8 @@ class FirstWindow:
 
 def tab_window_generate():
 
+    height = 370
+    width = 600
     tab_window = Toplevel(initial_window)
     tab_window.geometry('600x440')
     utilities_GUI.center(tab_window)
@@ -135,10 +141,10 @@ def tab_window_generate():
     my_notebook = Notebook(tab_window)
     my_notebook.pack()
 
-    member_force_frame = Frame(my_notebook, width=600, height=370)
-    joint_reaction_frame = Frame(my_notebook, width=600, height=370)
-    code_check_frame = Frame(my_notebook, width=600, height=370)
-    navigate_frame = Frame(tab_window, width=600, height=50)
+    member_force_frame = Frame(my_notebook, width=width, height=height)
+    joint_reaction_frame = Frame(my_notebook, width=width, height=height)
+    code_check_frame = Frame(my_notebook, width=width, height=height)
+    navigate_frame = Frame(tab_window, width=width, height=50)
 
     member_force_frame.grid(row=0, column=0, sticky='n')
     joint_reaction_frame.grid(row=0, column=0, sticky='n')
@@ -163,11 +169,16 @@ def tab_window_generate():
     back_button.grid(row=0, column=2, padx=5, pady=5)
 
     initial_window.withdraw()
-    member_force_GUI.MemberForceFrame(member_force_frame, initial_window, directory, input_file_path).main_tab()
-    joint_reactions_GUI.JointReactionsFrame(joint_reaction_frame, initial_window, directory, input_file_path).main_tab()
-    code_check_GUI.CodeCheckFrame(code_check_frame, initial_window, directory, input_file_path).main_tab()
+
+    frame_display_window.GenerateTab(member_force_frame, 'Member Force', initial_window, directory, input_file_path)
+    frame_display_window.GenerateTab(joint_reaction_frame, 'Joint Reaction', initial_window, directory, input_file_path)
+    frame_display_window.GenerateTab(code_check_frame, 'Code Check', initial_window, directory, input_file_path)
+
+    # member_force_GUI.MemberForceFrame(member_force_frame, initial_window, directory, input_file_path).main_tab()
+    # joint_reactions_GUI.JointReactionsFrame(joint_reaction_frame, initial_window, directory, input_file_path).main_tab()
+    # code_check_GUI.CodeCheckFrame(code_check_frame, initial_window, directory, input_file_path).main_tab()
 
 if __name__ == '__main__':
     initial_window = Tk()
-    FirstWindow(initial_window)
+    FirstWindow(initial_window).win_display()
     initial_window.mainloop()

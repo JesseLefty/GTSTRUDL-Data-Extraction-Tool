@@ -37,7 +37,7 @@ class JointReactionsFrame:
         self.load_id.clear()
         self.joint_id.clear()
         self.member_set.clear()
-        joint_reaction_list, input_index = utilities_GUI.GenerateDisplayData(self.input_file_path).get_reaction_display()
+        joint_reaction_list, input_index = utilities_GUI.GenerateDisplayData(self.input_file_path).get_display("Joint Reaction")
         result_tree_headings = ['Set #', 'Set Name', 'Joint Spec.', 'Load Spec.']
         available_results_headings = ['Set #', 'Set Name', 'Input Line #']
         if joint_reaction_list:
@@ -205,6 +205,10 @@ class JointReactionsFrame:
 
         for row, item in enumerate(results_tree.get_children()):
             results_tree.set(item, column=0, value=row + 1)
+
+        print(f'name = {self.joint_id}')
+        print(f'load = {self.load_id}')
+        print(f'member set = {self.member_set}')
 
     def store_inputs(self, results_tree):
         d_data = {}

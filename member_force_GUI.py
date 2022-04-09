@@ -39,7 +39,7 @@ class MemberForceFrame:
         self.load_id.clear()
         self.beam_id.clear()
         self.member_set.clear()
-        member_force_list, input_index = utilities_GUI.GenerateDisplayData(self.input_file_path).get_force_display()
+        member_force_list, input_index = utilities_GUI.GenerateDisplayData(self.input_file_path).get_display('Member Force')
         result_tree_headings = ['Set #', 'Set Name', 'Joint Spec.', 'Load Spec.', 'Beam Spec.']
         available_results_headings = ['Set #', 'Set Name', 'Input line #']
         if member_force_list:
@@ -208,6 +208,11 @@ class MemberForceFrame:
         for row, item in enumerate(results_tree.get_children()):
             results_tree.set(item, column=0, value=row + 1)
 
+        print(f'joint = {self.joint}')
+        print(f'load = {self.load_id}')
+        print(f'beam = {self.beam_id}')
+        print(f'member set = {self.member_set}')
+
     def store_inputs(self, results_tree):
         d_data = {}
         set_name = []
@@ -301,6 +306,7 @@ class MemberForceFrame:
         save_output.RunProgram(self.initial_window).run_member_forces(output_file_path, joint, self.member_set, out_format,
                                                                       self.input_file_path, self.beam_id,
                                                                       self.load_id)
+        print(self.joint)
 
 
 class NewResultsWindow:

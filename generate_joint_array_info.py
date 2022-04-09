@@ -56,15 +56,3 @@ class ParseFileForData:
                 joint_reactions.append(line)
         joint_reactions = [x for x in joint_reactions if x != ""]
         return joint_reactions, end_index, first_useful_line
-
-
-# input_file = 'C:/Users/Jesse/PycharmProjects/GTSTRUDL_Load_Pulling/Supporting Documents/CALC-49 Rev1_v6.0.gto'
-# member_set = [0, 1, 2]
-# num_mem_set = 2
-# file_list = utilities_GUI.ReadInputFile
-# items = 0
-# beam_id = [(4, 'ALL')]
-# load_id = [(3, 'SSE')]
-# joint = ['ALL']
-#
-# ParseFileForData(num_mem_set, input_file, member_set).get_joint_reaction_list_info()

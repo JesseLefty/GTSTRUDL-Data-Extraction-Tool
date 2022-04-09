@@ -50,7 +50,7 @@ class CodeCheckFrame:
         self.fail_id.clear()
         self.code_set.clear()
         self.sort_request.clear()
-        code_check_list, input_index = utilities_GUI.GenerateDisplayData(self.input_file_path).get_code_check_display()
+        code_check_list, input_index = utilities_GUI.GenerateDisplayData(self.input_file_path).get_display("Code Check")
         result_tree_headings = ['Set #', 'Set Name', 'Name Spec.', 'Profile Spec.', 'IR Range', 'Sort']
         available_results_headings = ['Set #', 'Set Name', 'Input Line #']
         if code_check_list:
@@ -246,6 +246,7 @@ class CodeCheckFrame:
         print(f'fail id: {self.fail_id}')
         print(f'sort order: {self.sort_order}')
         print(f'reverse: {self.reverse}')
+        print(f'code set: {self.code_set}')
 
     def store_inputs(self, results_tree):
         d_data = {}
@@ -263,7 +264,8 @@ class CodeCheckFrame:
                                     'ir_spec': self.ir_range_id[rows],
                                     'sort_spec': self.sort_request[rows],
                                     'sort_order': self.sort_order[rows],
-                                    'reverse': self.reverse[rows]}
+                                    'reverse': self.reverse[rows],
+                                    'fail': self.fail_id[rows]}
             d_code_results = {'Code Check Results': d_data}
 
             try:
@@ -292,18 +294,22 @@ class CodeCheckFrame:
                 self.sort_request.append(data['Code Check Results'][key_num]['sort_spec'])
                 self.sort_order.append(data['Code Check Results'][key_num]['sort_order'])
                 self.reverse.append(data['Code Check Results'][key_num]['reverse'])
+                self.fail_id.append(data['Code Check Results'][key_num]['fail'])
                 set_name = data['Code Check Results'][key_num]['set name']
                 results_tree.insert(parent='', index='end', iid=next_avail_idd, text=set_name,
                                     values=(next_avail_idd, set_name,
                                             f'{self.d_tree[self.name_id[-1][0]]} {self.name_id[-1][1]}',
-                                            f'{self.d_tree[self.profile_id[-1][0]]} {self.profile_id[-1][1]}'
-                                            f'{self.d_tree[self.ir_range_id[-1][0]]} {self.ir_range_id[-1][1]}'
-                                            f'{self.sort_request}'))
+                                            f'{self.d_tree[self.profile_id[-1][0]]} {self.profile_id[-1][1]}',
+                                            f'{self.ir_range_id[-1][1][0]} - {self.ir_range_id[-1][1][1]}',
+                                            f'{self.sort_request[-1]}'))
+
+                print(self.ir_range_id)
                 for row, item in enumerate(results_tree.get_children()):
                     results_tree.set(item, column=0, value=row + 1)
 
-        except KeyError:
+        except KeyError as e:
             error_handling.ErrorHandling(self.initial_window).wrong_properties_file('code check')
+            print(e)
         except FileNotFoundError:
             print('file not found')
             pass
@@ -356,14 +362,6 @@ class CodeCheckFrame:
             results_tree.selection_set(next_idd)
         else:
             pass
-
-        print(f'name spec: {self.name_id}')
-        print(f'profile spec: {self.profile_id}')
-        print(f'IR Range: {self.ir_range_id}')
-        print(f'sort spec: {self.sort_request}')
-        print(f'fail id: {self.fail_id}')
-        print(f'sort order: {self.sort_order}')
-        print(f'reverse: {self.reverse}')
 
     def run_code_check(self):
         file_types = [('Excel File', '*.xlsx'), ('csv Files', '*.csv')]
