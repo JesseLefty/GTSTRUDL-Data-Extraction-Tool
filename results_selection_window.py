@@ -4,17 +4,18 @@ import error_handling
 import utilities_GUI
 import config
 from data_storage import ResultsParameters
+from process_data import ProcessData
 
 
 class ResultsSelectionWindow:
 
-    def __init__(self, frame, tab_name, initial_window, modify=False, selection_idd=0, selected_result=(0, 'None'),
+    def __init__(self, tab_name, initial_window, modify=False, selection_idd=0, selected_result=(0, 'None'),
                  selected_results_tree=None):
         self.tab_name = tab_name
         self.initial_window = initial_window
-        self.frame = frame
         self.modify = modify
         self.selection_idd = selection_idd
+        self.selected_result = selected_result
         self.set_num_selected = selected_result[0]
         self.set_name_selected = selected_result[1]
         self.selected_results_tree = selected_results_tree
@@ -28,6 +29,7 @@ class ResultsSelectionWindow:
         self.sort_cb = BooleanVar(value=False)
         self.fail_cb = BooleanVar(value=False)
         self.ir_range_rb = IntVar(value=1)
+        self.sort_order_dict = {'IR Value': 5, 'Name': 0, 'Profile': 8}
         self.set_num = self.results.results_parameters['Set Index']
         self.set_name = self.results.results_parameters['Set Name']
         if self.modify:
@@ -48,6 +50,7 @@ class ResultsSelectionWindow:
                 self.fail_cb.set(self.results.results_parameters['Fail'][self.selection_idd])
                 self.sort_cb.set(self.results.results_parameters['Sort'][self.selection_idd])
                 self.sort_order = self.results.results_parameters['Sort Order'][self.selection_idd]
+                self.reverse = self.results.results_parameters['Reverse'][self.selection_idd]
         else:
             self.selection_idd = len(self.selected_results_tree.get_children())
 
@@ -59,12 +62,12 @@ class ResultsSelectionWindow:
             self.name = self.results.results_parameters['Name']
             self.load = self.results.results_parameters['Load']
         else:
-            pass
+            self.name = self.results.results_parameters['Name']
 
         self.padx, self.pady = (5, 5), (5, 5)
         text_labels = config.requested_results_headings[self.tab_name]
         rb_text = ['ALL', 'STARTS WITH', 'ENDS WITH', 'CONTAINS', 'LIST']
-        self.selection_window = Toplevel(initial_window)
+        self.selection_window = Toplevel(self.initial_window)
         self.selection_window.geometry('400x360')
         utilities_GUI.center(self.selection_window, x_offset=-500)
         self.selection_window.resizable(False, False)
@@ -148,13 +151,23 @@ class ResultsSelectionWindow:
             jt_all_rb = Radiobutton(joint_select, text=text, variable=self.jt_rb, value=text)
             jt_all_rb.grid(row=0, column=val)
 
-        self.store_button.configure(command=lambda: (self.store_mem_force(), self.store_name_index(),
-                                                     self.update_result_tree(), self.selection_window.destroy()))
+        self.store_button.configure(command=lambda: (
+            ProcessData(self.tab_name, self.selection_idd, modify=self.modify,
+                        selected_results_tree=self.selected_results_tree).store_results(
+                self.get_text(self.first_rb.get(), self.first_text),
+                self.get_text(self.second_rb.get(), self.second_text),
+                self.jt_rb.get(), selected_result=self.selected_result),
+            self.selection_window.destroy()))
 
     def joint_reaction_window(self):
         self.selection_window.geometry('400x300')
-        self.store_button.configure(command=lambda: (self.store_joint_reaction(), self.store_name_index(),
-                                                     self.update_result_tree(), self.selection_window.destroy()))
+        self.store_button.configure(command=lambda: (
+            ProcessData(self.tab_name, self.selection_idd, modify=self.modify,
+                        selected_results_tree=self.selected_results_tree).store_results(
+                self.get_text(self.first_rb.get(), self.first_text),
+                self.get_text(self.second_rb.get(), self.second_text),
+                self.jt_rb.get(), selected_result=self.selected_result),
+            self.selection_window.destroy()))
 
     def code_check_window(self):
         self.selection_window.geometry('400x460')
@@ -204,6 +217,17 @@ class ResultsSelectionWindow:
 
         ir_range_text_max.config(state='normal')
         ir_range_text_max.insert('1.0', 'MAX')
+
+        self.store_button.configure(command=lambda: (sort_window_get(),
+                                                     ProcessData(self.tab_name, self.selection_idd,
+                                                                 modify=self.modify, selected_results_tree=self.selected_results_tree).store_results(
+                                                         self.get_text(self.first_rb.get(), self.first_text),
+                                                         self.get_text(self.second_rb.get(), self.second_text),
+                                                         selected_result=self.selected_result,
+                                                         ir_range=ir_text_get(self.ir_range_rb.get()),
+                                                         sort=self.sort_cb.get(), fail=self.fail_cb.get(),
+                                                         sort_order=self.sort_order, reverse=self.reverse),
+                                                     self.selection_window.destroy()))
 
         def sort_window(sort_flag):
             add_button = Button(sort_button_window, text='Add >>', command=lambda: add_sort())
@@ -283,76 +307,12 @@ class ResultsSelectionWindow:
                 ir_range_text_min['state'] = 'normal'
                 ir_range_text_max['state'] = 'normal'
 
-    def store_mem_force(self):
-        if self.modify or self.selection_idd == 0:
-            self.joint[self.selection_idd] = self.jt_rb.get()
-            self.name[self.selection_idd] = self.get_text(self.first_rb.get(), self.first_text)
-            self.load[self.selection_idd] = self.get_text(self.second_rb.get(), self.second_text)
-        else:
-            self.joint.append(self.jt_rb.get())
-            self.name.append(self.get_text(self.first_rb.get(), self.first_text))
-            self.load.append(self.get_text(self.second_rb.get(), self.second_text))
-
-        self.results.joint = self.joint
-        self.results.mem_name = self.name
-        self.results.mem_load = self.load
-
-    def store_joint_reaction(self):
-        if self.modify or self.selection_idd == 0:
-            self.name[self.selection_idd] = self.get_text(self.first_rb.get(), self.first_text)
-            self.load[self.selection_idd] = self.get_text(self.second_rb.get(), self.second_text)
-        else:
-            self.name.append(self.get_text(self.first_rb.get(), self.first_text))
-            self.load.append(self.get_text(self.second_rb.get(), self.second_text))
-
-        self.results.joint_name = self.name
-        self.results.joint_load = self.load
-
-    def store_name_index(self):
-        if self.selection_idd == 0 and not self.modify:
-            self.set_name[self.selection_idd] = self.set_name_selected
-            self.set_num[self.selection_idd] = self.set_num_selected
-
-        elif self.modify:
-            pass
-
-        else:
-            self.set_name.append(self.set_name_selected)
-            self.set_num.append(self.set_num_selected)
-
-        if self.tab_name == 'Member Force':
-            self.results.mem_set_name = self.set_name
-            self.results.mem_set_index = self.set_num
-        elif self.tab_name == 'Joint Reaction':
-            self.results.joint_set_name = self.set_name
-            self.results.joint_set_index = self.set_num
-        else:
-            self.results.code_set_name = self.set_name
-            self.results.code_set_index = self.set_num
-
-    def update_result_tree(self):
-        results = ResultsParameters(self.tab_name).results_parameters
-        rb_config = config.rb_options
-        parent = ''
-        index = 'end'
-        for item in self.selected_results_tree.get_children():
-            self.selected_results_tree.delete(item)
-        for idx, set_name in enumerate(results['Set Name']):
-            idd = idx + 1
-            text = self.set_name[idx]
-            if self.tab_name == 'Member Force':
-                values = (idd,
-                          text,
-                          results['Joint'][idx],
-                          f'{rb_config[results["Name"][idx][0]]} {results["Name"][idx][1]}',
-                          f'{rb_config[results["Load"][idx][0]]} {results["Load"][idx][1]}'
-                          )
-            elif self.tab_name == 'Joint Reaction':
-                values = (idd,
-                          text,
-                          f'{rb_config[results["Name"][idx][0]]} {results["Name"][idx][1]}',
-                          f'{rb_config[results["Load"][idx][0]]} {results["Load"][idx][1]}'
-                          )
-            else:
-                values = ()
-            self.selected_results_tree.insert(parent=parent, index=index, iid=idd, text=text, values=values)
+        def sort_window_get():
+            sort_order = option_window_sort.get('0', END)
+            specific_sort = []
+            reverse_order = []
+            for item in sort_order:
+                specific_sort.append((self.sort_order_dict[item], True))
+                reverse_order.append(self.order_rb.get())
+            self.sort_order = specific_sort
+            self.reverse = reverse_order
