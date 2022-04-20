@@ -17,6 +17,7 @@ class GenerateTab:
         self.initial_window = initial_window
         self.input_file_path = input_file_path
         self.modify = False
+        self.directory = directory
         padx, pady = (5, 5), (5, 0)
         self.btn_width = 15
         header = Label(self.frame, text=self.tab_name)
@@ -98,22 +99,22 @@ class GenerateTab:
         self.available_results_tree.bind('<<TreeviewSelect>>', self.on_list_select)
 
         self.new_result_set = Button(button_frame, text="Create New",
-                                     command=lambda: ResultsSelectionWindow(self.frame, self.tab_name,
+                                     command=lambda: ResultsSelectionWindow(self.tab_name,
                                                                             self.initial_window,
                                                                             selection_idd=self.tree_select(),
                                                                             selected_result=self.list_select(),
                                                                             selected_results_tree=self.selected_results_tree))
 
         self.load_exist_result_set = Button(button_frame, text="Load Existing",
-                                            command=lambda: ProcessData(self.tab_name.load_existing_result_set()))
+                                            command=lambda: ProcessData(self.tab_name, directory=self.directory, selected_results_tree=self.selected_results_tree).load_existing_result_set())
         self.modify_result = Button(button_frame, text='Modify Result',
-                                    command=lambda: (self.modify_pressed(), ResultsSelectionWindow(self.frame, self.tab_name,
+                                    command=lambda: (self.modify_pressed(), ResultsSelectionWindow(self.tab_name,
                                                                            self.initial_window,
                                                                            self.modify,
                                                                            selection_idd=self.tree_select(),
                                                                            selected_results_tree=self.selected_results_tree)))
         self.delete_result = Button(button_frame, text='Delete Result',
-                                    command=lambda: self.delete_result)  # add selection_idd as item in tree selected
+                                    command=lambda: ProcessData(self.tab_name, selection_idd=self.tree_select()).delete_result())
 
         for num, button in enumerate(filter(lambda w: isinstance(w, Button), button_frame.children.values())):
             button.configure(width=self.btn_width)
@@ -122,10 +123,10 @@ class GenerateTab:
         generate_button = Button(bottom_bar_frame, text="Generate",
                                  command=lambda: ProcessData(self.tab_name.generate_results()))
 
-        store_mem_results_prop = Button(bottom_bar_frame, text='Store Input',
-                                        command=lambda: ProcessData(self.tab_name).store_results())
+        store_properties = Button(bottom_bar_frame, text='Store Input',
+                                        command=lambda: ProcessData(self.tab_name, selected_results_tree=self.selected_results_tree).store_inputs())
 
-        store_mem_results_prop.grid(row=0, column=0, padx=(10, 405), pady=5)
+        store_properties.grid(row=0, column=0, padx=(10, 405), pady=5)
         generate_button.grid(row=0, column=3, padx=5, pady=5)
 
         self.new_result_set['state'] = 'disabled'
