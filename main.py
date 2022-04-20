@@ -2,13 +2,15 @@ from tkinter import *
 from tkinter.ttk import *
 from tkinter import filedialog
 import os
-
+from config import requested_results_headings
 import frame_display_window
 import member_force_GUI
 import joint_reactions_GUI
 import code_check_GUI
 import error_handling
 import utilities_GUI
+from data_storage import ResultsParameters
+import shared_stuff
 
 
 def help_doc():
@@ -159,8 +161,8 @@ def tab_window_generate():
     my_notebook.add(joint_reaction_frame, text='Joint Reactions')
     my_notebook.add(code_check_frame, text='Code Check')
 
-    back_button = Button(navigate_frame, text="Back", command=lambda: [initial_window.deiconify(),
-                                                                       tab_window.destroy()])
+    back_button = Button(navigate_frame, text="Back", command=lambda: (initial_window.deiconify(),
+                                                                       tab_window.destroy()))
     help_button = Button(navigate_frame, text='Help (?)', command=help_doc)
     exit_button = Button(navigate_frame, text='Exit', command=initial_window.quit)
 
@@ -178,7 +180,9 @@ def tab_window_generate():
     # joint_reactions_GUI.JointReactionsFrame(joint_reaction_frame, initial_window, directory, input_file_path).main_tab()
     # code_check_GUI.CodeCheckFrame(code_check_frame, initial_window, directory, input_file_path).main_tab()
 
+
 if __name__ == '__main__':
+    shared_stuff.data_store = ResultsParameters()
     initial_window = Tk()
     FirstWindow(initial_window).win_display()
     initial_window.mainloop()
