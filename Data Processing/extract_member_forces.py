@@ -1,5 +1,6 @@
 import utilities_GUI
 import re
+import shared_stuff
 
 
 class GenerateOutputArray:
@@ -15,12 +16,14 @@ class GenerateOutputArray:
                 load_id (list):             list of tuples containing load parameter id and user load input text
             """
 
-    def __init__(self, joint, mem_set_index, member_forces, beam_id, load_id):
-        self.joint = joint[mem_set_index]
+    def __init__(self, tab_name, mem_set_index, member_forces):
         self.mem_set_index = mem_set_index
+        self.results = shared_stuff.data_store
+        self.results.tab_name = tab_name
+        self.joint = self.results.joint[self.mem_set_index]
         self.member_forces = member_forces
-        self.beam_id = beam_id
-        self.load_id = load_id
+        self.beam_id = self.results.name
+        self.load_id = self.results.load
         self.beam_error = []
         self.load_error = []
 

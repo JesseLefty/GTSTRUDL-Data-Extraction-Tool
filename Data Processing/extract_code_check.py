@@ -1,5 +1,6 @@
 from operator import itemgetter
 from natsort import natsorted
+import shared_stuff
 
 
 class GenerateOutputArray:
@@ -15,13 +16,15 @@ class GenerateOutputArray:
                 fail_id (list):         True / False parameter indicating if the user wants only failed members
             """
 
-    def __init__(self, code_check, code_set_index, name_id, profile_id, ir_range, fail_id):
+    def __init__(self, tab_name, code_set_index, code_check):
+        self.results = shared_stuff.data_store
+        self.results.tab_name = tab_name
         self.code_set_index = code_set_index
         self.code_check = code_check
-        self.name_id = name_id[code_set_index]
-        self.profile_id = profile_id[code_set_index]
-        self.ir_range = ir_range[code_set_index]
-        self.fail_id = fail_id[code_set_index]
+        self.name_id = self.results.name[self.code_set_index]
+        self.profile_id = self.results.profile[self.code_set_index]
+        self.ir_range = self.results.ir_range[self.code_set_index]
+        self.fail_id = self.results.fail[self.code_set_index]
         self.name_error = []
         self.profile_error = []
         self.ir_error = []
@@ -177,12 +180,12 @@ class GenerateOutputArray:
         for idx, row in enumerate(code_check_list):
             ir.append(row[5])
         if self.ir_range[0] == 2:
-            ir_less_than = self.ir_range[1][1]
+            ir_less_than = float(self.ir_range[1][1])
             user_ir = [p for p in ir if float(p) < ir_less_than]
             if not user_ir:
                 self.ir_error.append(f'< {ir_less_than}')
         elif self.ir_range[0] == 3:
-            ir_greater_than = self.ir_range[1][0]
+            ir_greater_than = float(self.ir_range[1][0])
             user_ir = [p for p in ir if float(p) > ir_greater_than]
             if not user_ir:
                 self.ir_error.append(f'> {ir_greater_than}')
@@ -277,7 +280,7 @@ class GenerateOutputArray:
             print(line[0], line[5], line[8])
         return sorted_list
 
-    def output_list(self, sort_request, sort_order, reverse):
+    def output_list(self):
         """
             Parameter:
                  sort_order (list):     list corresponding to the preferred user sort order for name, profile, and IR
@@ -287,6 +290,9 @@ class GenerateOutputArray:
                                          criteria. Sorted based on the user requested sort order if requested.
                  errors (list):         list of errors during parsing of user requests, if any.
         """
+        sort_request = self.results.sort
+        sort_order = self.results.sort_order
+        reverse = self.results.reverse
         if sort_request[self.code_set_index]:
             output_list = self.sorted_list(sort_order, reverse)
         else:

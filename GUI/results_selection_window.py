@@ -312,8 +312,11 @@ class ResultsSelectionWindow:
             sort_order = option_window_sort.get('0', END)
             specific_sort = []
             reverse_order = []
-            for item in sort_order:
-                specific_sort.append((self.sort_order_dict[item], True))
-                reverse_order.append(self.order_rb.get())
+            if sort_order:
+                for item in sort_order:
+                    specific_sort.append((self.sort_order_dict[item], True))
+                    reverse_order.append(self.order_rb.get())
+            else:
+                pass
             self.sort_order = specific_sort
             self.reverse = reverse_order

@@ -5,7 +5,6 @@ import utilities_GUI
 import config
 from results_selection_window import ResultsSelectionWindow
 from process_data import ProcessData
-from data_storage import ResultsParameters
 
 
 class GenerateTab:
@@ -78,6 +77,8 @@ class GenerateTab:
                                               columns=config.requested_results_headings[self.tab_name]['headings'],
                                               show='headings',
                                               height=3)
+
+
         tree_scrollx = Scrollbar(self.selected_result_set_frame)
         tree_scrolly = Scrollbar(self.selected_result_set_frame)
         tree_scrollx.configure(command=self.selected_results_tree.xview, orient=HORIZONTAL)
@@ -114,17 +115,17 @@ class GenerateTab:
                                                                            selection_idd=self.tree_select(),
                                                                            selected_results_tree=self.selected_results_tree)))
         self.delete_result = Button(button_frame, text='Delete Result',
-                                    command=lambda: ProcessData(self.tab_name, selection_idd=self.tree_select()).delete_result())
+                                    command=lambda: (ProcessData(self.tab_name, selection_idd=self.tree_select(), selected_results_tree=self.selected_results_tree).delete_result()))
 
         for num, button in enumerate(filter(lambda w: isinstance(w, Button), button_frame.children.values())):
             button.configure(width=self.btn_width)
             button.grid(row=num + 2, column=0, padx=22, pady=5, sticky='nsew')
 
         generate_button = Button(bottom_bar_frame, text="Generate",
-                                 command=lambda: ProcessData(self.tab_name.generate_results()))
+                                 command=lambda: ProcessData(self.tab_name).generate_results())
 
         store_properties = Button(bottom_bar_frame, text='Store Input',
-                                        command=lambda: ProcessData(self.tab_name, selected_results_tree=self.selected_results_tree).store_inputs())
+                                        command=lambda: (ProcessData(self.tab_name, selected_results_tree=self.selected_results_tree).store_inputs(), self.check_for_results()))
 
         store_properties.grid(row=0, column=0, padx=(10, 405), pady=5)
         generate_button.grid(row=0, column=3, padx=5, pady=5)
@@ -168,4 +169,6 @@ class GenerateTab:
     def modify_pressed(self):
         self.modify = True
 
-
+    def check_for_results(self):
+        if not self.selected_results_tree.get_children():
+            error_handling.ErrorHandling(self.initial_window).no_result_set()
