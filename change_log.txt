@@ -328,3 +328,30 @@ Description:
         Changed button frame on main tab to label frame
         Unified the generation of the widgets on the tabs - consolidated to single file instead of copied 3 times. Now
         all tabs look the same with only small differences unique to the specific tab requirements
+
+########################################################################################################################
+##                                                                                                                    ##
+##                                              Version 0.3.0  (4/23/2022)                                            ##
+##                                                                                                                    ##
+########################################################################################################################
+
+Description:
+
+    Closed the loop on the refactoring of the user interface such that the program now runs and generates results the
+    same as it did before the refactoring - but now with fancier and smarter user interface
+
+
+    Functionality Changes:
+
+        Fixed that modifying code check results didn't work because of how the sort window options and reverse options
+        were specified.
+        Reworked the save_output file to require fewer arguments
+        Reworked the generate array info files and extract results files to pull data from the shared_stuff file
+        Fixed that the IR range was input as a string, it is now converted to a float to use in comparisons
+        restored functionality to store and load joint reaction and code check property files
+        restored functionality of the delete button on all tabs
+
+
+    Interface Changes:
+
+        Added warning notice when selecting "store inputs" when no results sets have been generated.

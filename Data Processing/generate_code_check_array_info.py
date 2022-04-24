@@ -1,4 +1,5 @@
 import utilities_GUI
+import shared_stuff
 
 
 class ParseFileForData:
@@ -10,11 +11,13 @@ class ParseFileForData:
                 input_file (str): input file to be parsed
                 code_list (list): list of all requested code checks
             """
-    def __init__(self, code_list_index, input_file, code_list):
+    def __init__(self, code_list_index, tab_name):
+        self.results = shared_stuff.data_store
+        self.results.tab_name = tab_name
         self.code_list_index = code_list_index
-        self.input_file = input_file
-        self.code_list = code_list
-        self.file_list = utilities_GUI.ReadInputFile(input_file).file_list()
+        self.input_file = self.results.input_file
+        self.code_list = self.results.set_index
+        self.file_list = utilities_GUI.ReadInputFile(self.input_file).file_list()
 
     def get_check_positions(self):
         """

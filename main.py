@@ -2,11 +2,7 @@ from tkinter import *
 from tkinter.ttk import *
 from tkinter import filedialog
 import os
-from config import requested_results_headings
 import frame_display_window
-import member_force_GUI
-import joint_reactions_GUI
-import code_check_GUI
 import error_handling
 import utilities_GUI
 from data_storage import ResultsParameters
@@ -22,6 +18,7 @@ class FirstWindow:
 
     def __init__(self, initial_window):
         self.initial_window = initial_window
+        self.results = shared_stuff.data_store
 
     def win_display(self):
 
@@ -118,6 +115,7 @@ class FirstWindow:
         try:
             input_file_path = filedialog.askopenfilename(initialdir=directory, title="select file", filetypes=file_types)
             input_file_name = os.path.basename(input_file_path)
+            self.results.input_file = input_file_path
             self.show_file.config(state='normal')
             self.show_file.delete('1.0', END)
             self.show_file.insert(END, input_file_name)
@@ -175,10 +173,6 @@ def tab_window_generate():
     frame_display_window.GenerateTab(member_force_frame, 'Member Force', initial_window, directory, input_file_path)
     frame_display_window.GenerateTab(joint_reaction_frame, 'Joint Reaction', initial_window, directory, input_file_path)
     frame_display_window.GenerateTab(code_check_frame, 'Code Check', initial_window, directory, input_file_path)
-
-    # member_force_GUI.MemberForceFrame(member_force_frame, initial_window, directory, input_file_path).main_tab()
-    # joint_reactions_GUI.JointReactionsFrame(joint_reaction_frame, initial_window, directory, input_file_path).main_tab()
-    # code_check_GUI.CodeCheckFrame(code_check_frame, initial_window, directory, input_file_path).main_tab()
 
 
 if __name__ == '__main__':

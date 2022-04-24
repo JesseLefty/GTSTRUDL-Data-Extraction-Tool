@@ -1,5 +1,7 @@
 import json
 from tkinter import filedialog
+import os
+import save_output
 from config import file_types
 from update_results_tree import UpdateResultTree
 import shared_stuff
@@ -81,20 +83,37 @@ class ProcessData:
             self.results.set_index.append(set_num_selected)
 
     def delete_result(self):
-        print('delete results')
+        if self.tab_name == 'Member Force':
+            del self.results.joint[self.selection_idd]
+            del self.results.load[self.selection_idd]
+        elif self.tab_name == 'Joint Reaction':
+            del self.results.load[self.selection_idd]
+        else:
+            del self.results.profile[self.selection_idd]
+            del self.results.ir_range[self.selection_idd]
+            del self.results.sort[self.selection_idd]
+            del self.results.fail[self.selection_idd]
+            del self.results.sort_order[self.selection_idd]
+            del self.results.reverse[self.selection_idd]
+
+        del self.results.set_name[self.selection_idd]
+        del self.results.set_index[self.selection_idd]
+        del self.results.name[self.selection_idd]
+        UpdateResultTree(self.tab_name, self.selected_results_tree).update_result_tree()
 
     def store_inputs(self):
-        prop_file_name = filedialog.asksaveasfilename(filetypes=file_types, defaultextension='*.prop')
-        # TODO: grey out store input button if there are no results sets or raise error
-        stored_results = {self.tab_name: self.results.results_parameters}
-        try:
-            with open(prop_file_name, 'w') as f:
-                json.dump(stored_results, f, indent=4)
-        except FileNotFoundError:
-            pass
+        if not self.selected_results_tree.get_children():
+            print('no stored results')
+        else:
+            prop_file_name = filedialog.asksaveasfilename(filetypes=file_types, defaultextension='*.prop')
+            stored_results = {self.tab_name: self.results.results_parameters}
+            try:
+                with open(prop_file_name, 'w') as f:
+                    json.dump(stored_results, f, indent=4)
+            except FileNotFoundError as e:
+                print(e)
 
     def load_existing_result_set(self):
-        # todo: perhaps provide a warning that loading a results file will overwrite all other results
         load_existing_file_path = filedialog.askopenfilename(initialdir=self.directory, title="select file",
                                                              filetypes=file_types)
         try:
@@ -108,15 +127,41 @@ class ProcessData:
                 if self.tab_name == 'Member Force':
                     self.results.joint = loaded_results['Joint']
                     self.results.load = loaded_results['Load']
+                elif self.tab_name == 'Joint Reaction':
+                    self.results.load = loaded_results['Load']
+                else:
+                    self.results.profile = loaded_results['Profile']
+                    self.results.ir_range = loaded_results['IR Range']
+                    self.results.sort = loaded_results['Sort']
+                    self.results.fail = loaded_results['Fail']
+                    self.results.sort_order = loaded_results['Sort Order']
                 UpdateResultTree(self.tab_name, self.selected_results_tree).update_result_tree()
+
+
+
+
+
+
+
             else:
                 print('wrong file')
 
-        except FileNotFoundError:
+        except FileNotFoundError as e:
             print('file not found')
-            pass
-        except UnboundLocalError:
-            pass
+            print(e)
+        except UnboundLocalError as e:
+            print(e)
 
     def generate_results(self):
         print('generate results')
+        file_types = [('Excel File', '*.xlsx'), ('csv Files', '*.csv')]
+        output_file_path = filedialog.asksaveasfilename(filetypes=file_types, defaultextension='xlsx')
+        out_format = os.path.splitext(output_file_path)[1]
+        # first thing it should do is run the data to check for errors
+        # then it should ask for a save location and save the generated file
+        if self.tab_name == 'Member Force':
+            save_output.RunProgram().run_member_forces(output_file_path, self.tab_name, self.results.set_index, out_format)
+        elif self.tab_name == 'Joint Reaction':
+            save_output.RunProgram().run_joint_reactions(output_file_path, self.tab_name, self.results.set_index, out_format)
+        else:
+            save_output.RunProgram().run_code_check(output_file_path, self.tab_name, self.results.set_index, out_format)

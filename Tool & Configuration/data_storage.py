@@ -6,6 +6,7 @@ class ResultsParameters:
         :param result_type: the major result type being requested (will correspond to the active tab name)
         """
         self._tab_name = result_type
+        self._input_file = None
         self._results_parameters = {
             'Member Force': {
                 'Joint': ['ALL'],
@@ -85,9 +86,9 @@ class ResultsParameters:
     def set_name(self):
         return self._results_parameters[self._tab_name]['Set Name']
 
-    # @results_parameters.setter
-    # def results_parameters(self, value):
-    #     self._results_parameters = value
+    @property
+    def input_file(self):
+        return self._input_file
 
     @tab_name.setter
     def tab_name(self, value):
@@ -137,4 +138,6 @@ class ResultsParameters:
     def set_index(self, value):
         self._results_parameters[self._tab_name]['Set Index'] = value
 
-
+    @input_file.setter
+    def input_file(self, value):
+        self._input_file = value

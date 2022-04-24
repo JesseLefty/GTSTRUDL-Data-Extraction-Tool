@@ -1,6 +1,6 @@
 import utilities_GUI
-import generate_joint_array_info
 import re
+import shared_stuff
 
 
 class GenerateOutputArray:
@@ -14,11 +14,13 @@ class GenerateOutputArray:
                 joint_spec (list):          list of tuples containing joint parameter id and user joint input text
                 load_spec (list):           list of tuples containing load parameter id and user load input text
             """
-    def __init__(self, num_joint_set, joint_reactions, joint_spec, load_spec):
+    def __init__(self, tab_name, num_joint_set, joint_reactions):
         self.num_joint_set = num_joint_set
+        self.results = shared_stuff.data_store
+        self.results.tab_name = tab_name
         self.joint_reactions = joint_reactions
-        self.joint_spec = joint_spec
-        self.load_spec = load_spec
+        self.joint_spec = self.results.name
+        self.load_spec = self.results.load
         self.joint_error = []
         self.load_error = []
 

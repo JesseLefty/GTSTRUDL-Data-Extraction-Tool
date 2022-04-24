@@ -1,5 +1,6 @@
 import utilities_GUI
-import pprint
+import shared_stuff
+
 
 class ParseFileForData:
     """
@@ -7,14 +8,15 @@ class ParseFileForData:
 
             Parameters:
                 num_joint_set (int): index of the user generated result set for which the data is requested
-                input_file (str): input file to be parsed
-                joint_set (list): list of all requested joint sets
+                tab_name (str): name of the tab from which the user clicked 'generate'
             """
-    def __init__(self, num_joint_set, input_file, joint_set):
+    def __init__(self, num_joint_set, tab_name):
+        self.results = shared_stuff.data_store
+        self.results.tab_name = tab_name
         self.num_joint_set = num_joint_set
-        self.input_file = input_file
-        self.joint_set = joint_set
-        self.file_list = utilities_GUI.ReadInputFile(input_file).file_list()
+        self.input_file = self.results.input_file
+        self.joint_set = self.results.set_index
+        self.file_list = utilities_GUI.ReadInputFile(self.input_file).file_list()
 
     def get_reaction_positions(self):
         """
