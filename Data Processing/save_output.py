@@ -1,10 +1,8 @@
 import error_handling
 import extract_member_forces as emf
-import generate_mem_array_info as g_mem
-import generate_joint_array_info as g_joi
+import parse_file_for_input_data as g_mem
 import extract_joint_reactions as ejr
 import extract_code_check as ecc
-import generate_code_check_array_info as g_code
 import csv
 import openpyxl
 from tkinter import *
@@ -51,9 +49,9 @@ class RunProgram:
         if out_format == '.xlsx':
             wb = openpyxl.Workbook()
             for items in range(len(member_set)):
-                member_forces, end_index, first_useful_line \
-                    = g_mem.ParseFileForData(items, tab_name).get_member_force_list_info()
-                member_forces, errors = emf.GenerateOutputArray(tab_name, items, member_forces,
+                extracted_result_list, end_index, first_useful_line \
+                    = g_mem.ParseFileForData(items, tab_name).get_result_list_info()
+                member_forces, errors = emf.GenerateOutputArray(tab_name, items, extracted_result_list,
                                                                 ).requested_member_force_array()
                 sheet_name = 'Load Set ' + str(items + 1)
                 sheet = wb.create_sheet(f'{sheet_name}')
@@ -74,9 +72,9 @@ class RunProgram:
         else:
             with open(output_file_name, 'w', newline=''):
                 for items in range(len(member_set)):
-                    member_forces, end_index, first_useful_line \
-                        = g_mem.ParseFileForData(items, tab_name).get_member_force_list_info()
-                    member_forces, errors = emf.GenerateOutputArray(tab_name, items, member_forces,
+                    extracted_result_list, end_index, first_useful_line \
+                        = g_mem.ParseFileForData(items, tab_name).get_result_list_info()
+                    member_forces, errors = emf.GenerateOutputArray(tab_name, items, extracted_result_list,
                                                                     ).requested_member_force_array()
 
                     with open(output_file_name, 'a', newline='') as a:
@@ -129,9 +127,9 @@ class RunProgram:
         if out_format == '.xlsx':
             wb = openpyxl.Workbook()
             for items in range(len(joint_set)):
-                joint_reactions, end_index, first_useful_line \
-                    = g_joi.ParseFileForData(items, tab_name).get_joint_reaction_list_info()
-                joint_reactions, errors = ejr.GenerateOutputArray(tab_name, items, joint_reactions).requested_joint_reaction_dict()
+                extracted_result_list, end_index, first_useful_line \
+                    = g_mem.ParseFileForData(items, tab_name).get_result_list_info()
+                joint_reactions, errors = ejr.GenerateOutputArray(tab_name, items, extracted_result_list).requested_joint_reaction_dict()
                 sheet_name = 'Load Set ' + str(items + 1)
                 sheet = wb.create_sheet(f'{sheet_name}')
                 d_list = [list(k) + v for k, v in joint_reactions.items()]
@@ -151,10 +149,10 @@ class RunProgram:
         else:
             with open(output_file_name, 'w', newline=''):
                 for items in range(len(joint_set)):
-                    joint_reactions, end_index, first_useful_line \
-                        = g_joi.ParseFileForData(items, tab_name).get_joint_reaction_list_info()
+                    extracted_result_list, end_index, first_useful_line \
+                        = g_mem.ParseFileForData(items, tab_name).get_result_list_info()
                     joint_reactions, errors = ejr.GenerateOutputArray(tab_name, items,
-                                                                      joint_reactions).requested_joint_reaction_dict()
+                                                                      extracted_result_list).requested_joint_reaction_dict()
 
                     with open(output_file_name, 'a', newline='') as a:
                         csv.writer(a).writerows((list(k) + v for k, v in joint_reactions.items()))
@@ -208,9 +206,9 @@ class RunProgram:
         if out_format == '.xlsx':
             wb = openpyxl.Workbook()
             for items in range(len(code_set)):
-                code_check, end_index, first_useful_line \
-                    = g_code.ParseFileForData(items, tab_name).get_code_check_list_info()
-                code_check, errors = ecc.GenerateOutputArray(tab_name, items, code_check).output_list()
+                extracted_result_list, end_index, first_useful_line \
+                    = g_mem.ParseFileForData(items, tab_name).get_result_list_info()
+                code_check, errors = ecc.GenerateOutputArray(tab_name, items, extracted_result_list).output_list()
                 sheet_name = 'Load Set ' + str(items + 1)
                 sheet = wb.create_sheet(f'{sheet_name}')
                 if len(code_check) == 0:
@@ -230,9 +228,9 @@ class RunProgram:
         else:
             with open(output_file_name, 'w', newline=''):
                 for items in range(len(code_set)):
-                    code_check, end_index, first_useful_line \
-                        = g_code.ParseFileForData(items, tab_name).get_code_check_list_info()
-                    code_check, errors = ecc.GenerateOutputArray(tab_name, items, code_check).output_list()
+                    extracted_result_list, end_index, first_useful_line \
+                        = g_mem.ParseFileForData(items, tab_name).get_result_list_info()
+                    code_check, errors = ecc.GenerateOutputArray(tab_name, items, extracted_result_list).output_list()
                     with open(output_file_name, 'a', newline='') as a:
                         csv.writer(a).writerows(code_check)
 
