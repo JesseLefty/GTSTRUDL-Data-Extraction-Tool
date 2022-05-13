@@ -1,4 +1,4 @@
-import utilities_GUI
+import utilities
 import shared_stuff
 from config import result_configuration_parameters
 
@@ -18,7 +18,7 @@ class ParseFileForData:
         self.set_num = set_num
         self.input_file = self.results.input_file
         self.result_set = self.results.set_index
-        self.file_list = utilities_GUI.ReadInputFile(self.input_file).file_list()
+        self.file_list = utilities.ReadInputFile(self.input_file).file_list()
 
     def get_result_positions(self):
         """

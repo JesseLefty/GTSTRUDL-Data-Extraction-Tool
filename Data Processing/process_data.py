@@ -2,14 +2,15 @@ import json
 from tkinter import filedialog
 import os
 import save_output
-from config import file_types
+from config import output_file_types, store_file_types
 from update_results_tree import UpdateResultTree
 import shared_stuff
 
 
 class ProcessData:
 
-    def __init__(self, tab_name, selection_idd=0, modify=False, directory=None, selected_results_tree=None):
+    def __init__(self, tab_name, selection_idd=0, modify=False, directory=None, selected_results_tree=None,
+                 initial_window=None):
         self.tab_name = tab_name
         self.results = shared_stuff.data_store
         self.results.tab_name = self.tab_name
@@ -17,6 +18,7 @@ class ProcessData:
         self.selection_idd = selection_idd
         self.directory = directory
         self.selected_results_tree = selected_results_tree
+        self.initial_window = initial_window
 
     def results_parameters(self):
         return self.results
@@ -105,7 +107,7 @@ class ProcessData:
         if not self.selected_results_tree.get_children():
             print('no stored results')
         else:
-            prop_file_name = filedialog.asksaveasfilename(filetypes=file_types, defaultextension='*.prop')
+            prop_file_name = filedialog.asksaveasfilename(filetypes=store_file_types, defaultextension='*.prop')
             stored_results = {self.tab_name: self.results.results_parameters}
             try:
                 with open(prop_file_name, 'w') as f:
@@ -115,7 +117,7 @@ class ProcessData:
 
     def load_existing_result_set(self):
         load_existing_file_path = filedialog.askopenfilename(initialdir=self.directory, title="select file",
-                                                             filetypes=file_types)
+                                                             filetypes=store_file_types)
         try:
             with open(load_existing_file_path) as json_file:
                 data = json.load(json_file)
@@ -137,12 +139,6 @@ class ProcessData:
                     self.results.sort_order = loaded_results['Sort Order']
                 UpdateResultTree(self.tab_name, self.selected_results_tree).update_result_tree()
 
-
-
-
-
-
-
             else:
                 print('wrong file')
 
@@ -154,14 +150,11 @@ class ProcessData:
 
     def generate_results(self):
         print('generate results')
-        file_types = [('Excel File', '*.xlsx'), ('csv Files', '*.csv')]
-        output_file_path = filedialog.asksaveasfilename(filetypes=file_types, defaultextension='xlsx')
+        #todo: put file types in config
+
+        output_file_path = filedialog.asksaveasfilename(filetypes=output_file_types, defaultextension='xlsx')
         out_format = os.path.splitext(output_file_path)[1]
         # first thing it should do is run the data to check for errors
         # then it should ask for a save location and save the generated file
-        if self.tab_name == 'Member Force':
-            save_output.RunProgram().run_member_forces(output_file_path, self.tab_name, self.results.set_index, out_format)
-        elif self.tab_name == 'Joint Reaction':
-            save_output.RunProgram().run_joint_reactions(output_file_path, self.tab_name, self.results.set_index, out_format)
-        else:
-            save_output.RunProgram().run_code_check(output_file_path, self.tab_name, self.results.set_index, out_format)
+        save_output.RunProgram(self.tab_name, out_format, output_file_path, self.results.set_index, self.initial_window)
+

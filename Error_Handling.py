@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter.ttk import *
 
-import utilities_GUI
+import utilities
 
 
 class ErrorHandling:
@@ -11,7 +11,7 @@ class ErrorHandling:
         self.error_window = Toplevel(self.initial_window)
         self.error_window.geometry('400x200')
         self.error_window.resizable(False, False)
-        utilities_GUI.center(self.error_window)
+        utilities.center(self.error_window)
         self.error_window.title("ERROR!")
         self.error_top_frame = Frame(self.error_window, width=300, height=40)
         self.error_top_frame.pack(side='top', fill='x')

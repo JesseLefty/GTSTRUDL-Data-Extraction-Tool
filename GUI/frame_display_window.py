@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter.ttk import *
 import error_handling
-import utilities_GUI
+import utilities
 import config
 from results_selection_window import ResultsSelectionWindow
 from process_data import ProcessData
@@ -36,7 +36,7 @@ class GenerateTab:
         self.selected_result_set_frame.grid_propagate(0)
         button_frame.grid_propagate(0)
 
-        available_results, input_index = utilities_GUI.GenerateDisplayData(self.input_file_path).get_display(
+        available_results, input_index = utilities.GenerateDisplayData(self.input_file_path).get_display(
             self.tab_name)
         self.available_results_tree = Treeview(self.available_result_set_frame,
                                                columns=config.available_results_headings,
@@ -122,7 +122,7 @@ class GenerateTab:
             button.grid(row=num + 2, column=0, padx=22, pady=5, sticky='nsew')
 
         generate_button = Button(bottom_bar_frame, text="Generate",
-                                 command=lambda: ProcessData(self.tab_name).generate_results())
+                                 command=lambda: ProcessData(self.tab_name, initial_window=self.initial_window).generate_results())
 
         store_properties = Button(bottom_bar_frame, text='Store Input',
                                         command=lambda: (ProcessData(self.tab_name, selected_results_tree=self.selected_results_tree).store_inputs(), self.check_for_results()))

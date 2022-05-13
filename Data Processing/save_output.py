@@ -1,6 +1,7 @@
+import config
 import error_handling
 import extract_member_forces as emf
-import parse_file_for_input_data as g_mem
+from parse_file_for_input_data import ParseFileForData
 import extract_joint_reactions as ejr
 import extract_code_check as ecc
 import csv
@@ -9,252 +10,111 @@ from tkinter import *
 from tkinter.ttk import *
 
 
-# TODO: Add column headers to outputs
-
 class RunProgram:
 
-    def __init__(self, initial_window = None):
+    def __init__(self, tab_name, output_format, output_file_name, result_set_index, initial_window=None):
         self.initial_window = initial_window
-
-    result_set_errors = []
-    list_errors = []
-    beam_errors = []
-    load_errors = []
-    joint_errors = []
-    name_errors = []
-    profile_errors = []
-    ir_errors = []
-
-    def run_member_forces(self, output_file_name, tab_name, member_set, out_format):
-        """
-            Runs the full program. Saves all required outputs as selected by the user and saves either an xlsx file or a
-            csv file.
-
-                Parameters:
-                    output_file_name (str):     name of file in which to save the data
-                    joint (tuple):              list containing "ALL", "STA", or "END" for joint specification
-                    member_set (list):          list of values corresponding to the index of requested member set
-                    out_format (str):           .csv or .xlsx
-                    input_file (str):           input file in which to sear for data
-                    beam_id (list):             list containing tuples of beam spec (int), and user beam input (str)
-                    load_id (list):             list containing tuples of load spec (int), and user load input (str)
-
-                Returns:
-                     .xlsx or .csv file of requested user inputs
-            """
-        self.result_set_errors.clear()
-        self.list_errors.clear()
-        self.beam_errors.clear()
-        self.load_errors.clear()
-        if out_format == '.xlsx':
-            wb = openpyxl.Workbook()
-            for items in range(len(member_set)):
-                extracted_result_list, end_index, first_useful_line \
-                    = g_mem.ParseFileForData(items, tab_name).get_result_list_info()
-                member_forces, errors = emf.GenerateOutputArray(tab_name, items, extracted_result_list,
-                                                                ).requested_member_force_array()
-                sheet_name = 'Load Set ' + str(items + 1)
-                sheet = wb.create_sheet(f'{sheet_name}')
-                d_list = [list(k) + v for k, v in member_forces.items()]
-                if len(member_forces) == 0:
-                    self.result_set_errors.append(items + 1)
-
-                if errors[0] or errors[1]:
-                    self.list_errors.append(items + 1)
-                    self.beam_errors.append(errors[0])
-                    self.load_errors.append(errors[1])
-
-                for row, key in enumerate(member_forces.items(), start=1):
-                    for col, key in enumerate(d_list[row - 1], start=1):
-                        sheet.cell(column=col, row=row, value=d_list[row - 1][col - 1])
-            del wb['Sheet']
-            wb.save(output_file_name)
+        self.output_format = output_format
+        self.tab_name = tab_name
+        self.output_file_name = output_file_name
+        self.result_set_index = result_set_index
+        self.result_set_errors = []
+        self.list_errors = []
+        self.beam_errors = []
+        self.load_errors = []
+        self.joint_errors = []
+        self.name_errors = []
+        self.profile_errors = []
+        self.ir_errors = []
+        if self.output_format == '.xlsx':
+            self.generate_xlsx()
         else:
-            with open(output_file_name, 'w', newline=''):
-                for items in range(len(member_set)):
-                    extracted_result_list, end_index, first_useful_line \
-                        = g_mem.ParseFileForData(items, tab_name).get_result_list_info()
-                    member_forces, errors = emf.GenerateOutputArray(tab_name, items, extracted_result_list,
-                                                                    ).requested_member_force_array()
+            self.generate_csv()
 
-                    with open(output_file_name, 'a', newline='') as a:
-                        csv.writer(a).writerows((list(k) + v for k, v in member_forces.items()))
+    def build_output(self, items):
+        extracted_result_list, _, _ = ParseFileForData(items, self.tab_name).get_result_list_info()
+        if self.tab_name == 'Member Force':
+            parsed_results, errors = emf.GenerateOutputArray(self.tab_name, items, extracted_result_list,
+                                                             ).requested_member_force_array()
+            if errors[0] or errors[1]:
+                self.list_errors.append(items + 1)
+                self.beam_errors.append(errors[0])
+                self.load_errors.append(errors[1])
+        elif self.tab_name == 'Joint Reaction':
+            parsed_results, errors = ejr.GenerateOutputArray(self.tab_name, items,
+                                                             extracted_result_list).requested_joint_reaction_dict()
+            if errors[0] or errors[1]:
+                self.list_errors.append(items + 1)
+                self.joint_errors.append(errors[0])
+                self.load_errors.append(errors[1])
+        else:
+            parsed_results, errors = ecc.GenerateOutputArray(self.tab_name, items,
+                                                             extracted_result_list).output_list()
+            if errors[0] or errors[1] or errors[2]:
+                self.list_errors.append(items + 1)
+                self.name_errors.append(errors[0])
+                self.profile_errors.append(errors[1])
+                self.ir_errors.append(errors[2])
+        if len(parsed_results) == 0:
+            self.result_set_errors.append(items + 1)
+        return parsed_results
 
-                    if len(member_forces) == 0:
-                        self.result_set_errors.append(items + 1)
+    def generate_xlsx(self):
+        wb = openpyxl.Workbook()
+        for items in range(len(self.result_set_index)):
+            parsed_results = self.build_output(items)
+            sheet_name = 'Result Set ' + str(items + 1)
+            sheet = wb.create_sheet(f'{sheet_name}')
+            for col, val in enumerate(config.result_configuration_parameters[self.tab_name]['Headings'], start=1):
+                sheet.cell(column=col, row=1, value=val)
+            if self.tab_name == 'Code Check':
+                for row, key in enumerate(parsed_results, start=2):
+                    for col, key in enumerate(parsed_results[row - 2], start=1):
+                        sheet.cell(column=col, row=row, value=parsed_results[row - 2][col - 1])
+            else:
+                d_list = [list(k) + v for k, v in parsed_results.items()]
+                for row, key in enumerate(parsed_results.items(), start=2):
+                    for col, key in enumerate(d_list[row - 2], start=1):
+                        sheet.cell(column=col, row=row, value=d_list[row - 2][col - 1])
+        del wb['Sheet']
+        wb.save(self.output_file_name)
+        self.display_success_or_error()
 
-                    if errors[0] or errors[1]:
-                        self.list_errors.append(items + 1)
-                        self.beam_errors.append(errors[0])
-                        self.load_errors.append(errors[1])
+    def generate_csv(self):
+        with open(self.output_file_name, 'w', newline='') as w:
+            csv.writer(w).writerow(config.result_configuration_parameters[self.tab_name]['Headings'])
+            w.close()
+            for items in range(len(self.result_set_index)):
+                parsed_results = self.build_output(items)
+                print(parsed_results)
+                with open(self.output_file_name, 'a', newline='') as a:
+                    if self.tab_name == 'Code Check':
+                        csv.writer(a).writerows(parsed_results)
+                    else:
+                        csv.writer(a).writerows((list(k) + v for k, v in parsed_results.items()))
+        self.display_success_or_error()
 
+    def display_success_or_error(self):
         if len(self.result_set_errors) or len(self.list_errors) > 0:
             error_set_list = list(set(self.list_errors + self.result_set_errors))
-            error_handling.ErrorHandling(self.initial_window).item_not_found(error_set_list, self.beam_errors,
-                                                                             self.load_errors, member_force=True)
+            if self.tab_name == 'Member Force':
+                error_handling.ErrorHandling(self.initial_window).item_not_found(error_set_list, self.beam_errors,
+                                                                                 self.load_errors, member_force=True)
+            elif self.tab_name == 'Joint Reaction':
+                error_handling.ErrorHandling(self.initial_window).item_not_found(error_set_list, self.joint_errors,
+                                                                                 self.load_errors, joint_reaction=True)
+            else:
+                error_handling.ErrorHandling(self.initial_window).item_not_found(error_set_list, self.name_errors,
+                                                                                 self.profile_errors,
+                                                                                 ir_errors=self.ir_errors,
+                                                                                 code_check=True)
         else:
-            pass
-            print(f'{tab_name} - Success')
-            # success_window = Toplevel(self.initial_window)
-            # success_window.geometry('200x120')
-            # success_window.title('Complete')
-            # success_window.resizable(False, False)
-            # success_window.grab_set()
-            # self.initial_window.eval(f'tk::PlaceWindow {str(success_window)} center')
-            # Label(success_window, text='Output Saved Successfully').pack()
-            # Button(success_window, text='OK', command=success_window.destroy).pack()
+            success_window = Toplevel(self.initial_window)
+            success_window.geometry('200x60')
+            success_window.title('Complete')
+            success_window.resizable(False, False)
+            success_window.grab_set()
+            self.initial_window.eval(f'tk::PlaceWindow {str(success_window)} center')
+            Label(success_window, text='Output Saved Successfully').pack()
+            Button(success_window, text='OK', command=success_window.destroy).pack()
 
-    def run_joint_reactions(self, output_file_name, tab_name, joint_set, out_format):
-        """
-            Runs the full program. Saves all required outputs as selected by the user and saves either an xlsx file or a
-            csv file.
-
-                Parameters:
-                    output_file_name (str):     name of file in which to save the data
-                    joint_set (list):          list of values corresponding to the index of requested joint set
-                    out_format (str):           .csv or .xlsx
-                    input_file (str):           input file in which to sear for data
-                    joint_id (list):             list containing tuples of beam spec (int), and user beam input (str)
-                    load_id (list):             list containing tuples of load spec (int), and user load input (str)
-
-                Returns:
-                     .xlsx or .csv file of requested user inputs
-            """
-        self.result_set_errors.clear()
-        self.list_errors.clear()
-        self.joint_errors.clear()
-        self.load_errors.clear()
-        if out_format == '.xlsx':
-            wb = openpyxl.Workbook()
-            for items in range(len(joint_set)):
-                extracted_result_list, end_index, first_useful_line \
-                    = g_mem.ParseFileForData(items, tab_name).get_result_list_info()
-                joint_reactions, errors = ejr.GenerateOutputArray(tab_name, items, extracted_result_list).requested_joint_reaction_dict()
-                sheet_name = 'Load Set ' + str(items + 1)
-                sheet = wb.create_sheet(f'{sheet_name}')
-                d_list = [list(k) + v for k, v in joint_reactions.items()]
-                if len(joint_reactions) == 0:
-                    self.result_set_errors.append(items + 1)
-
-                if errors[0] or errors[1]:
-                    self.list_errors.append(items + 1)
-                    self.joint_errors.append(errors[0])
-                    self.load_errors.append(errors[1])
-
-                for row, key in enumerate(joint_reactions.items(), start=1):
-                    for col, key in enumerate(d_list[row - 1], start=1):
-                        sheet.cell(column=col, row=row, value=d_list[row - 1][col - 1])
-            del wb['Sheet']
-            wb.save(output_file_name)
-        else:
-            with open(output_file_name, 'w', newline=''):
-                for items in range(len(joint_set)):
-                    extracted_result_list, end_index, first_useful_line \
-                        = g_mem.ParseFileForData(items, tab_name).get_result_list_info()
-                    joint_reactions, errors = ejr.GenerateOutputArray(tab_name, items,
-                                                                      extracted_result_list).requested_joint_reaction_dict()
-
-                    with open(output_file_name, 'a', newline='') as a:
-                        csv.writer(a).writerows((list(k) + v for k, v in joint_reactions.items()))
-
-                    if len(joint_reactions) == 0:
-                        self.result_set_errors.append(items + 1)
-
-                    if errors[0] or errors[1]:
-                        self.list_errors.append(items + 1)
-                        self.joint_errors.append(errors[0])
-                        self.load_errors.append(errors[1])
-
-        if len(self.result_set_errors) or len(self.list_errors) > 0:
-            error_set_list = list(set(self.list_errors + self.result_set_errors))
-            error_handling.ErrorHandling(self.initial_window).item_not_found(error_set_list, self.joint_errors,
-                                                                             self.load_errors, joint_reaction=True)
-        else:
-            pass
-            print(f'{tab_name} - Success')
-            # success_window = Toplevel(self.initial_window)
-            # success_window.geometry('200x60')
-            # success_window.title('Complete')
-            # success_window.resizable(False, False)
-            # success_window.grab_set()
-            # self.initial_window.eval(f'tk::PlaceWindow {str(success_window)} center')
-            # Label(success_window, text='Output Saved Successfully').pack()
-            # Button(success_window, text='OK', command=success_window.destroy).pack()
-
-    def run_code_check(self, output_file_name, tab_name, code_set, out_format):
-        # TODO: clean up save_output
-        """
-            Runs the full program. Saves all required outputs as selected by the user and saves either an xlsx file or a
-            csv file.
-
-                Parameters:
-                    output_file_name (str):     name of file in which to save the data
-                    joint_set (list):          list of values corresponding to the index of requested joint set
-                    out_format (str):           .csv or .xlsx
-                    input_file (str):           input file in which to sear for data
-                    joint_id (list):             list containing tuples of beam spec (int), and user beam input (str)
-                    load_id (list):             list containing tuples of load spec (int), and user load input (str)
-
-                Returns:
-                     .xlsx or .csv file of requested user inputs
-            """
-        self.result_set_errors.clear()
-        self.list_errors.clear()
-        self.name_errors.clear()
-        self.profile_errors.clear()
-        self.ir_errors.clear()
-        if out_format == '.xlsx':
-            wb = openpyxl.Workbook()
-            for items in range(len(code_set)):
-                extracted_result_list, end_index, first_useful_line \
-                    = g_mem.ParseFileForData(items, tab_name).get_result_list_info()
-                code_check, errors = ecc.GenerateOutputArray(tab_name, items, extracted_result_list).output_list()
-                sheet_name = 'Load Set ' + str(items + 1)
-                sheet = wb.create_sheet(f'{sheet_name}')
-                if len(code_check) == 0:
-                    self.result_set_errors.append(items + 1)
-
-                if errors[0] or errors[1] or errors[2]:
-                    self.list_errors.append(items + 1)
-                    self.name_errors.append(errors[0])
-                    self.profile_errors.append(errors[1])
-                    self.ir_errors.append(errors[2])
-
-                for row, key in enumerate(code_check, start=1):
-                    for col, key in enumerate(code_check[row - 1], start=1):
-                        sheet.cell(column=col, row=row, value=code_check[row - 1][col - 1])
-            del wb['Sheet']
-            wb.save(output_file_name)
-        else:
-            with open(output_file_name, 'w', newline=''):
-                for items in range(len(code_set)):
-                    extracted_result_list, end_index, first_useful_line \
-                        = g_mem.ParseFileForData(items, tab_name).get_result_list_info()
-                    code_check, errors = ecc.GenerateOutputArray(tab_name, items, extracted_result_list).output_list()
-                    with open(output_file_name, 'a', newline='') as a:
-                        csv.writer(a).writerows(code_check)
-
-                    if len(code_check) == 0:
-                        self.result_set_errors.append(items + 1)
-
-                    if errors[0] or errors[1] or errors[2]:
-                        self.list_errors.append(items + 1)
-                        self.name_errors.append(errors[0])
-                        self.profile_errors.append(errors[1])
-                        self.ir_errors.append(errors[2])
-
-        if len(self.result_set_errors) or len(self.list_errors) > 0:
-            error_set_list = list(set(self.list_errors + self.result_set_errors))
-            error_handling.ErrorHandling(self.initial_window).item_not_found(error_set_list, self.name_errors,
-                                                                             self.profile_errors, ir_errors=self.ir_errors, code_check=True)
-        else:
-            pass
-            print(f'{tab_name} - Success')
-            # success_window = Toplevel(self.initial_window)
-            # success_window.geometry('200x60')
-            # success_window.title('Complete')
-            # success_window.resizable(False, False)
-            # success_window.grab_set()
-            # self.initial_window.eval(f'tk::PlaceWindow {str(success_window)} center')
-            # Label(success_window, text='Output Saved Successfully').pack()
-            # Button(success_window, text='OK', command=success_window.destroy).pack()

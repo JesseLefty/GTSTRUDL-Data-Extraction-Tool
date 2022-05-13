@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter.ttk import *
 import error_handling
-import utilities_GUI
+import utilities
 import config
 from process_data import ProcessData
 import shared_stuff
@@ -70,7 +70,7 @@ class ResultsSelectionWindow:
         rb_text = ['ALL', 'STARTS WITH', 'ENDS WITH', 'CONTAINS', 'LIST']
         self.selection_window = Toplevel(self.initial_window)
         self.selection_window.geometry('400x360')
-        utilities_GUI.center(self.selection_window, x_offset=-500)
+        utilities.center(self.selection_window, x_offset=-500)
         self.selection_window.resizable(False, False)
         self.selection_window.grid_propagate(0)
         self.selection_window.grab_set()
@@ -96,7 +96,7 @@ class ResultsSelectionWindow:
         self.first_text = Text(first_select, height=1, width=50, font=('Arial', 10), wrap=NONE)
         first_scrollx = Scrollbar(first_select)
         first_scrollx.configure(command=self.first_text.xview, orient=HORIZONTAL)
-        utilities_GUI.CreateToolTip(self.first_text, 'List entries must be separated by comma (item1, item2, item3)')
+        utilities.CreateToolTip(self.first_text, 'List entries must be separated by comma (item1, item2, item3)')
         self.first_text.grid(row=1, column=0, columnspan=5, sticky='nw', pady=5, padx=5)
         first_scrollx.grid(row=2, column=0, columnspan=5, sticky='ew')
         self.first_text.configure(xscrollcommand=first_scrollx.set)
@@ -105,7 +105,7 @@ class ResultsSelectionWindow:
         self.second_text = Text(second_select, height=1, width=50, font=('Arial', 10), wrap=NONE)
         second_scrollx = Scrollbar(second_select)
         second_scrollx.configure(command=self.second_text.xview, orient=HORIZONTAL)
-        utilities_GUI.CreateToolTip(self.second_text, 'List entries must be separated by comma (item1, item2, item3)')
+        utilities.CreateToolTip(self.second_text, 'List entries must be separated by comma (item1, item2, item3)')
 
         self.second_text.grid(row=1, column=0, columnspan=5, sticky='nw', pady=5, padx=5)
         second_scrollx.grid(row=2, column=0, columnspan=5, sticky='ew')
