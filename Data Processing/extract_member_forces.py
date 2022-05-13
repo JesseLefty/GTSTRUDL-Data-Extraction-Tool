@@ -1,4 +1,4 @@
-import utilities_GUI
+import utilities
 import re
 import shared_stuff
 
@@ -9,13 +9,10 @@ class GenerateOutputArray:
             and the corresponding results.
 
             Parameters:
-                joint (list):               list indicating start, end, or all joints are requested
+                tab_name (str):             name of tab from which the user clicked 'generate'
                 mem_set_index (int):        index of the user generated result set for which the data is requested
                 member_forces (list):       flattened list of all lines in requested data block
-                beam_id (list):             list of tuples containing joint parameter id and user joint input text
-                load_id (list):             list of tuples containing load parameter id and user load input text
             """
-
     def __init__(self, tab_name, mem_set_index, member_forces):
         self.mem_set_index = mem_set_index
         self.results = shared_stuff.data_store
@@ -52,7 +49,7 @@ class GenerateOutputArray:
         column_start = complete_column_start_idx[0:len(headers) + 3] + line_end
         value_columns = complete_column_start_idx[4: 4 + len(headers)] + line_end
         full_d = {}
-        full_d = utilities_GUI.TupleDict(full_d)
+        full_d = utilities.TupleDict(full_d)
         load_cases = []
         for row_num, line in enumerate(member_forces):
             column_1 = line[column_start[0]: column_start[1]].strip()

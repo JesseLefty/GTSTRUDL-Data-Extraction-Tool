@@ -1,4 +1,4 @@
-import utilities_GUI
+import utilities
 import re
 import shared_stuff
 
@@ -9,10 +9,9 @@ class GenerateOutputArray:
             corresponding results.
 
             Parameters:
+                tab_name (str):             name of tab from which the user clicked 'generate'
                 num_joint_set (int):        index of the user generated result set for which the data is requested
                 joint_reactions (list):     flattened list of all lines in requested data block
-                joint_spec (list):          list of tuples containing joint parameter id and user joint input text
-                load_spec (list):           list of tuples containing load parameter id and user load input text
             """
     def __init__(self, tab_name, num_joint_set, joint_reactions):
         self.num_joint_set = num_joint_set
@@ -49,7 +48,7 @@ class GenerateOutputArray:
         column_start = complete_column_start_idx[0:len(headers) + 3] + line_end
         value_columns = complete_column_start_idx[4: 4 + len(headers)] + line_end
         full_d = {}
-        full_d = utilities_GUI.TupleDict(full_d)
+        full_d = utilities.TupleDict(full_d)
         for row_num, line in enumerate(joint_reactions):
             column_1 = line[column_start[0]: column_start[1]].strip()
             if (column_1 or column_1.startswith('1')) and not column_1.startswith("****"):
