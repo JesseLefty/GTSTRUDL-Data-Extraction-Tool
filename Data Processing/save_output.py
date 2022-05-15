@@ -1,5 +1,4 @@
 import config
-import error_handling
 import extract_member_forces as emf
 from parse_file_for_input_data import ParseFileForData
 import extract_joint_reactions as ejr
@@ -18,14 +17,6 @@ class RunProgram:
         self.tab_name = tab_name
         self.output_file_name = output_file_name
         self.result_set_index = result_set_index
-        self.result_set_errors = []
-        self.list_errors = []
-        self.beam_errors = []
-        self.load_errors = []
-        self.joint_errors = []
-        self.name_errors = []
-        self.profile_errors = []
-        self.ir_errors = []
         if self.output_format == '.xlsx':
             self.generate_xlsx()
         else:
@@ -34,29 +25,14 @@ class RunProgram:
     def build_output(self, items):
         extracted_result_list, _, _ = ParseFileForData(items, self.tab_name).get_result_list_info()
         if self.tab_name == 'Member Force':
-            parsed_results, errors = emf.GenerateOutputArray(self.tab_name, items, extracted_result_list,
-                                                             ).requested_member_force_array()
-            if errors[0] or errors[1]:
-                self.list_errors.append(items + 1)
-                self.beam_errors.append(errors[0])
-                self.load_errors.append(errors[1])
+            parsed_results = emf.GenerateOutputArray(self.tab_name, items, extracted_result_list,
+                                                     ).requested_member_force_array()
         elif self.tab_name == 'Joint Reaction':
-            parsed_results, errors = ejr.GenerateOutputArray(self.tab_name, items,
-                                                             extracted_result_list).requested_joint_reaction_dict()
-            if errors[0] or errors[1]:
-                self.list_errors.append(items + 1)
-                self.joint_errors.append(errors[0])
-                self.load_errors.append(errors[1])
+            parsed_results = ejr.GenerateOutputArray(self.tab_name, items,
+                                                     extracted_result_list).requested_joint_reaction_dict()
         else:
-            parsed_results, errors = ecc.GenerateOutputArray(self.tab_name, items,
-                                                             extracted_result_list).output_list()
-            if errors[0] or errors[1] or errors[2]:
-                self.list_errors.append(items + 1)
-                self.name_errors.append(errors[0])
-                self.profile_errors.append(errors[1])
-                self.ir_errors.append(errors[2])
-        if len(parsed_results) == 0:
-            self.result_set_errors.append(items + 1)
+            parsed_results = ecc.GenerateOutputArray(self.tab_name, items,
+                                                     extracted_result_list).output_list()
         return parsed_results
 
     def generate_xlsx(self):
@@ -95,26 +71,11 @@ class RunProgram:
         self.display_success_or_error()
 
     def display_success_or_error(self):
-        if len(self.result_set_errors) or len(self.list_errors) > 0:
-            error_set_list = list(set(self.list_errors + self.result_set_errors))
-            if self.tab_name == 'Member Force':
-                error_handling.ErrorHandling(self.initial_window).item_not_found(error_set_list, self.beam_errors,
-                                                                                 self.load_errors, member_force=True)
-            elif self.tab_name == 'Joint Reaction':
-                error_handling.ErrorHandling(self.initial_window).item_not_found(error_set_list, self.joint_errors,
-                                                                                 self.load_errors, joint_reaction=True)
-            else:
-                error_handling.ErrorHandling(self.initial_window).item_not_found(error_set_list, self.name_errors,
-                                                                                 self.profile_errors,
-                                                                                 ir_errors=self.ir_errors,
-                                                                                 code_check=True)
-        else:
-            success_window = Toplevel(self.initial_window)
-            success_window.geometry('200x60')
-            success_window.title('Complete')
-            success_window.resizable(False, False)
-            success_window.grab_set()
-            self.initial_window.eval(f'tk::PlaceWindow {str(success_window)} center')
-            Label(success_window, text='Output Saved Successfully').pack()
-            Button(success_window, text='OK', command=success_window.destroy).pack()
-
+        success_window = Toplevel(self.initial_window)
+        success_window.geometry('200x60')
+        success_window.title('Complete')
+        success_window.resizable(False, False)
+        success_window.grab_set()
+        self.initial_window.eval(f'tk::PlaceWindow {str(success_window)} center')
+        Label(success_window, text='Output Saved Successfully').pack()
+        Button(success_window, text='OK', command=success_window.destroy).pack()

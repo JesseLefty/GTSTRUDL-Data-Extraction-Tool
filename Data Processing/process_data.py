@@ -1,6 +1,8 @@
 import json
 from tkinter import filedialog
 import os
+import check_input_errors
+import error_handling
 import save_output
 from config import output_file_types, store_file_types
 from update_results_tree import UpdateResultTree
@@ -140,7 +142,7 @@ class ProcessData:
                 UpdateResultTree(self.tab_name, self.selected_results_tree).update_result_tree()
 
             else:
-                print('wrong file')
+                error_handling.ErrorHandling(self.initial_window).wrong_properties_file(self.tab_name)
 
         except FileNotFoundError as e:
             print('file not found')
@@ -149,12 +151,11 @@ class ProcessData:
             print(e)
 
     def generate_results(self):
-        print('generate results')
-        #todo: put file types in config
+        errors = check_input_errors.FindInputErrors(self.tab_name).consolidate_errors(self.initial_window)
+        if not errors:
+            output_file_path = filedialog.asksaveasfilename(filetypes=output_file_types, defaultextension='xlsx')
+            out_format = os.path.splitext(output_file_path)[1]
+            save_output.RunProgram(self.tab_name, out_format, output_file_path, self.results.set_index, self.initial_window)
 
-        output_file_path = filedialog.asksaveasfilename(filetypes=output_file_types, defaultextension='xlsx')
-        out_format = os.path.splitext(output_file_path)[1]
-        # first thing it should do is run the data to check for errors
-        # then it should ask for a save location and save the generated file
-        save_output.RunProgram(self.tab_name, out_format, output_file_path, self.results.set_index, self.initial_window)
+
 

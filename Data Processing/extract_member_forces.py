@@ -21,8 +21,6 @@ class GenerateOutputArray:
         self.member_forces = member_forces
         self.beam_id = self.results.name
         self.load_id = self.results.load
-        self.beam_error = []
-        self.load_error = []
 
     def member_force_array(self):
         """
@@ -120,8 +118,6 @@ class GenerateOutputArray:
                     load.append(load_names[b_idx])
                 else:
                     pass
-            if not user_beams:
-                self.beam_error.append(beam_starts_with)
         elif beam_choice == 3:
             beam_ends_with = self.beam_id[self.mem_set_index][1]
             for b_idx, beams in enumerate(beam_names):
@@ -130,8 +126,6 @@ class GenerateOutputArray:
                     load.append(load_names[b_idx])
                 else:
                     pass
-            if not user_beams:
-                self.beam_error.append(beam_ends_with)
         elif beam_choice == 4:
             beam_contains = self.beam_id[self.mem_set_index][1]
             for b_idx, beams in enumerate(beam_names):
@@ -140,18 +134,13 @@ class GenerateOutputArray:
                     load.append(load_names[b_idx])
                 else:
                     pass
-            if not user_beams:
-                self.beam_error.append(beam_contains)
         elif beam_choice == 5:
             beam_text = self.beam_id[self.mem_set_index][1].upper()
             beam_list = "".join(beam_text).replace(" ", "").split(',')
             for item in beam_list:
-                try:
-                    b_idx = beam_names.index([item])
-                    user_beams.append([item])
-                    load.append(load_names[b_idx])
-                except ValueError:
-                    self.beam_error.append(item)
+                b_idx = beam_names.index([item])
+                user_beams.append([item])
+                load.append(load_names[b_idx])
         else:
             user_beams = beam_names
             load = load_names
@@ -161,22 +150,16 @@ class GenerateOutputArray:
                 for l_idx, loads in enumerate(load):
                     matching_loads = [l for l in loads if l.startswith(load_starts_with)]
                     user_loads.append(matching_loads)
-                if not user_loads[0]:
-                    self.load_error.append(load_starts_with)
             elif load_choice == 3:
                 load_ends_with = self.load_id[self.mem_set_index][1]
                 for l_idx, loads in enumerate(load):
                     matching_loads = [l for l in loads if l.endswith(load_ends_with)]
                     user_loads.append(matching_loads)
-                if not user_loads[0]:
-                    self.load_error.append(load_ends_with)
             elif load_choice == 4:
                 load_contains = self.load_id[self.mem_set_index][1]
                 for l_idx, loads in enumerate(load):
                     matching_loads = [l for l in loads if load_contains in l]
                     user_loads.append(matching_loads)
-                if not user_loads[0]:
-                    self.load_error.append(load_contains)
             elif load_choice == 5:
                 load_text = self.load_id[self.mem_set_index][1].upper()
                 load_list = "".join(load_text).replace(" ", "").split(',')
@@ -185,7 +168,7 @@ class GenerateOutputArray:
                         if item in load[l_idx]:
                             user_loads.append([item])
                         else:
-                            self.load_error.append(item)
+                            pass
             else:
                 user_loads = load
         else:
@@ -236,5 +219,4 @@ class GenerateOutputArray:
                     for index in indices:
                         t = (current_beam, current_load, d_joints[current_beam][index])
                         output[t] = d[t]
-        errors = (list(set(self.beam_error)), list(set(self.load_error)))
-        return output, errors
+        return output
