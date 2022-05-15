@@ -20,8 +20,6 @@ class GenerateOutputArray:
         self.joint_reactions = joint_reactions
         self.joint_spec = self.results.name
         self.load_spec = self.results.load
-        self.joint_error = []
-        self.load_error = []
 
     def joint_reaction_list(self):
         """
@@ -85,7 +83,7 @@ class GenerateOutputArray:
                         joint_reaction_row.insert(2 + number_id, " ")
                 k = tuple(joint_reaction_row[0:2])
                 full_d[k] = joint_reaction_row[2:]
-                load_cases.append(block_load)
+            load_cases.append(block_load)
         return full_d, joint_names, load_cases
 
     def user_input_sorting(self, joint_names, load_names):
@@ -116,8 +114,6 @@ class GenerateOutputArray:
                     load.append(load_names[b_idx])
                 else:
                     pass
-            if not user_joints:
-                self.joint_error.append(joint_starts_with)
         elif joint_choice == 3:
             joint_ends_with = self.joint_spec[self.num_joint_set][1]
             for b_idx, joints in enumerate(joint_names):
@@ -126,8 +122,6 @@ class GenerateOutputArray:
                     load.append(load_names[b_idx])
                 else:
                     pass
-            if not user_joints:
-                self.joint_error.append(joint_ends_with)
         elif joint_choice == 4:
             joint_contains = self.joint_spec[self.num_joint_set][1]
             for b_idx, joints in enumerate(joint_names):
@@ -136,18 +130,13 @@ class GenerateOutputArray:
                     load.append(load_names[b_idx])
                 else:
                     pass
-            if not user_joints:
-                self.joint_error.append(joint_contains)
         elif joint_choice == 5:
             joint_text = self.joint_spec[self.num_joint_set][1].upper()
             joint_list = "".join(joint_text).replace(" ", "").split(',')
             for item in joint_list:
-                try:
-                    b_idx = joint_names.index([item])
-                    user_joints.append([item])
-                    load.append(load_names[b_idx])
-                except ValueError:
-                    self.joint_error.append(item)
+                b_idx = joint_names.index([item])
+                user_joints.append([item])
+                load.append(load_names[b_idx])
         else:
             user_joints = joint_names
             load = load_names
@@ -157,22 +146,16 @@ class GenerateOutputArray:
                 for l_idx, loads in enumerate(load):
                     matching_loads = [l for l in loads if l.startswith(load_starts_with)]
                     user_loads.append(matching_loads)
-                if not user_loads[0]:
-                    self.load_error.append(load_starts_with)
             elif load_choice == 3:
                 load_ends_with = self.load_spec[self.num_joint_set][1]
                 for l_idx, loads in enumerate(load):
                     matching_loads = [l for l in loads if l.endswith(load_ends_with)]
                     user_loads.append(matching_loads)
-                if not user_loads[0]:
-                    self.load_error.append(load_ends_with)
             elif load_choice == 4:
                 load_contains = self.load_spec[self.num_joint_set][1]
                 for l_idx, loads in enumerate(load):
                     matching_loads = [l for l in loads if load_contains in l]
                     user_loads.append(matching_loads)
-                if not user_loads[0]:
-                    self.load_error.append(load_contains)
             elif load_choice == 5:
                 load_text = self.load_spec[self.num_joint_set][1].upper()
                 load_list = "".join(load_text).replace(" ", "").split(',')
@@ -181,7 +164,7 @@ class GenerateOutputArray:
                         if item in load[l_idx]:
                             user_loads.append([item])
                         else:
-                            self.load_error.append(item)
+                            pass
             else:
                 user_loads = load
         else:
@@ -220,5 +203,4 @@ class GenerateOutputArray:
                     current_load = loads
                     t = (current_joint, current_load)
                     output[t] = d[t]
-        errors = (list(set(self.joint_error)), list(set(self.load_error)))
-        return output, errors
+        return output

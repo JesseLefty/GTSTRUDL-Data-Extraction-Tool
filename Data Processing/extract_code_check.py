@@ -25,10 +25,6 @@ class GenerateOutputArray:
         self.profile_id = self.results.profile[self.code_set_index]
         self.ir_range = self.results.ir_range[self.code_set_index]
         self.fail_id = self.results.fail[self.code_set_index]
-        self.name_error = []
-        self.profile_error = []
-        self.ir_error = []
-        self.parse_error = []
 
     def code_check_array(self):
         """
@@ -95,18 +91,12 @@ class GenerateOutputArray:
         if self.name_id[0] == 2:
             name_starts_with = self.name_id[1]
             user_names = [n for n in name if n.startswith(name_starts_with)]
-            if not user_names:
-                self.name_error.append(name_starts_with)
         elif self.name_id[0] == 3:
             name_ends_with = self.name_id[1]
             user_names = [n for n in name if n.endswith(name_ends_with)]
-            if not user_names:
-                self.name_error.append(name_ends_with)
         elif self.name_id[0] == 4:
             name_contains = self.name_id[1]
             user_names = [n for n in name if name_contains in n]
-            if not user_names:
-                self.name_error.append(name_contains)
         elif self.name_id[0] == 5:
             name_list = self.name_id[1].upper()
             name_list = "".join(name_list).replace(" ", "").split(',')
@@ -114,12 +104,10 @@ class GenerateOutputArray:
                 if names in name:
                     user_names.append(names)
                 else:
-                    self.name_error.append(names)
+                    pass
         else:
             user_names = name
         user_names = list(set(user_names))
-        # print(f'user names: {user_names}')
-        # print(f'name errors: {self.name_error}')
         return user_names
 
     def parse_profile(self, code_check_list):
@@ -138,18 +126,12 @@ class GenerateOutputArray:
         if self.profile_id[0] == 2:
             profile_starts_with = self.profile_id[1]
             user_profiles = [p for p in profile if p.startswith(profile_starts_with)]
-            if not user_profiles:
-                self.profile_error.append(profile_starts_with)
         elif self.profile_id[0] == 3:
             profile_ends_with = self.profile_id[1]
             user_profiles = [p for p in profile if p.endswith(profile_ends_with)]
-            if not user_profiles:
-                self.profile_error.append(profile_ends_with)
         elif self.profile_id[0] == 4:
             profile_contains = self.profile_id[1]
             user_profiles = [p for p in profile if profile_contains in p]
-            if not user_profiles:
-                self.profile_error.append(profile_contains)
         elif self.profile_id[0] == 5:
             profile_list = self.profile_id[1].upper()
             profile_list = "".join(profile_list).replace(" ", "").split(',')
@@ -157,13 +139,10 @@ class GenerateOutputArray:
                 if profiles in profile:
                     user_profiles.append(profiles)
                 else:
-                    self.profile_error.append(profiles)
+                    pass
         else:
             user_profiles = profile
         user_profiles = list(set(user_profiles))
-        # print(f'user profiles: {user_profiles}')
-        # print(f'profile errors: {self.profile_error}')
-
         return user_profiles
 
     def parse_ir_range(self, code_check_list):
@@ -182,27 +161,16 @@ class GenerateOutputArray:
         if self.ir_range[0] == 2:
             ir_less_than = float(self.ir_range[1][1])
             user_ir = [p for p in ir if float(p) < ir_less_than]
-            if not user_ir:
-                self.ir_error.append(f'< {ir_less_than}')
         elif self.ir_range[0] == 3:
             ir_greater_than = float(self.ir_range[1][0])
             user_ir = [p for p in ir if float(p) > ir_greater_than]
-            if not user_ir:
-                self.ir_error.append(f'> {ir_greater_than}')
         elif self.ir_range[0] == 4:
             lower_ir = float(self.ir_range[1][0])
             upper_ir = float(self.ir_range[1][1])
-            if lower_ir > upper_ir or (lower_ir or upper_ir) < 0:
-                self.ir_error.append('invalid IR range')
-            else:
-                user_ir = [p for p in ir if lower_ir < float(p) < upper_ir]
-                if not user_ir:
-                    self.ir_error.append(f'between {lower_ir} and {upper_ir}')
+            user_ir = [p for p in ir if lower_ir < float(p) < upper_ir]
         else:
             user_ir = ir
         user_ir = list(set(user_ir))
-        # print(f'user IRs: {user_ir}')
-        # print(f'IR errors: {self.ir_error}')
         return user_ir
 
     def build_parsed_list(self):
@@ -246,7 +214,7 @@ class GenerateOutputArray:
                     if values[4] in user_ir:
                         parsed_dict[key] = profile_parse[key]
         if len(parsed_dict) == 0:
-            self.parse_error.append("No matching results")
+            print("No matching results")
         parsed_list = [[k] + v for k, v in parsed_dict.items()]
         for row in parsed_list:
             del row[12:14]
@@ -297,5 +265,4 @@ class GenerateOutputArray:
             output_list = self.sorted_list(sort_order, reverse)
         else:
             output_list = self.build_parsed_list()
-        errors = (self.name_error, self.parse_error, self.ir_error, self.profile_error)
-        return output_list, errors
+        return output_list
