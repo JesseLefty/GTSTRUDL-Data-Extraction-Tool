@@ -9,28 +9,28 @@ class ResultsParameters:
         self._input_file = None
         self._results_parameters = {
             'Member Force': {
-                'Joint': ['ALL'],
-                'Name': [(1, 'ALL')],
-                'Load': [(1, 'ALL')],
-                'Set Index': [None],
-                'Set Name': ["Default"]
+                'Joint': [],
+                'Name': [],
+                'Load': [],
+                'Set Index': [],
+                'Set Name': []
             },
             'Joint Reaction': {
-                'Name': [(1, 'ALL')],
-                'Load': [(1, 'ALL')],
-                'Set Index': [None],
-                'Set Name': ["Default"]
+                'Name': [],
+                'Load': [],
+                'Set Index': [],
+                'Set Name': []
             },
             'Code Check': {
-                'Name': [(1, 'ALL')],
-                'Profile': [(1, 'ALL')],
-                'IR Range': [(1, ('MIN', 'MAX'))],
-                'Sort': [False],
-                'Fail': [False],
-                'Sort Order': [[(0, False), (5, False), (8, False)]],
-                'Reverse': [[False, False, False]],
-                'Set Index': [None],
-                'Set Name': ["Default"]
+                'Name': [],
+                'Profile': [],
+                'IR Range': [],
+                'Sort': [],
+                'Fail': [],
+                'Sort Order': [],
+                'Reverse': [],
+                'Set Index': [],
+                'Set Name': []
             }
         }
 

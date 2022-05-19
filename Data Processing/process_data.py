@@ -38,7 +38,7 @@ class ProcessData:
         UpdateResultTree(self.tab_name, self.selected_results_tree).update_result_tree()
 
     def store_mem_force(self, first_text, second_text, joint_rb):
-        if self.modify or self.selection_idd == 0:
+        if self.modify:
             self.results.joint[self.selection_idd] = joint_rb
             self.results.name[self.selection_idd] = first_text
             self.results.load[self.selection_idd] = second_text
@@ -48,7 +48,7 @@ class ProcessData:
             self.results.load.append(second_text)
 
     def store_joint_reaction(self, first_text, second_text):
-        if self.modify or self.selection_idd == 0:
+        if self.modify:
             self.results.name[self.selection_idd] = first_text
             self.results.load[self.selection_idd] = second_text
         else:
@@ -57,7 +57,7 @@ class ProcessData:
 
     def store_code_check(self, first_text, second_text, ir_range, sort, fail, sort_order, reverse):
 
-        if self.modify or self.selection_idd == 0:
+        if self.modify:
             self.results.name[self.selection_idd] = first_text
             self.results.profile[self.selection_idd] = second_text
             self.results.ir_range[self.selection_idd] = ir_range
@@ -77,10 +77,7 @@ class ProcessData:
     def store_name_index(self, selected_result):
         set_num_selected = selected_result[0]
         set_name_selected = selected_result[1]
-        if self.selection_idd == 0 and not self.modify:
-            self.results.set_name[self.selection_idd] = set_name_selected
-            self.results.set_index[self.selection_idd] = set_num_selected
-        elif self.modify:
+        if self.modify:
             pass
         else:
             self.results.set_name.append(set_name_selected)

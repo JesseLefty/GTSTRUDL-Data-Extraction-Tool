@@ -154,7 +154,6 @@ class GenerateOutputArray:
             Returns:
                  user_ir (list):     list of IRs in code_check_list which meet the user criteria
         """
-        user_ir = []
         ir = []
         for idx, row in enumerate(code_check_list):
             ir.append(row[5])

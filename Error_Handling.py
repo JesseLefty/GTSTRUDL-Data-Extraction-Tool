@@ -93,6 +93,6 @@ class ErrorHandling:
         self.error_window.geometry('300x160')
         Label(self.error_mid_frame,
               text=f'Selected property file is incorrect for {result_type} results. Please select a file that contains'
-                   f'{result_type}',
+                   f' {result_type} results',
               wraplength=280, justify='center',
               style='mid.TLabel').grid(row=0, column=0, sticky='nsew', padx=(10, 10))

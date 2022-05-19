@@ -164,11 +164,8 @@ class GenerateOutputArray:
                 load_text = self.load_id[self.mem_set_index][1].upper()
                 load_list = "".join(load_text).replace(" ", "").split(',')
                 for l_idx, loads in enumerate(load):
-                    for item in load_list:
-                        if item in load[l_idx]:
-                            user_loads.append([item])
-                        else:
-                            pass
+                    beam_loads = [l for l in load_list if l in loads]
+                    user_loads.append(beam_loads)
             else:
                 user_loads = load
         else:
