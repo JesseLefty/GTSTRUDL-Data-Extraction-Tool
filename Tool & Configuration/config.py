@@ -11,17 +11,17 @@ rb_options = {1: '',
 
 requested_results_headings = {'Member Force':
                                   {'headings': ['Set #', 'Set Name', 'Joint Spec.', 'Name Spec.', 'Load Spec.'],
-                                   'column width': [40, 200, 100, 100, 100],
+                                   'column width': [40, 180, 95, 95, 95],
                                    'text location': ['center', 'w', 'center', 'w', 'w'],
                                    'text label': ['MEMBER NAME(s)', 'LOAD CASE(s)', 'JOINT(s)']},
                               'Joint Reaction':
                                   {'headings': ['Set #', 'Set Name', 'Name Spec.', 'Load Spec.'],
-                                   'column width': [40, 200, 100, 100],
+                                   'column width': [40, 300, 100, 100],
                                    'text location': ['center', 'w', 'center', 'w'],
                                    'text label': ['JOINT NAME(s)', 'LOAD CASE(s)']},
                               'Code Check':
                                   {'headings': ['Set #', 'Set Name', 'Name Spec.', 'Profile Spec.', 'IR Range', 'Sort'],
-                                   'column width': [40, 150, 50, 50, 50, 50],
+                                   'column width': [40, 200, 95, 95, 65, 45],
                                    'text location': ['center', 'w', 'center', 'w', 'w', 'w'],
                                    'text label': ['MEMBER NAME(s)', 'PROFILE(s)', 'IR RANGE']}
                               }

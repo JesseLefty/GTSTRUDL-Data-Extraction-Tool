@@ -17,6 +17,8 @@ class GenerateTab:
         self.input_file_path = input_file_path
         self.modify = False
         self.directory = directory
+        style = Style()
+        style.configure('mystyle.Treeview.Heading', font=('futura', 10, 'bold'))
         padx, pady = (5, 5), (5, 0)
         self.btn_width = 15
         header = Label(self.frame, text=self.tab_name)
@@ -41,7 +43,7 @@ class GenerateTab:
         self.available_results_tree = Treeview(self.available_result_set_frame,
                                                columns=config.available_results_headings,
                                                show='headings',
-                                               height=5)
+                                               height=5, style='mystyle.Treeview')
 
         if available_results:
             self.not_valid_list = False
@@ -53,14 +55,14 @@ class GenerateTab:
         list_xscroll = Scrollbar(self.available_result_set_frame)
         list_xscroll.configure(command=self.available_results_tree.xview, orient=HORIZONTAL)
         list_yscroll.configure(command=self.available_results_tree.yview, orient=VERTICAL)
-
         list_yscroll.pack(side=RIGHT, fill=Y)
         list_xscroll.pack(side=BOTTOM, fill=X)
         self.available_results_tree.pack(side=LEFT, expand=True)
+        self.available_results_tree.configure(xscrollcommand=list_xscroll.set, yscrollcommand=list_yscroll.set)
 
         for idx, col in enumerate(config.available_results_headings):
             self.available_results_tree.heading(col, text=col.title())
-            tree_width = [40, 275, 75]
+            tree_width = [40, 260, 100]
             tree_anchor = [CENTER, W, CENTER]
             self.available_results_tree.column(col, width=tree_width[idx], minwidth=tree_width[idx],
                                                anchor=tree_anchor[idx])
@@ -76,8 +78,7 @@ class GenerateTab:
         self.selected_results_tree = Treeview(self.selected_result_set_frame,
                                               columns=config.requested_results_headings[self.tab_name]['headings'],
                                               show='headings',
-                                              height=3)
-
+                                              height=3, style='mystyle.Treeview')
 
         tree_scrollx = Scrollbar(self.selected_result_set_frame)
         tree_scrolly = Scrollbar(self.selected_result_set_frame)
@@ -89,8 +90,7 @@ class GenerateTab:
         self.selected_results_tree.pack(side=LEFT, fill=X, expand=True)
 
         for idx, col in enumerate(config.requested_results_headings[self.tab_name]['headings'], start=0):
-            print(idx, col)
-            self.selected_results_tree.heading(col, text=col.title())
+            self.selected_results_tree.heading(col, text=col)
             tree_width = config.requested_results_headings[self.tab_name]['column width']
             tree_anchor = config.requested_results_headings[self.tab_name]['text location']
             self.selected_results_tree.column(col, width=tree_width[idx], minwidth=tree_width[idx],

@@ -101,6 +101,11 @@ class ProcessData:
         del self.results.set_index[self.selection_idd]
         del self.results.name[self.selection_idd]
         UpdateResultTree(self.tab_name, self.selected_results_tree).update_result_tree()
+        if self.selected_results_tree.get_children():
+            child_id = self.selected_results_tree.get_children()[0]
+            self.selected_results_tree.selection_set(child_id)
+        else:
+            pass
 
     def store_inputs(self):
         if not self.selected_results_tree.get_children():
@@ -149,7 +154,9 @@ class ProcessData:
 
     def generate_results(self):
         errors = check_input_errors.FindInputErrors(self.tab_name).consolidate_errors(self.initial_window)
-        if not errors:
+        if not self.results.set_index:
+            error_handling.ErrorHandling(self.initial_window).no_result_set()
+        elif not errors:
             output_file_path = filedialog.asksaveasfilename(filetypes=output_file_types, defaultextension='xlsx')
             out_format = os.path.splitext(output_file_path)[1]
             save_output.RunProgram(self.tab_name, out_format, output_file_path, self.results.set_index, self.initial_window)

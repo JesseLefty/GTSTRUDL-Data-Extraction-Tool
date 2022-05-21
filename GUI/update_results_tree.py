@@ -39,7 +39,7 @@ class UpdateResultTree:
                           text,
                           f'{self.rb_config[self.results.name[idx][0]]} {self.results.name[idx][1]}',
                           f'{self.rb_config[self.results.profile[idx][0]]} {self.results.profile[idx][1]}',
-                          f'{self.results.ir_range[idx][1][0]} - {self.results.ir_range[idx][1][1]}',
+                          f'{self.results.ir_range[idx][1][0]}, {self.results.ir_range[idx][1][1]}',
                           f'{self.results.sort[idx]}'
                           )
             self.selected_results_tree.insert(parent=parent, index=index, iid=idd, text=text, values=values)
