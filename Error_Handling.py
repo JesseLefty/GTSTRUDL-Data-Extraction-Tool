@@ -70,7 +70,7 @@ class ErrorHandling:
         text_label_top.pack(side=TOP, padx=(10, 10))
         error_tree = Treeview(self.error_mid_frame, columns=tree_header, show='headings', height=4)
         for idx, col in enumerate(tree_header):
-            error_tree.heading(col, text=col.title())
+            error_tree.heading(col, text=col)
             error_tree.column(col, width=tree_width[idx], minwidth=tree_width[idx], anchor=tree_anchor[idx])
         tree_scrollx = Scrollbar(self.error_mid_frame)
         tree_scrolly = Scrollbar(self.error_mid_frame)

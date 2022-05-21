@@ -212,32 +212,42 @@ class FindInputErrors:
                     error = False
             if error:
                 set_num_error = items + 1
-        if ir_choice == 1:
-            pass
-        elif ir_choice == 2:
-            ir_less_than = float(ir_range[items][1][1])
-            user_ir = [p for p in ir_col if float(p) < ir_less_than]
-            if not user_ir:
-                ir_error = f'< {ir_less_than}'
-                set_num_error = items + 1
-        elif ir_choice == 3:
-            ir_greater_than = float(ir_range[items][1][0])
-            user_ir = [p for p in ir_col if float(p) > ir_greater_than]
-            if not user_ir:
-                ir_error = f'> {ir_greater_than}'
-                set_num_error = items + 1
-        elif ir_choice == 4:
-            lower_ir = float(ir_range[items][1][0])
-            upper_ir = float(ir_range[items][1][1])
-            if lower_ir > upper_ir or (lower_ir or upper_ir) < 0:
-                ir_error = 'Invalid IR range'
-                set_num_error = items + 1
-            else:
-                user_ir = [p for p in ir_col if lower_ir < float(p) < upper_ir]
+        try:
+            [float(item) for item in ir_range[items][1]]
+            not_number = False
+        except ValueError:
+            not_number = True
+        if not_number:
+            ir_error = 'IRs must be numbers'
+            set_num_error = items + 1
+        else:
+            if ir_choice == 1:
+                pass
+            elif ir_choice == 2:
+                ir_less_than = float(ir_range[items][1][1])
+                user_ir = [p for p in ir_col if float(p) < ir_less_than]
                 if not user_ir:
-                    ir_error = f'between {lower_ir} and {upper_ir}'
+                    ir_error = f'< {ir_less_than}'
                     set_num_error = items + 1
+            elif ir_choice == 3:
+                ir_greater_than = float(ir_range[items][1][0])
+                user_ir = [p for p in ir_col if float(p) > ir_greater_than]
+                if not user_ir:
+                    ir_error = f'> {ir_greater_than}'
+                    set_num_error = items + 1
+            elif ir_choice == 4:
+                lower_ir = float(ir_range[items][1][0])
+                upper_ir = float(ir_range[items][1][1])
+                if lower_ir > upper_ir or (lower_ir or upper_ir) < 0:
+                    ir_error = 'Invalid IR range'
+                    set_num_error = items + 1
+                else:
+                    user_ir = [p for p in ir_col if lower_ir < float(p) < upper_ir]
+                    if not user_ir:
+                        ir_error = f'between {lower_ir} and {upper_ir}'
+                        set_num_error = items + 1
         if set_num_error:
             self.error_dict[items + 1] = (name_error, profile_error, ir_error)
+            print(self.error_dict)
         else:
             pass

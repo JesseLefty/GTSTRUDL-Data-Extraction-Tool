@@ -214,11 +214,9 @@ class ResultsSelectionWindow:
         Label(ir_range, text='Max:').grid(row=1, column=2, pady=5, padx=5)
 
         ir_range_text_min.config(state='normal')
-        ir_range_text_min.insert('1.0', 'MIN')
-
         ir_range_text_max.config(state='normal')
-        ir_range_text_max.insert('1.0', 'MAX')
-
+        ir_range_text_max.configure(background='grey90')
+        ir_range_text_min.configure(background='grey90')
         self.store_button.configure(command=lambda: (sort_window_get(),
                                                      ProcessData(self.tab_name, self.selection_idd,
                                                                  modify=self.modify, selected_results_tree=self.selected_results_tree).store_results(
@@ -296,17 +294,26 @@ class ResultsSelectionWindow:
         def ir_range_disable(ir_range_rb_val):
             if ir_range_rb_val == 2:
                 ir_range_text_min.delete('0.0', END)
-                ir_range_text_min.insert('1.0', 'MIN')
                 ir_range_text_min['state'] = 'disabled'
+                ir_range_text_min.configure(background='grey90')
                 ir_range_text_max['state'] = 'normal'
+                ir_range_text_max.configure(background='white')
             elif ir_range_rb_val == 3:
                 ir_range_text_max.delete('0.0', END)
-                ir_range_text_max.insert('1.0', 'MAX')
                 ir_range_text_max['state'] = 'disabled'
+                ir_range_text_max.configure(background='grey90')
                 ir_range_text_min['state'] = 'normal'
+                ir_range_text_min.configure(background='white')
+            elif ir_range_rb_val == 1:
+                ir_range_text_max.configure(background='grey90')
+                ir_range_text_min.configure(background='grey90')
+                ir_range_text_max['state'] = 'disabled'
+                ir_range_text_min['state'] = 'disabled'
             else:
                 ir_range_text_min['state'] = 'normal'
                 ir_range_text_max['state'] = 'normal'
+                ir_range_text_min.configure(background='white')
+                ir_range_text_max.configure(background='white')
 
         def sort_window_get():
             sort_order = option_window_sort.get('0', END)

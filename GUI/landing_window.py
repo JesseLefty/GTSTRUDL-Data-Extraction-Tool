@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter.ttk import *
+from data_storage import ResultsParameters
 import shared_stuff
 from tkinter import filedialog
 import os
@@ -27,16 +28,17 @@ class FirstWindow:
         self.initial_window.resizable(False, False)
         utilities.center(self.initial_window)
         program_description_frame = Frame(self.initial_window, height=430, width=180)
-        program_title = Label(program_description_frame, text='GTSTRUDL Data Extraction Tool', font=('Helvetica', 12),
+        program_title = Label(program_description_frame, text='GTSTRUDL Data Extraction Tool', font=('Helvetica', 12, 'bold'),
                               wraplength=160, justify='center')
         program_description = Label(program_description_frame, text=f'GTSTRUDL Data Extraction Tool was developed'
-                                                                    f' to provide a means of parsing a GTSTRUDL Version'
-                                                                    f' 2016 output file (.gto) for analysis results'
-                                                                    f' commonly used for structural analysis '
+                                                                    f' to provide a means of parsing GTSTRUDL'
+                                                                    f' output files (.gto) for analysis results'
+                                                                    f' commonly used in structural analysis '
                                                                     f' calculations and reports.\n'
                                                                     f'\n'
-                                                                    f'This program allows the user to select specific'
-                                                                    f' data contained within the .gto file and output'
+                                                                    f'This program allows the user to choose specific'
+                                                                    f' criteria for which the .gto file should be parsed'
+                                                                    f' and output'
                                                                     f' that data as either a comma separated value file'
                                                                     f' or as an excel workbook with each set of'
                                                                     f' desired data stored in a separate worksheet.',
@@ -128,7 +130,6 @@ class FirstWindow:
             self.initial_window.bind('<Return>', (lambda event, : self.continue_button.invoke()))
 
     def tab_window_generate(self):
-
         height = 370
         width = 600
         tab_window = Toplevel(self.initial_window)
@@ -158,7 +159,7 @@ class FirstWindow:
         my_notebook.add(code_check_frame, text='Code Check')
 
         back_button = Button(navigate_frame, text="Back", command=lambda: (self.initial_window.deiconify(),
-                                                                           tab_window.destroy()))
+                                                                           tab_window.destroy(), self.reset()))
         help_button = Button(navigate_frame, text='Help (?)', command=help_doc)
         exit_button = Button(navigate_frame, text='Exit', command=self.initial_window.quit)
 
@@ -171,3 +172,6 @@ class FirstWindow:
         frame_display_window.GenerateTab(member_force_frame, 'Member Force', self.initial_window, directory, input_file_path)
         frame_display_window.GenerateTab(joint_reaction_frame, 'Joint Reaction', self.initial_window, directory, input_file_path)
         frame_display_window.GenerateTab(code_check_frame, 'Code Check', self.initial_window, directory, input_file_path)
+
+    def reset(self):
+        shared_stuff.data_store = ResultsParameters()
