@@ -1,8 +1,7 @@
 from tkinter import *
 from tkinter.ttk import *
-import error_handling
 import utilities
-import config
+from config import requested_results_headings, text_box_color_disable, text_box_color_enable
 from process_data import ProcessData
 import shared_stuff
 
@@ -30,7 +29,7 @@ class ResultsSelectionWindow:
         self.sort_cb = BooleanVar(value=False)
         self.fail_cb = BooleanVar(value=False)
         self.ir_range_rb = IntVar(value=1)
-        self.sort_order_dict = {'IR Value': 5, 'Name': 0, 'Profile': 8}
+        self.sort_order_dict = {'IR Value': 5, 'Name': 0, 'Profile': 7}
         self.set_num = self.results.set_index
         self.set_name = self.results.set_name
         if self.modify:
@@ -66,7 +65,7 @@ class ResultsSelectionWindow:
             self.name = self.results.name
 
         self.padx, self.pady = (5, 5), (5, 5)
-        text_labels = config.requested_results_headings[self.tab_name]
+        text_labels = requested_results_headings[self.tab_name]
         rb_text = ['ALL', 'STARTS WITH', 'ENDS WITH', 'CONTAINS', 'LIST']
         self.selection_window = Toplevel(self.initial_window)
         self.selection_window.geometry('400x360')
@@ -90,8 +89,10 @@ class ResultsSelectionWindow:
         for val, text in enumerate(rb_text, start=1):
             first_rb = Radiobutton(first_select, text=text, variable=self.first_rb, value=val)
             first_rb.grid(row=0, column=val - 1)
+            first_rb.configure(command=lambda: self.disable_text_box(self.first_rb.get(), self.first_text))
             second_rb = Radiobutton(second_select, text=text, variable=self.second_rb, value=val)
             second_rb.grid(row=0, column=val - 1)
+            second_rb.configure(command=lambda: self.disable_text_box(self.second_rb.get(), self.second_text))
 
         self.first_text = Text(first_select, height=1, width=50, font=('Arial', 10), wrap=NONE)
         first_scrollx = Scrollbar(first_select)
@@ -100,7 +101,7 @@ class ResultsSelectionWindow:
         self.first_text.grid(row=1, column=0, columnspan=5, sticky='nw', pady=5, padx=5)
         first_scrollx.grid(row=2, column=0, columnspan=5, sticky='ew')
         self.first_text.configure(xscrollcommand=first_scrollx.set)
-        self.first_text.config(state='normal')
+        self.first_text.config(state='disabled', background=text_box_color_disable)
 
         self.second_text = Text(second_select, height=1, width=50, font=('Arial', 10), wrap=NONE)
         second_scrollx = Scrollbar(second_select)
@@ -111,7 +112,7 @@ class ResultsSelectionWindow:
         second_scrollx.grid(row=2, column=0, columnspan=5, sticky='ew')
 
         self.second_text.configure(xscrollcommand=second_scrollx.set)
-        self.second_text.config(state='normal')
+        self.second_text.config(state='disabled', background=text_box_color_disable)
 
         self.store_button = Button(self.continue_frame, text="Store")
 
@@ -121,11 +122,12 @@ class ResultsSelectionWindow:
         cancel_button.grid(row=0, column=1, padx=5, pady=5)
 
         if self.modify:
+            self.disable_text_box(self.first_rb.get(), self.first_text)
+            self.disable_text_box(self.second_rb.get(), self.second_text)
             self.first_text.insert('1.0', self.mod_first_text)
             self.second_text.insert('1.0', self.mod_second_text)
         else:
-            self.first_text.insert('1.0', 'ALL')
-            self.second_text.insert('1.0', 'ALL')
+            pass
 
         if self.tab_name == "Member Force":
             self.mem_force_window()
@@ -135,6 +137,14 @@ class ResultsSelectionWindow:
 
         else:
             self.code_check_window()
+
+    def disable_text_box(self, rb_value, textbox):
+        if rb_value == 1:
+            textbox.delete('0.0', END)
+            textbox.configure(state='disabled', background=text_box_color_disable)
+
+        else:
+            textbox.configure(state='normal', background=text_box_color_enable)
 
     def get_text(self, rb_val, text_val):
         if rb_val == 1:
@@ -174,8 +184,8 @@ class ResultsSelectionWindow:
         self.selection_window.geometry('400x460')
         self.continue_frame.grid(row=6)
         self.default_box_items.set(('IR Value', 'Profile', 'Name'))
-        ir_range = LabelFrame(self.selection_window, text='IR Range', height=90, width=380)
-        misc_frame = LabelFrame(self.selection_window, text='Misc Options', height=50, width=380)
+        ir_range = LabelFrame(self.selection_window, text='IR RANGE', height=90, width=380)
+        misc_frame = LabelFrame(self.selection_window, text='MISC OPTIONS', height=50, width=380)
 
         ir_range.grid(row=4, column=0, columnspan=5, padx=self.padx, pady=self.pady)
         misc_frame.grid(row=5, column=0, columnspan=5, padx=self.padx, pady=self.pady)
@@ -213,10 +223,6 @@ class ResultsSelectionWindow:
         Label(ir_range, text='Min:').grid(row=1, column=0, pady=5, padx=5)
         Label(ir_range, text='Max:').grid(row=1, column=2, pady=5, padx=5)
 
-        ir_range_text_min.config(state='normal')
-        ir_range_text_max.config(state='normal')
-        ir_range_text_max.configure(background='grey90')
-        ir_range_text_min.configure(background='grey90')
         self.store_button.configure(command=lambda: (sort_window_get(),
                                                      ProcessData(self.tab_name, self.selection_idd,
                                                                  modify=self.modify, selected_results_tree=self.selected_results_tree).store_results(
@@ -227,6 +233,28 @@ class ResultsSelectionWindow:
                                                          sort=self.sort_cb.get(), fail=self.fail_cb.get(),
                                                          sort_order=self.sort_order, reverse=self.reverse),
                                                      self.selection_window.destroy()))
+        if self.modify:
+            if self.results.ir_range[self.selection_idd][0] == 2:
+                ir_range_text_max.insert('1.0', self.mod_ir_range_text[1])
+                ir_range_text_min.config(state='disabled')
+                ir_range_text_min.configure(background=text_box_color_disable)
+            elif self.results.ir_range[self.selection_idd][0] == 3:
+                ir_range_text_min.insert('1.0', self.mod_ir_range_text[0])
+                ir_range_text_max.config(state='disabled')
+                ir_range_text_max.configure(background=text_box_color_disable)
+            elif self.results.ir_range[self.selection_idd][0] == 4:
+                ir_range_text_min.insert('1.0', self.mod_ir_range_text[0])
+                ir_range_text_max.insert('1.0', self.mod_ir_range_text[1])
+            else:
+                ir_range_text_min.config(state='disabled')
+                ir_range_text_max.config(state='disabled')
+                ir_range_text_max.configure(background=text_box_color_disable)
+                ir_range_text_min.configure(background=text_box_color_disable)
+        else:
+            ir_range_text_min.config(state='disabled')
+            ir_range_text_max.config(state='disabled')
+            ir_range_text_max.configure(background=text_box_color_disable)
+            ir_range_text_min.configure(background=text_box_color_disable)
 
         def sort_window(sort_flag):
             add_button = Button(sort_button_window, text='Add >>', command=lambda: add_sort())
@@ -286,7 +314,7 @@ class ResultsSelectionWindow:
 
         def ir_text_get(ir_range_rb_val):
             if ir_range_rb_val == 1:
-                ir_range_id = ('MIN', 'MAX')
+                ir_range_id = ('', '')
             else:
                 ir_range_id = (ir_range_text_min.get('1.0', 'end-1c'), ir_range_text_max.get('1.0', 'end-1c'))
             return ir_range_rb_val, ir_range_id
@@ -295,25 +323,27 @@ class ResultsSelectionWindow:
             if ir_range_rb_val == 2:
                 ir_range_text_min.delete('0.0', END)
                 ir_range_text_min['state'] = 'disabled'
-                ir_range_text_min.configure(background='grey90')
+                ir_range_text_min.configure(background=text_box_color_disable)
                 ir_range_text_max['state'] = 'normal'
-                ir_range_text_max.configure(background='white')
+                ir_range_text_max.configure(background=text_box_color_enable)
             elif ir_range_rb_val == 3:
                 ir_range_text_max.delete('0.0', END)
                 ir_range_text_max['state'] = 'disabled'
-                ir_range_text_max.configure(background='grey90')
+                ir_range_text_max.configure(background=text_box_color_disable)
                 ir_range_text_min['state'] = 'normal'
-                ir_range_text_min.configure(background='white')
+                ir_range_text_min.configure(background=text_box_color_enable)
             elif ir_range_rb_val == 1:
-                ir_range_text_max.configure(background='grey90')
-                ir_range_text_min.configure(background='grey90')
+                ir_range_text_max.delete('0.0', END)
+                ir_range_text_min.delete('0.0', END)
+                ir_range_text_max.configure(background=text_box_color_disable)
+                ir_range_text_min.configure(background=text_box_color_disable)
                 ir_range_text_max['state'] = 'disabled'
                 ir_range_text_min['state'] = 'disabled'
             else:
                 ir_range_text_min['state'] = 'normal'
                 ir_range_text_max['state'] = 'normal'
-                ir_range_text_min.configure(background='white')
-                ir_range_text_max.configure(background='white')
+                ir_range_text_min.configure(background=text_box_color_enable)
+                ir_range_text_max.configure(background=text_box_color_enable)
 
         def sort_window_get():
             sort_order = option_window_sort.get('0', END)

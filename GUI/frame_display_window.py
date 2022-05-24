@@ -107,25 +107,30 @@ class GenerateTab:
                                                                             selected_results_tree=self.selected_results_tree))
 
         self.load_exist_result_set = Button(button_frame, text="Load Existing",
-                                            command=lambda: ProcessData(self.tab_name, directory=self.directory, selected_results_tree=self.selected_results_tree).load_existing_result_set())
+                                            command=lambda: ProcessData(self.tab_name, directory=self.directory,
+                                                                        selected_results_tree=self.selected_results_tree).load_existing_result_set())
         self.modify_result = Button(button_frame, text='Modify Result',
                                     command=lambda: (self.modify_pressed(), ResultsSelectionWindow(self.tab_name,
-                                                                           self.initial_window,
-                                                                           self.modify,
-                                                                           selection_idd=self.tree_select(),
-                                                                           selected_results_tree=self.selected_results_tree)))
+                                                                                                   self.initial_window,
+                                                                                                   self.modify,
+                                                                                                   selection_idd=self.tree_select(),
+                                                                                                   selected_results_tree=self.selected_results_tree)))
         self.delete_result = Button(button_frame, text='Delete Result',
-                                    command=lambda: (ProcessData(self.tab_name, selection_idd=self.tree_select(), selected_results_tree=self.selected_results_tree).delete_result()))
+                                    command=lambda: (ProcessData(self.tab_name, selection_idd=self.tree_select(),
+                                                                 selected_results_tree=self.selected_results_tree).delete_result()))
 
         for num, button in enumerate(filter(lambda w: isinstance(w, Button), button_frame.children.values())):
             button.configure(width=self.btn_width)
             button.grid(row=num + 2, column=0, padx=22, pady=5, sticky='nsew')
 
         generate_button = Button(bottom_bar_frame, text="Generate",
-                                 command=lambda: ProcessData(self.tab_name, initial_window=self.initial_window).generate_results())
+                                 command=lambda: ProcessData(self.tab_name,
+                                                             initial_window=self.initial_window).generate_results())
 
         store_properties = Button(bottom_bar_frame, text='Store Input',
-                                        command=lambda: (ProcessData(self.tab_name, selected_results_tree=self.selected_results_tree).store_inputs(), self.check_for_results()))
+                                  command=lambda: (ProcessData(self.tab_name,
+                                                               selected_results_tree=self.selected_results_tree).store_inputs(),
+                                                   self.check_for_results()))
 
         store_properties.grid(row=0, column=0, padx=(10, 405), pady=5)
         generate_button.grid(row=0, column=3, padx=5, pady=5)

@@ -2,6 +2,8 @@ load_file_types = [('*.gto - GTSTRUDL Output', '*.gto'), ('*.txt - Text Files', 
 store_file_types = [('*.prop - properties file', '*.prop')]
 output_file_types = [('*.xlsx - Microsoft Excel', '*.xlsx'), ('*.csv - Comma Separated Value (csv)', '*.csv')]
 available_results_headings = ['Set #', 'Set Name', 'Input line #']
+text_box_color_disable = 'grey95'
+text_box_color_enable = 'white'
 
 rb_options = {1: '',
               2: 'Starts With: ',
@@ -43,7 +45,7 @@ result_configuration_parameters = {'Member Force':
                                         'Skip Lines': 13,
                                         'End Trigger': 'END OF TRACE OUTPUT',
                                         'Headings': ['MEMBER', 'TABLE', 'LOAD CASE', 'SECTION LOCATION',
-                                                     'STRESS PROVISION', 'STRESS IR', 'UNITS', 'CODE', 'PROFILE',
+                                                     'STRESS PROVISION', 'STRESS IR', 'CODE', 'PROFILE',
                                                      'SHAPE PROVISION', 'GEOMETRY IR', 'FOR X', 'FOR Y', 'FOR Z',
-                                                     'MOM X', 'MOM Y', 'MOM Z', 'PASS/FAIL']}
+                                                     'MOM X', 'MOM Y', 'MOM Z', 'UNITS', 'PASS/FAIL']}
                                    }

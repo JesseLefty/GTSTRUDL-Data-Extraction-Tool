@@ -35,11 +35,21 @@ class UpdateResultTree:
                           f'{self.rb_config[self.results.load[idx][0]]} {self.results.load[idx][1]}'
                           )
             else:
+                min_ir, max_ir = self.results.ir_range[idx][1]
+                print(min_ir, max_ir)
+                if min_ir and max_ir:
+                    ir_val = f'{min_ir} < IR < {max_ir}'
+                elif min_ir and not max_ir:
+                    ir_val = f'IR > {min_ir}'
+                elif max_ir and not min_ir:
+                    ir_val = f'IR < {max_ir}'
+                else:
+                    ir_val = 'All IRs'
                 values = (idd,
                           text,
                           f'{self.rb_config[self.results.name[idx][0]]} {self.results.name[idx][1]}',
                           f'{self.rb_config[self.results.profile[idx][0]]} {self.results.profile[idx][1]}',
-                          f'{self.results.ir_range[idx][1][0]}, {self.results.ir_range[idx][1][1]}',
+                          f'{ir_val}',
                           f'{self.results.sort[idx]}'
                           )
             self.selected_results_tree.insert(parent=parent, index=index, iid=idd, text=text, values=values)

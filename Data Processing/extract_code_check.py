@@ -218,7 +218,7 @@ class GenerateOutputArray:
         for row in parsed_list:
             del row[12:14]
         parsed_list = list(zip(*parsed_list))
-        col_new = [0, 1, 2, 3, 4, 5, 9, 10, 11, 12, 13, 6, 7, 8, 14, 15, 16, 17]
+        col_new = [0, 1, 2, 3, 4, 5, 10, 11, 12, 13, 6, 7, 8, 14, 15, 16, 9, 17]
         col_map = {i: v for i, v in enumerate(col_new)}
         parsed_list = [parsed_list[col_map[i]] for i in range(len(parsed_list))]
         parsed_list = list(zip(*parsed_list))
@@ -244,7 +244,7 @@ class GenerateOutputArray:
                 pass
             reverse_idx -= 1
         for line in sorted_list:
-            print(line[0], line[5], line[8])
+            print(line[0], line[5], line[7])
         return sorted_list
 
     def output_list(self):
