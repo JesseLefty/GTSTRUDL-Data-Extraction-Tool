@@ -217,7 +217,7 @@ class FindInputErrors:
             not_number = False
         except ValueError:
             not_number = True
-        if not_number:
+        if not_number and not ir_choice == 1:
             ir_error = 'IRs must be numbers'
             set_num_error = items + 1
         else:

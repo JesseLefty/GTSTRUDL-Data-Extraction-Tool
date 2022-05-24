@@ -49,6 +49,8 @@ class ErrorHandling:
               style='mid.TLabel').grid(row=0, column=0, sticky='nsew', padx=(10, 10))
 
     def item_not_found(self, item, beam_or_joint, load, tab_name, ir_errors=None):
+        style = Style()
+        style.configure('mystyle.Treeview.Heading', font=('futura', 10, 'bold'))
         self.error_window.geometry('400x300')
         tree_width = [20, 60, 60]
         tree_anchor = [CENTER, CENTER, CENTER]
@@ -68,7 +70,8 @@ class ErrorHandling:
                                text=f'The following result set(s) contain incorrect inputs in the "{col_2}"'
                                     f' spec:')
         text_label_top.pack(side=TOP, padx=(10, 10))
-        error_tree = Treeview(self.error_mid_frame, columns=tree_header, show='headings', height=4)
+        error_tree = Treeview(self.error_mid_frame, columns=tree_header, show='headings', height=4,
+                              style='mystyle.Treeview')
         for idx, col in enumerate(tree_header):
             error_tree.heading(col, text=col)
             error_tree.column(col, width=tree_width[idx], minwidth=tree_width[idx], anchor=tree_anchor[idx])
