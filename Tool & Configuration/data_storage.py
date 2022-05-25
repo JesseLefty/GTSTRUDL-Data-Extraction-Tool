@@ -5,7 +5,13 @@ class ResultsParameters:
         Sets default result parameter values
         :param result_type: the major result type being requested (will correspond to the active tab name)
         """
-        self._tab_name = result_type
+        self._tab_name = None
+        self._input_file = None
+        self._results_parameters = {}
+        self.reset(result_type)
+
+    def reset(self, res_type = None):
+        self._tab_name = res_type
         self._input_file = None
         self._results_parameters = {
             'Member Force': {

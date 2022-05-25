@@ -357,3 +357,6 @@ class ResultsSelectionWindow:
                 pass
             self.sort_order = specific_sort
             self.reverse = reverse_order
+
+        if self.sort_cb.get():
+            sort_window(self.sort_cb)

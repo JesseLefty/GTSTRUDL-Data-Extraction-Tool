@@ -1,6 +1,7 @@
 from operator import itemgetter
 from natsort import natsorted
 import shared_stuff
+from config import codes
 
 
 class GenerateOutputArray:
@@ -39,13 +40,11 @@ class GenerateOutputArray:
         """
         col_idx = []
         code_check_list = []
-        codes = ['69AISC', 'ASD9', 'DBLANG']
         header_line = self.code_check[0]
         code_check = self.code_check[1:]
         for idx, char in enumerate(header_line):
             if char == '/':
                 col_idx.append(idx)
-        # TODO: Get list of codes in GTSTRUDL
         for row_num, line in enumerate(code_check):
             column_1 = line[0: col_idx[1]].strip()
             column_2 = line[col_idx[1]: col_idx[2] + 1].strip()
@@ -235,16 +234,13 @@ class GenerateOutputArray:
         """
         parsed_list = self.build_parsed_list()
         reverse_idx = len(reverse[self.code_set_index]) - 1
-        sorted_list = []
+        sorted_list = parsed_list
         for key, flag in reversed(sort_order[self.code_set_index]):
-            print(key, flag)
             if flag:
-                sorted_list = natsorted(parsed_list, key=itemgetter(key), reverse=reverse[self.code_set_index][reverse_idx])
+                sorted_list = natsorted(sorted_list, key=itemgetter(key), reverse=reverse[self.code_set_index][reverse_idx])
             else:
                 pass
             reverse_idx -= 1
-        for line in sorted_list:
-            print(line[0], line[5], line[7])
         return sorted_list
 
     def output_list(self):

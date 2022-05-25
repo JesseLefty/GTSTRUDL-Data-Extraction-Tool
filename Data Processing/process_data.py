@@ -141,6 +141,7 @@ class ProcessData:
                     self.results.sort = loaded_results['Sort']
                     self.results.fail = loaded_results['Fail']
                     self.results.sort_order = loaded_results['Sort Order']
+                    self.results.reverse = loaded_results['Reverse']
                 UpdateResultTree(self.tab_name, self.selected_results_tree).update_result_tree()
 
             else:
@@ -159,7 +160,11 @@ class ProcessData:
         elif not errors:
             output_file_path = filedialog.asksaveasfilename(filetypes=output_file_types, defaultextension='xlsx')
             out_format = os.path.splitext(output_file_path)[1]
-            save_output.RunProgram(self.tab_name, out_format, output_file_path, self.results.set_index, self.initial_window)
+            try:
+                save_output.RunProgram(self.tab_name, out_format, output_file_path, self.results.set_index, self.initial_window)
 
+            except FileNotFoundError as e:
+                print(e)
+                print('no file selected / action canceled')
 
 
