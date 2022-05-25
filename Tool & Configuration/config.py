@@ -4,6 +4,8 @@ output_file_types = [('*.xlsx - Microsoft Excel', '*.xlsx'), ('*.csv - Comma Sep
 available_results_headings = ['Set #', 'Set Name', 'Input line #']
 text_box_color_disable = 'grey95'
 text_box_color_enable = 'white'
+codes = ['AISC14', 'N690-12', '341-10', 'N690-94', 'AISC13', 'N690-06', 'LRFD3', 'ASD9-E', 'LRFD-2', 'ASD9', '78AISC',
+         '69AISC', 'W78AISC', 'DBLANG', 'W69AISC']
 
 rb_options = {1: '',
               2: 'Starts With: ',

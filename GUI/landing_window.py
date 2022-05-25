@@ -174,4 +174,5 @@ class FirstWindow:
         frame_display_window.GenerateTab(code_check_frame, 'Code Check', self.initial_window, directory, input_file_path)
 
     def reset(self):
-        shared_stuff.data_store = ResultsParameters()
+        self.results.reset()
+
