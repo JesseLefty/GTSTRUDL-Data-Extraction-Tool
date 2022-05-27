@@ -1,9 +1,12 @@
+"""
+This module generates the initial window of the program, the landing window. This window displays the title and
+description of the program and prompts the user to select a working directory and .gto file
+"""
 from tkinter import *
 from tkinter.ttk import *
-from data_storage import ResultsParameters
-import shared_stuff
-from tkinter import filedialog
 import os
+from tkinter import filedialog
+import shared_stuff
 import frame_display_window
 import error_handling
 import utilities
@@ -11,25 +14,36 @@ from config import load_file_types
 
 
 def help_doc():
-    # open some help documentation
+    """
+    opens help documentation
+    """
     pass
 
 
 class FirstWindow:
+
+    """
+    Generates the directory and file selection window and the first window of the program (landing window)
+
+    :param: initial window - Tkinter mainloop root object
+    """
 
     def __init__(self, initial_window):
         self.initial_window = initial_window
         self.results = shared_stuff.data_store
 
     def win_display(self):
+        """
+        Generates the landing window
+        """
 
         self.initial_window.title("GTSTRUDL Data Extraction Tool")
         self.initial_window.geometry('600x440')
         self.initial_window.resizable(False, False)
         utilities.center(self.initial_window)
         program_description_frame = Frame(self.initial_window, height=430, width=180)
-        program_title = Label(program_description_frame, text='GTSTRUDL Data Extraction Tool', font=('Helvetica', 12, 'bold'),
-                              wraplength=160, justify='center')
+        program_title = Label(program_description_frame, text='GTSTRUDL Data Extraction Tool',
+                              font=('Helvetica', 12, 'bold'), wraplength=160, justify='center')
         program_description = Label(program_description_frame, text=f'GTSTRUDL Data Extraction Tool was developed'
                                                                     f' to provide a means of parsing GTSTRUDL'
                                                                     f' output files (.gto) for analysis results'
@@ -92,9 +106,9 @@ class FirstWindow:
         exit_button.grid(row=0, column=1, padx=5, pady=5)
         help_button = Button(continue_frame, text='Help (?)', command=help_doc)
         help_button.grid(row=0, column=0, padx=5, pady=5)
-        dir_open = Button(set_directory_frame, text="Select New", command=lambda: self.select_dir())
+        dir_open = Button(set_directory_frame, text="Select New", command=self.select_dir)
         dir_open.grid(row=0, column=1, pady=5, padx=0, sticky='ne')
-        file_open = Button(set_directory_frame, text="Select File", command=lambda: self.select_file())
+        file_open = Button(set_directory_frame, text="Select File", command=self.select_file)
         file_open.grid(row=3, column=1, pady=10, padx=0, sticky='ne')
         self.continue_button = Button(continue_frame, text='Continue', command=self.tab_window_generate)
         self.continue_button.grid(row=0, column=2, padx=5, pady=5)
@@ -104,17 +118,23 @@ class FirstWindow:
         self.show_dir.bind('<<Modified>>', lambda event, : self.check_continue())
 
     def select_dir(self):
-        global directory
+        """
+        prompts the user to select a working directory
+        """
         directory = filedialog.askdirectory()
+        self.results.directory = directory
         self.show_dir.config(state='normal')
         self.show_dir.delete('1.0', END)
         self.show_dir.insert(END, directory)
         self.show_dir.config(state='disabled')
 
     def select_file(self):
-        global input_file_path
+        """
+        prompts user to select .gto file to parse from working directory
+        """
         try:
-            input_file_path = filedialog.askopenfilename(initialdir=directory, title="select file", filetypes=load_file_types)
+            input_file_path = filedialog.askopenfilename(initialdir=self.results.directory, title="select file",
+                                                         filetypes=load_file_types)
             input_file_name = os.path.basename(input_file_path)
             self.results.input_file = input_file_path
             self.show_file.config(state='normal')
@@ -125,11 +145,18 @@ class FirstWindow:
             error_handling.ErrorHandling(self.initial_window).no_directory()
 
     def check_continue(self):
+        """
+        sets the stats of the continue button. Status is enabled if both the directory and .gto file have been selected
+        disabled otherwise.
+        """
         if self.show_dir.get("1.0", END) and self.show_file.get("1.0", END) != '\n':
             self.continue_button['state'] = 'enabled'
             self.initial_window.bind('<Return>', (lambda event, : self.continue_button.invoke()))
 
     def tab_window_generate(self):
+        """
+        generates the three tab windows corresponding to the type of results which can be parsed through this program
+        """
         height = 370
         width = 600
         tab_window = Toplevel(self.initial_window)
@@ -169,10 +196,15 @@ class FirstWindow:
 
         self.initial_window.withdraw()
 
-        frame_display_window.GenerateTab(member_force_frame, 'Member Force', self.initial_window, directory, input_file_path)
-        frame_display_window.GenerateTab(joint_reaction_frame, 'Joint Reaction', self.initial_window, directory, input_file_path)
-        frame_display_window.GenerateTab(code_check_frame, 'Code Check', self.initial_window, directory, input_file_path)
+        frame_display_window.GenerateTab(member_force_frame, 'Member Force', self.initial_window,
+                                         self.results.input_file)
+        frame_display_window.GenerateTab(joint_reaction_frame, 'Joint Reaction', self.initial_window,
+                                         self.results.input_file)
+        frame_display_window.GenerateTab(code_check_frame, 'Code Check', self.initial_window,
+                                         self.results.input_file)
 
     def reset(self):
+        """
+        resets the stored results data when the user exits out to the landing window
+        """
         self.results.reset()
-

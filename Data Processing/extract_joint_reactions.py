@@ -1,18 +1,21 @@
-import utilities
+"""
+This module generates a default dictionary of joint reaction results from the .gto file, parses the default dictionary
+based on user input requirements, and provides a final dictionary containing only the subset of items matching the user
+requirements. This module works for joint reaction result at a time.
+"""
 import re
+import utilities
 import shared_stuff
 
 
 class GenerateOutputArray:
     """
-            Formats the joint reaction list and compiles a dictionary of requested joints and load combinations and the
-            corresponding results.
+    Formats the joint reaction list and compiles a list of results which meet the user requirements.
 
-            Parameters:
-                tab_name (str):             name of tab from which the user clicked 'generate'
-                num_joint_set (int):        index of the user generated result set for which the data is requested
-                joint_reactions (list):     flattened list of all lines in requested data block
-            """
+    :param  tab_name (str):             name of active tab
+    :param  num_joint_set (int):        index of the user generated result set for which the data is requested
+    :param  joint_reactions (list):     flattened list of all lines in requested data block
+    """
     def __init__(self, tab_name, num_joint_set, joint_reactions):
         self.num_joint_set = num_joint_set
         self.results = shared_stuff.data_store
@@ -23,16 +26,12 @@ class GenerateOutputArray:
 
     def joint_reaction_list(self):
         """
-        Generates a formatted list of joint reactions with all elements in list containing joint, load, and 6 results.
-        Also returns the subset of joints and loads which meet the user requested joint and load specs.
+        Generates a formatted dictionary of joint reactions with all elements in list containing joint, load, and 6
+        results. Also generates a list of joint names and corresponding load cases
 
-            Parameters:
-                self
-
-            Returns:
-                 formatted_reaction_list (list):    nested list of formatted joint results
-                 joint_names (list):                list joint meeting user joint_spec criteria
-                 joint_loads (list):                list of loads meeting user load_spec criteria
+        :return full_d (list):      dictionary of formatted joint results
+        :return joint_names (list): list joint meeting user joint_spec criteria
+        :return load_cases (list):  list of loads meeting user load_spec criteria
         """
         joint_names = []
         joint_index = []
@@ -88,9 +87,8 @@ class GenerateOutputArray:
 
     def user_input_sorting(self, joint_names, load_names):
         """
-        Takes the full list of beam and load names and generates a sub list based on the user specified beam_id
-        requirements. The returned values are nested lists in which the index of the nested list is the same for
-        each beam and load in the block.
+        Takes the full list of joint and load names and generates a sub list based on the user specified
+        requirements.
 
             Parameters:
                 joint_names:         full list of joint names for each block
@@ -100,7 +98,6 @@ class GenerateOutputArray:
                  user_joints (list):     list of lists of joint names which meet the user criteria
                  user_loads (list):      list of lists of load names which meet the user criteria
         """
-
         joint_choice = self.joint_spec[self.num_joint_set][0]
         load_choice = self.load_spec[self.num_joint_set][0]
         user_loads = []
@@ -143,23 +140,23 @@ class GenerateOutputArray:
         if load:
             if load_choice == 2:
                 load_starts_with = self.load_spec[self.num_joint_set][1]
-                for l_idx, loads in enumerate(load):
+                for loads in load:
                     matching_loads = [l for l in loads if l.startswith(load_starts_with)]
                     user_loads.append(matching_loads)
             elif load_choice == 3:
                 load_ends_with = self.load_spec[self.num_joint_set][1]
-                for l_idx, loads in enumerate(load):
+                for loads in load:
                     matching_loads = [l for l in loads if l.endswith(load_ends_with)]
                     user_loads.append(matching_loads)
             elif load_choice == 4:
                 load_contains = self.load_spec[self.num_joint_set][1]
-                for l_idx, loads in enumerate(load):
+                for loads in load:
                     matching_loads = [l for l in loads if load_contains in l]
                     user_loads.append(matching_loads)
             elif load_choice == 5:
                 load_text = self.load_spec[self.num_joint_set][1].upper()
                 load_list = "".join(load_text).replace(" ", "").split(',')
-                for l_idx, loads in enumerate(load):
+                for loads in load:
                     beam_loads = [l for l in load_list if l in loads]
                     user_loads.append(beam_loads)
             else:
@@ -180,12 +177,9 @@ class GenerateOutputArray:
 
     def requested_joint_reaction_dict(self):
         """
-        Builds a dictionary key / value pairs which match the joint and load criteria requested by the user.
-            Parameters:
-                self
+        Builds a dictionary of key / value pairs which match the joint and load criteria requested by the user.
 
-            Returns:
-                 output (dict):     dictionary of key / value pairs which match all joint and load, criteria
+        :return output (dict):     dictionary of key / value pairs which match all joint and load, criteria
                                     specified by the user
         """
         d, all_joints, all_loads = self.joint_reaction_list()
@@ -196,7 +190,7 @@ class GenerateOutputArray:
         else:
             for j_idx, joints in enumerate(user_joints):
                 current_joint = joints[0]
-                for l_idx, loads in enumerate(user_loads[j_idx]):
+                for loads in user_loads[j_idx]:
                     current_load = loads
                     t = (current_joint, current_load)
                     output[t] = d[t]

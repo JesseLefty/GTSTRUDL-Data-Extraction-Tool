@@ -1,3 +1,7 @@
+"""
+This module provides the first pass parsing of the .gto file and generates information related to the member force
+results, joint reaction results, and code check results such as .gto file line number and .gto input syntax.
+"""
 import utilities
 import shared_stuff
 from config import result_configuration_parameters
@@ -64,7 +68,6 @@ class ParseFileForData:
                 end_index = first_useful_line + i
                 extracted_result_list.append(line)
                 break
-            else:
-                extracted_result_list.append(line)
+            extracted_result_list.append(line)
         extracted_result_list = [x for x in extracted_result_list if x != ""]
         return extracted_result_list, end_index, first_useful_line

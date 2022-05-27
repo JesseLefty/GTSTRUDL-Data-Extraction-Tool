@@ -1,3 +1,6 @@
+"""
+This module contains a collection of utilities commonly used in the program
+"""
 from tkinter import *
 from tkinter.ttk import *
 

@@ -1,3 +1,6 @@
+"""
+Generates the results selection window when user wants to add new result or modify existing result
+"""
 from tkinter import *
 from tkinter.ttk import *
 import utilities
@@ -6,10 +9,49 @@ from process_data import ProcessData
 import shared_stuff
 
 
+def disable_text_box(rb_value, textbox):
+    """
+    enables or disables a text box based on a radio button value
+
+    :param rb_value: value of radio button associated with text box
+    :param textbox: Tkinter textbox object being enabled or disabled
+    """
+    if rb_value == 1:
+        textbox.delete('0.0', END)
+        textbox.configure(state='disabled', background=text_box_color_disable)
+
+    else:
+        textbox.configure(state='normal', background=text_box_color_enable)
+
+
+def get_text(rb_val, text_val):
+    """
+    gets the text in a text box based on radio button value
+    :param rb_val: value of radio button associated with text box
+    :param text_val: text object containing the value
+    """
+    if rb_val == 1:
+        beam_id = 'ALL'
+    else:
+        beam_id = text_val.get('1.0', 'end-1c')
+    return rb_val, beam_id
+
+
 class ResultsSelectionWindow:
+    """
+    Generates window for the user to input the criteria for which they would like to parse the .gto file.
+
+    :param tab_name: active tab name
+    :param initial_window: active window
+    :param modify: True/False depending on if 'modify' button is pressed
+    :param selection_idd: index of the selected result if result is selected
+    :param selected_result: set number and set name of selected result
+    :param selected_results_tree: Tkinter textbox object containing evaluable results
+    """
 
     def __init__(self, tab_name, initial_window, modify=False, selection_idd=0, selected_result=(0, 'None'),
                  selected_results_tree=None):
+
         self.tab_name = tab_name
         self.initial_window = initial_window
         self.modify = modify
@@ -89,10 +131,10 @@ class ResultsSelectionWindow:
         for val, text in enumerate(rb_text, start=1):
             first_rb = Radiobutton(first_select, text=text, variable=self.first_rb, value=val)
             first_rb.grid(row=0, column=val - 1)
-            first_rb.configure(command=lambda: self.disable_text_box(self.first_rb.get(), self.first_text))
+            first_rb.configure(command=lambda: disable_text_box(self.first_rb.get(), self.first_text))
             second_rb = Radiobutton(second_select, text=text, variable=self.second_rb, value=val)
             second_rb.grid(row=0, column=val - 1)
-            second_rb.configure(command=lambda: self.disable_text_box(self.second_rb.get(), self.second_text))
+            second_rb.configure(command=lambda: disable_text_box(self.second_rb.get(), self.second_text))
 
         self.first_text = Text(first_select, height=1, width=50, font=('Arial', 10), wrap=NONE)
         first_scrollx = Scrollbar(first_select)
@@ -122,8 +164,8 @@ class ResultsSelectionWindow:
         cancel_button.grid(row=0, column=1, padx=5, pady=5)
 
         if self.modify:
-            self.disable_text_box(self.first_rb.get(), self.first_text)
-            self.disable_text_box(self.second_rb.get(), self.second_text)
+            disable_text_box(self.first_rb.get(), self.first_text)
+            disable_text_box(self.second_rb.get(), self.second_text)
             self.first_text.insert('1.0', self.mod_first_text)
             self.second_text.insert('1.0', self.mod_second_text)
         else:
@@ -138,22 +180,10 @@ class ResultsSelectionWindow:
         else:
             self.code_check_window()
 
-    def disable_text_box(self, rb_value, textbox):
-        if rb_value == 1:
-            textbox.delete('0.0', END)
-            textbox.configure(state='disabled', background=text_box_color_disable)
-
-        else:
-            textbox.configure(state='normal', background=text_box_color_enable)
-
-    def get_text(self, rb_val, text_val):
-        if rb_val == 1:
-            beam_id = 'ALL'
-        else:
-            beam_id = text_val.get('1.0', 'end-1c')
-        return rb_val, beam_id
-
     def mem_force_window(self):
+        """
+        opens the results selection window specific to member force results
+        """
         joint_select = LabelFrame(self.selection_window, text='JOINT', height=50, width=380)
         joint_select.grid(row=3, column=0, padx=self.padx, pady=self.pady)
         joint_select.grid_propagate(0)
@@ -165,22 +195,28 @@ class ResultsSelectionWindow:
         self.store_button.configure(command=lambda: (
             ProcessData(self.tab_name, self.selection_idd, modify=self.modify,
                         selected_results_tree=self.selected_results_tree).store_results(
-                self.get_text(self.first_rb.get(), self.first_text),
-                self.get_text(self.second_rb.get(), self.second_text),
+                get_text(self.first_rb.get(), self.first_text),
+                get_text(self.second_rb.get(), self.second_text),
                 self.jt_rb.get(), selected_result=self.selected_result),
             self.selection_window.destroy()))
 
     def joint_reaction_window(self):
+        """
+        opents the results selection window specific to the joint reaction results
+        """
         self.selection_window.geometry('400x300')
         self.store_button.configure(command=lambda: (
             ProcessData(self.tab_name, self.selection_idd, modify=self.modify,
                         selected_results_tree=self.selected_results_tree).store_results(
-                self.get_text(self.first_rb.get(), self.first_text),
-                self.get_text(self.second_rb.get(), self.second_text),
+                get_text(self.first_rb.get(), self.first_text),
+                get_text(self.second_rb.get(), self.second_text),
                 self.jt_rb.get(), selected_result=self.selected_result),
             self.selection_window.destroy()))
 
     def code_check_window(self):
+        """
+        opens the results selection window specific to the code check results
+        """
         self.selection_window.geometry('400x460')
         self.continue_frame.grid(row=6)
         self.default_box_items.set(('IR Value', 'Profile', 'Name'))
@@ -226,8 +262,8 @@ class ResultsSelectionWindow:
         self.store_button.configure(command=lambda: (sort_window_get(),
                                                      ProcessData(self.tab_name, self.selection_idd,
                                                                  modify=self.modify, selected_results_tree=self.selected_results_tree).store_results(
-                                                         self.get_text(self.first_rb.get(), self.first_text),
-                                                         self.get_text(self.second_rb.get(), self.second_text),
+                                                         get_text(self.first_rb.get(), self.first_text),
+                                                         get_text(self.second_rb.get(), self.second_text),
                                                          selected_result=self.selected_result,
                                                          ir_range=ir_text_get(self.ir_range_rb.get()),
                                                          sort=self.sort_cb.get(), fail=self.fail_cb.get(),
@@ -257,6 +293,11 @@ class ResultsSelectionWindow:
             ir_range_text_min.configure(background=text_box_color_disable)
 
         def sort_window(sort_flag):
+            """
+            expands the results selection window to allow user to select code check result sorting options
+
+            :param sort_flag: radio button associated with sorting selection
+            """
             add_button = Button(sort_button_window, text='Add >>', command=lambda: add_sort())
             remove_button = Button(sort_button_window, text='<< Remove', command=lambda: remove_sort())
             add_button['state'] = 'disabled'
@@ -287,6 +328,10 @@ class ResultsSelectionWindow:
                 self.continue_frame.grid_configure(row=6)
 
             def add_sort():
+                """
+                adds a selected sorting parameter to the selected sorting list box and removes it from the option
+                window
+                """
                 if not (option_window_sort.curselection() or option_window_default.curselection()):
                     pass
                 else:
@@ -295,6 +340,10 @@ class ResultsSelectionWindow:
                     option_window_default.delete(option_window_default.curselection())
 
             def remove_sort():
+                """
+                removes a selected sorting parameter from the selected sorting list box and moves it to the option
+                window
+                """
                 if not (option_window_sort.curselection() or option_window_default.curselection()):
                     pass
                 else:
@@ -303,6 +352,12 @@ class ResultsSelectionWindow:
                     option_window_sort.delete(option_window_sort.curselection())
 
             def on_sort_select(event, name):
+                """
+                enables or disables the add and remove button based on what the user is selection.
+
+                :param event: click event
+                :param name: name of window that was clicked
+                """
                 if name == 'sort' and event.widget.curselection():
                     add_button['state'] = 'disabled'
                     remove_button['state'] = 'enabled'
@@ -313,6 +368,11 @@ class ResultsSelectionWindow:
                     pass
 
         def ir_text_get(ir_range_rb_val):
+            """
+            gets the text contained in the IR criteria text boxes
+
+            :param ir_range_rb_val: value of IR range radio button
+            """
             if ir_range_rb_val == 1:
                 ir_range_id = ('', '')
             else:
@@ -320,6 +380,11 @@ class ResultsSelectionWindow:
             return ir_range_rb_val, ir_range_id
 
         def ir_range_disable(ir_range_rb_val):
+            """
+            enables or disables the IR range text boxes based on the radio button value
+
+            :param ir_range_rb_val: value of radio button associated with IR range text boxes
+            """
             if ir_range_rb_val == 2:
                 ir_range_text_min.delete('0.0', END)
                 ir_range_text_min['state'] = 'disabled'
@@ -346,6 +411,9 @@ class ResultsSelectionWindow:
                 ir_range_text_max.configure(background=text_box_color_enable)
 
         def sort_window_get():
+            """
+            sets the sort order and reverse variables based on the content in the sorting window
+            """
             sort_order = option_window_sort.get('0', END)
             specific_sort = []
             reverse_order = []

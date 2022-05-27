@@ -1,3 +1,6 @@
+"""
+This module generates the content in each tab. This includes all buttons, text, and Treeview objects.
+"""
 from tkinter import *
 from tkinter.ttk import *
 import error_handling
@@ -8,15 +11,22 @@ from process_data import ProcessData
 
 
 class GenerateTab:
+    """
+    Generates the buttons, text, text boxes, and results treeview object for each tab.
 
-    def __init__(self, frame, tab_name, initial_window, directory=False, input_file_path=False):
+    :param frame: Tkinter Frame object
+    :param tab_name: name of active tab
+    :param initial_window: Tkinter active window object
+    :param input_file_path: file path of user selected .gto file
+    """
+
+    def __init__(self, frame, tab_name, initial_window, input_file_path=False):
 
         self.frame = frame
         self.tab_name = tab_name
         self.initial_window = initial_window
         self.input_file_path = input_file_path
         self.modify = False
-        self.directory = directory
         style = Style()
         style.configure('mystyle.Treeview.Heading', font=('futura', 10, 'bold'))
         padx, pady = (5, 5), (5, 0)
@@ -65,7 +75,7 @@ class GenerateTab:
             tree_width = [40, 260, 100]
             tree_anchor = [CENTER, W, CENTER]
             self.available_results_tree.column(col, width=tree_width[idx], minwidth=tree_width[idx],
-                                               anchor=tree_anchor[idx])
+                                               anchor=tree_anchor[idx], stretch=False)
 
         for idx, value in enumerate(available_results, start=1):
             if self.not_valid_list:
@@ -94,7 +104,7 @@ class GenerateTab:
             tree_width = config.requested_results_headings[self.tab_name]['column width']
             tree_anchor = config.requested_results_headings[self.tab_name]['text location']
             self.selected_results_tree.column(col, width=tree_width[idx], minwidth=tree_width[idx],
-                                              anchor=tree_anchor[idx])
+                                              anchor=tree_anchor[idx], stretch=False)
 
         self.selected_results_tree.bind('<<TreeviewSelect>>', self.on_tree_select)
         self.available_results_tree.bind('<<TreeviewSelect>>', self.on_list_select)
@@ -107,7 +117,7 @@ class GenerateTab:
                                                                             selected_results_tree=self.selected_results_tree))
 
         self.load_exist_result_set = Button(button_frame, text="Load Existing",
-                                            command=lambda: ProcessData(self.tab_name, directory=self.directory,
+                                            command=lambda: ProcessData(self.tab_name,
                                                                         selected_results_tree=self.selected_results_tree).load_existing_result_set())
         self.modify_result = Button(button_frame, text='Modify Result',
                                     command=lambda: (self.modify_pressed(), ResultsSelectionWindow(self.tab_name,
@@ -140,6 +150,11 @@ class GenerateTab:
         self.modify_result['state'] = 'disabled'
 
     def on_list_select(self, event):
+        """
+        Enables or disables selection buttons when user clicks on available results window
+
+        :param event:
+        """
         if self.not_valid_list:
             self.new_result_set['state'] = 'disabled'
         else:
@@ -148,6 +163,11 @@ class GenerateTab:
             self.delete_result['state'] = 'disabled'
 
     def on_tree_select(self, event):
+        """
+        Enables or disables selection buttons when user clicks on requested results Treeview
+
+        :param event:
+        """
         self.modify_result['state'] = 'enabled'
         self.delete_result['state'] = 'enabled'
         self.new_result_set['state'] = 'disabled'
@@ -158,12 +178,22 @@ class GenerateTab:
             self.modify_result['state'] = 'disabled'
 
     def list_select(self):
-        selection_index = int(self.available_results_tree.selection()[0]) - 1
+        """
+        determines the index of the item selected in the available results window as well as the set name
+
+        :return: tuple containing the set number and set name of the selected result
+        """
+        set_num = int(self.available_results_tree.selection()[0]) - 1
         display_index = int(self.available_results_tree.selection()[0])
-        stored_value = self.available_results_tree.item(display_index, "text")
-        return selection_index, stored_value
+        set_name = self.available_results_tree.item(display_index, "text")
+        return set_num, set_name
 
     def tree_select(self):
+        """
+        determines the index of the item selected in the requested results Treeview
+
+        :return: index of selected result in the tree
+        """
         if self.modify_result['state'] == 'enabled':
             tree_selection_index = int(self.selected_results_tree.selection()[0]) - 1
         else:
@@ -172,8 +202,14 @@ class GenerateTab:
         return tree_selection_index
 
     def modify_pressed(self):
+        """
+        sets modify to True if the modify button is pressed
+        """
         self.modify = True
 
     def check_for_results(self):
+        """
+        checks for results in the results Treeview. If no results exists, raises an error.
+        """
         if not self.selected_results_tree.get_children():
             error_handling.ErrorHandling(self.initial_window).no_result_set()

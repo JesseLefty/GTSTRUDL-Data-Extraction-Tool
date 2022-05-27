@@ -1,3 +1,7 @@
+"""
+Processes data from the results selection window as well as modifies, deletes, imports, or exports result information
+based on user actions.
+"""
 import json
 from tkinter import filedialog
 import os
@@ -10,15 +14,23 @@ import shared_stuff
 
 
 class ProcessData:
+    """
 
-    def __init__(self, tab_name, selection_idd=0, modify=False, directory=None, selected_results_tree=None,
+    :param tab_name: name of active tab
+    :param selection_idd: index of result set to process
+    :param modify: True/False if modify button was pressed
+    :param selected_results_tree: Tkinter selected results Treeview object
+    :param initial_window: Tkinter active window
+    """
+
+    def __init__(self, tab_name, selection_idd=0, modify=False, selected_results_tree=None,
                  initial_window=None):
         self.tab_name = tab_name
         self.results = shared_stuff.data_store
         self.results.tab_name = self.tab_name
         self.modify = modify
         self.selection_idd = selection_idd
-        self.directory = directory
+        self.directory = self.results.directory
         self.selected_results_tree = selected_results_tree
         self.initial_window = initial_window
 
@@ -27,6 +39,20 @@ class ProcessData:
 
     def store_results(self, first_text, second_text, joint_rb=None, selected_result=None, ir_range=None,
                       sort=None, fail=None, sort_order=None, reverse=None):
+        """
+        Runs data storage functions based on the active tab name when 'store' button is pressed in Results Selection
+        Window
+
+        :param first_text: text in the first text box
+        :param second_text: text in the second text box
+        :param joint_rb: value of the joint radio button
+        :param selected_result: index of the selected result
+        :param ir_range: user input IR range criteria
+        :param sort: True/False if sort radio button is checked
+        :param fail: True/False if fail radio button is checked
+        :param sort_order: or in which to sort the code check results
+        :param reverse: True/False for ascending or descending sort order
+        """
 
         if self.tab_name == 'Member Force':
             self.store_mem_force(first_text, second_text, joint_rb)
@@ -38,6 +64,14 @@ class ProcessData:
         UpdateResultTree(self.tab_name, self.selected_results_tree).update_result_tree()
 
     def store_mem_force(self, first_text, second_text, joint_rb):
+        """
+        stores parameters related to member force output
+
+        :param first_text: text in the first text box
+        :param second_text: text in the second text box
+        :param joint_rb: value of the joint radio button
+
+        """
         if self.modify:
             self.results.joint[self.selection_idd] = joint_rb
             self.results.name[self.selection_idd] = first_text
@@ -48,6 +82,12 @@ class ProcessData:
             self.results.load.append(second_text)
 
     def store_joint_reaction(self, first_text, second_text):
+        """
+        stores parameters related to joint reaction output
+
+        :param first_text: text in the first text box
+        :param second_text: text in the second text box
+        """
         if self.modify:
             self.results.name[self.selection_idd] = first_text
             self.results.load[self.selection_idd] = second_text
@@ -56,6 +96,17 @@ class ProcessData:
             self.results.load.append(second_text)
 
     def store_code_check(self, first_text, second_text, ir_range, sort, fail, sort_order, reverse):
+        """
+        stores results related to code check output
+
+        :param first_text: text in the first text box
+        :param second_text: text in the second text box
+        :param ir_range: user input IR range criteria
+        :param sort: True/False if sort radio button is checked
+        :param fail: True/False if fail radio button is checked
+        :param sort_order: or in which to sort the code check results
+        :param reverse: True/False for ascending or descending sort order
+        """
 
         if self.modify:
             self.results.name[self.selection_idd] = first_text
@@ -75,6 +126,11 @@ class ProcessData:
             self.results.reverse.append(reverse)
 
     def store_name_index(self, selected_result):
+        """
+        stores the set name and set number of the selected result
+
+        :param selected_result: tuple of the set name and set number for which results are requested
+        """
         set_num_selected = selected_result[0]
         set_name_selected = selected_result[1]
         if self.modify:
@@ -84,6 +140,9 @@ class ProcessData:
             self.results.set_index.append(set_num_selected)
 
     def delete_result(self):
+        """
+        deletes results from ResultsParameters if user clicks 'delete' button
+        """
         if self.tab_name == 'Member Force':
             del self.results.joint[self.selection_idd]
             del self.results.load[self.selection_idd]
@@ -108,6 +167,10 @@ class ProcessData:
             pass
 
     def store_inputs(self):
+        """
+        generates a .prop file of current contents in the ResultsParameters object. This file can be imported into
+        the program at any time
+        """
         if not self.selected_results_tree.get_children():
             print('no stored results')
         else:
@@ -120,6 +183,9 @@ class ProcessData:
                 print(e)
 
     def load_existing_result_set(self):
+        """
+        loads existing .prop file into the ResultsParameters object
+        """
         load_existing_file_path = filedialog.askopenfilename(initialdir=self.directory, title="select file",
                                                              filetypes=store_file_types)
         try:
@@ -154,17 +220,20 @@ class ProcessData:
             print(e)
 
     def generate_results(self):
-        errors = check_input_errors.FindInputErrors(self.tab_name).consolidate_errors(self.initial_window)
+        """
+        checks for errors in the user input and if no errors are found prompts the user to select output file type and
+        generates the results output file.
+        """
+        errors = check_input_errors.FindInputErrors(self.tab_name).is_input_error(self.initial_window)
         if not self.results.set_index:
             error_handling.ErrorHandling(self.initial_window).no_result_set()
         elif not errors:
             output_file_path = filedialog.asksaveasfilename(filetypes=output_file_types, defaultextension='xlsx')
             out_format = os.path.splitext(output_file_path)[1]
             try:
-                save_output.RunProgram(self.tab_name, out_format, output_file_path, self.results.set_index, self.initial_window)
+                save_output.RunProgram(self.tab_name, out_format, output_file_path, self.results.set_index,
+                                       self.initial_window)
 
             except FileNotFoundError as e:
                 print(e)
                 print('no file selected / action canceled')
-
-
