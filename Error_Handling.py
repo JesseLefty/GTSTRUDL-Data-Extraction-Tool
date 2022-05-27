@@ -1,3 +1,7 @@
+"""
+This module contains the class for error handling. This class gets called whenever a predefined error has been
+encountered and displays the error to the user.
+"""
 from tkinter import *
 from tkinter.ttk import *
 
@@ -5,7 +9,12 @@ import utilities
 
 
 class ErrorHandling:
+    """
+    Provides feed back to the user based on the type of error encountered. Generates a template pop-up with slight
+    modifications based on the sub function chosen
 
+    :param initial_window: tkinter current active window
+    """
     def __init__(self, initial_window):
         self.initial_window = initial_window
         self.error_window = Toplevel(self.initial_window)
@@ -28,7 +37,7 @@ class ErrorHandling:
 
         self.error_mid_frame.configure(style='mid_frame.TFrame')
         self.error_mid_frame.grid_rowconfigure(0, weight=1)
-        exit_button = Button(self.error_bottom_frame, text='OK', command=lambda: self.error_window.destroy())
+        exit_button = Button(self.error_bottom_frame, text='OK', command=self.error_window.destroy)
         exit_button.pack(pady=15, side='bottom')
 
         self.error_top_label = Label(self.error_top_frame, text='!! ERROR !!', justify='center', font='helvetica 20')
@@ -36,23 +45,40 @@ class ErrorHandling:
         self.error_window.grab_set()
 
     def no_result_set(self):
+        """
+        Used to indicate no result sets have been generated if the user tries to store properties file before generating
+        result sets.
+        """
         self.error_window.geometry('300x125')
         Label(self.error_mid_frame, text=f'No result sets have been generated. Please generate results before storing'
                                          f' the inputs', wraplength=280,
               justify='center', style='mid.TLabel').grid(row=0, column=0, sticky='nsew', padx=(10, 10))
 
     def no_directory(self):
+        """
+        Used to indicate no working director has been selected if user tires to select a file prior to selecting a
+        directory
+        """
         self.error_window.geometry('300x125')
         Label(self.error_mid_frame,
-              text=f'No working directory has been selected. Please select directory before selecting file',
+              text='No working directory has been selected. Please select directory before selecting file',
               wraplength=280, justify='center',
               style='mid.TLabel').grid(row=0, column=0, sticky='nsew', padx=(10, 10))
 
-    def item_not_found(self, item, beam_or_joint, load, tab_name, ir_errors=None):
+    def item_not_found(self, item, box_one, box_two, tab_name, ir_errors=None):
+        """
+        Used to display which result sets have errors and which user inputs prodiced those errors
+
+        :param item: result set which is checked for errors
+        :param box_one: errors in user input box 1
+        :param box_two: errors in user input box 2
+        :param tab_name: active tab name
+        :param ir_errors: errors in user IR selection
+        """
         style = Style()
         style.configure('mystyle.Treeview.Heading', font=('futura', 10, 'bold'))
         self.error_window.geometry('400x300')
-        tree_width = [20, 60, 60]
+        tree_width = [40, 165, 165]
         tree_anchor = [CENTER, CENTER, CENTER]
         if tab_name == 'Member Force':
             col_2 = 'Beam" or "Load'
@@ -63,7 +89,7 @@ class ErrorHandling:
         else:
             col_2 = 'Name", "Profile", or "IR'
             tree_header = ['Set #', 'Name', 'Profile', 'IR Range']
-            tree_width = [20, 40, 40, 40]
+            tree_width = [40, 110, 110, 110]
             tree_anchor = [CENTER, CENTER, CENTER, CENTER]
 
         text_label_top = Label(self.error_mid_frame, style='mid.TLabel', wraplength=380, justify='left',
@@ -74,7 +100,8 @@ class ErrorHandling:
                               style='mystyle.Treeview')
         for idx, col in enumerate(tree_header):
             error_tree.heading(col, text=col)
-            error_tree.column(col, width=tree_width[idx], minwidth=tree_width[idx], anchor=tree_anchor[idx])
+            error_tree.column(col, width=tree_width[idx], minwidth=tree_width[idx], anchor=tree_anchor[idx],
+                              stretch=False)
         tree_scrollx = Scrollbar(self.error_mid_frame)
         tree_scrolly = Scrollbar(self.error_mid_frame)
         tree_scrollx.configure(command=error_tree.xview, orient=HORIZONTAL)
@@ -85,14 +112,19 @@ class ErrorHandling:
         error_tree.pack(side=LEFT, fill=X, expand=True, padx=(10, 0))
         if tab_name == 'Code Check':
             for index, set_num in enumerate(item):
-                error_tree.insert(parent='', index='end', iid=index, text=set_num, values=(set_num, beam_or_joint[index],
-                                                                                       load[index], ir_errors[index]))
+                error_tree.insert(parent='', index='end', iid=index, text=set_num, values=(set_num, box_one[index],
+                                                                                           box_two[index], ir_errors[index]))
         else:
             for index, set_num in enumerate(item):
-                error_tree.insert(parent='', index='end', iid=index, text=set_num, values=(set_num, beam_or_joint[index],
-                                                                                       load[index]))
+                error_tree.insert(parent='', index='end', iid=index, text=set_num, values=(set_num, box_one[index],
+                                                                                           box_two[index]))
 
     def wrong_properties_file(self, result_type):
+        """
+        Used to indicate the user tried to load in a properties file which does not match the active tab
+
+        :param result_type: active tab name
+        """
         self.error_window.geometry('300x160')
         Label(self.error_mid_frame,
               text=f'Selected property file is incorrect for {result_type} results. Please select a file that contains'

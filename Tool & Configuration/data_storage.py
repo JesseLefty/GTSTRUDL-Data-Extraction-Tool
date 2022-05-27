@@ -1,18 +1,26 @@
-class ResultsParameters:
+"""
+Class which holds data used throughout other modules of the program.
+"""
 
-    def __init__(self, result_type=None):
+
+class ResultsParameters:
+    """
+    Sets default result parameter values
+    """
+    def __init__(self):
+        self._tab_name = None
+        self._input_file = None
+        self._directory = None
+        self._results_parameters = {}
+        self.reset()
+
+    def reset(self):
         """
-        Sets default result parameter values
-        :param result_type: the major result type being requested (will correspond to the active tab name)
+        Resets the stored data to default values
         """
         self._tab_name = None
         self._input_file = None
-        self._results_parameters = {}
-        self.reset(result_type)
-
-    def reset(self, res_type = None):
-        self._tab_name = res_type
-        self._input_file = None
+        self._directory = None
         self._results_parameters = {
             'Member Force': {
                 'Joint': [],
@@ -42,59 +50,123 @@ class ResultsParameters:
 
     @property
     def tab_name(self):
+        """
+        Active tab name
+        :return: str: name of active tab
+        """
         return self._tab_name
 
     @property
     def results_parameters(self):
+        """
+        Dictionary of all results parameters
+        :return: dictionary of results parameters applicable to the active tab
+        """
         return self._results_parameters[self._tab_name]
 
     @property
     def joint(self):
+        """
+        Joint parameter selection
+        :return: tuple: value of joint selection for active tab
+        """
         return self._results_parameters[self._tab_name]['Joint']
 
     @property
     def name(self):
+        """
+        Element name selection (joint, member, beam)
+        :return: tuple: value of name selection for active tab
+        """
         return self._results_parameters[self._tab_name]['Name']
 
     @property
     def load(self):
+        """
+        Load case parameter selection
+        :return: tuple: value of load selection for active tab
+        """
         return self._results_parameters[self._tab_name]['Load']
 
     @property
     def profile(self):
+        """
+        Profile parameter selection (ex. W10x49)
+        :return: tuple: value of profile selection for active tab
+        """
         return self._results_parameters[self._tab_name]['Profile']
 
     @property
     def ir_range(self):
+        """
+        IR range parameter selection
+        :return: tuple: value of IR range selection for active tab
+        """
         return self._results_parameters[self._tab_name]['IR Range']
 
     @property
     def sort(self):
+        """
+        Sort parameter selection
+        :return: True if sort option is selected, None if not selected corresponding to active tab
+        """
         return self._results_parameters[self._tab_name]['Sort']
 
     @property
     def fail(self):
+        """
+        Code check Fail parameter selection
+        :return: True if fail option is selected, None if not selected corresponding to active tab
+        """
         return self._results_parameters[self._tab_name]['Fail']
 
     @property
     def sort_order(self):
+        """
+        Sort order parameter selection
+        :return: list: order in which to sort code check results corresponding to active tab
+        """
         return self._results_parameters[self._tab_name]['Sort Order']
 
     @property
     def reverse(self):
+        """
+        Sort type, ascending or descending parameter selection
+        :return: list: True of ascending, False for descending corresponding to active tab
+        """
         return self._results_parameters[self._tab_name]['Reverse']
 
     @property
     def set_index(self):
+        """
+        Index of input file result set parameter
+        :return: list: index number of selected available result corresponding to active tab
+        """
         return self._results_parameters[self._tab_name]['Set Index']
 
     @property
     def set_name(self):
+        """
+        Name of selected available result set
+        :return: list: name of selected available result set corresponding to active tab
+        """
         return self._results_parameters[self._tab_name]['Set Name']
 
     @property
     def input_file(self):
+        """
+        Input file selected to parse
+        :return: str: input file selected to parse
+        """
         return self._input_file
+
+    @property
+    def directory(self):
+        """
+        Working directory selected by user
+        :return: str: input file selected to parse
+        """
+        return self._directory
 
     @tab_name.setter
     def tab_name(self, value):
@@ -147,3 +219,7 @@ class ResultsParameters:
     @input_file.setter
     def input_file(self, value):
         self._input_file = value
+
+    @directory.setter
+    def directory(self, value):
+        self._directory = value

@@ -1,3 +1,8 @@
+"""
+This module generates a default list of code check result from the .gto file, parses the default list based on
+user input requirements, and provides a final list containing only the subset of items matching the user requirements.
+This module works for one code check result at a time.
+"""
 from operator import itemgetter
 from natsort import natsorted
 import shared_stuff
@@ -6,16 +11,12 @@ from config import codes
 
 class GenerateOutputArray:
     """
-            Formats the code check list and compiles a list of results which meet the user requirements.
+    Formats the code check list and compiles a list of results which meet the user requirements.
 
-            Parameters:
-                code_set_index (int):   index of the user generated result set for which the data is requested
-                code_check (list):      flattened list of all lines in requested data block
-                name_id (list):         list of tuples containing name parameter id and user name input text
-                profile_id (list):      list of tuples containing profile parameter id and user profile input text
-                ir_range (list):        list of tuples containing two floats which specify and upper and lower IR
-                fail_id (list):         True / False parameter indicating if the user wants only failed members
-            """
+    :param  tab_name (str):         name of active tab
+    :param  code_set_index (int):   index of the user generated result set for which the data is requested
+    :param  code_check (list):      flattened list of all lines in requested data block
+    """
 
     def __init__(self, tab_name, code_set_index, code_check):
         self.results = shared_stuff.data_store
@@ -31,12 +32,7 @@ class GenerateOutputArray:
         """
         Generates a formatted list of code check results with all elements in list.
 
-            Parameters:
-                self
-
-            Returns:
-                 code_check_list (list): nested list with each inner list having 10 items corresponding to the code
-                                         check results
+        :return     nested list with each inner list having 10 items corresponding to the code check results
         """
         col_idx = []
         code_check_list = []
@@ -45,7 +41,7 @@ class GenerateOutputArray:
         for idx, char in enumerate(header_line):
             if char == '/':
                 col_idx.append(idx)
-        for row_num, line in enumerate(code_check):
+        for line in code_check:
             column_1 = line[0: col_idx[1]].strip()
             column_2 = line[col_idx[1]: col_idx[2] + 1].strip()
             column_3 = line[col_idx[2]: col_idx[3] + 1].strip()
@@ -76,16 +72,15 @@ class GenerateOutputArray:
 
     def parse_names(self, code_check_list):
         """
-            Parameters:
-                code_check_list (list):  nested list with each inner list having 10 items corresponding to the code
-                                         check results
+        Parses the code check list for names which match the user requested names
 
-            Returns:
-                 user_names (list):     list of names in code_check_list which meet the user criteria
+        :param code_check_list: nested list with each inner list having 10 items corresponding to the code
+                                         check results
+        :return: list of names in code_check_list which meet the user criteria
         """
         user_names = []
         name = []
-        for idx, row in enumerate(code_check_list):
+        for row in code_check_list:
             name.append(row[0])
         if self.name_id[0] == 2:
             name_starts_with = self.name_id[1]
@@ -111,16 +106,15 @@ class GenerateOutputArray:
 
     def parse_profile(self, code_check_list):
         """
-            Parameters:
-                code_check_list (list):  nested list with each inner list having 10 items corresponding to the code
-                                         check results
+        Parses the code check list for profiles which match the user requested profiles
 
-            Returns:
-                 user_profile (list):     list of profiles in code_check_list which meet the user criteria
+        :param code_check_list: nested list with each inner list having 10 items corresponding to the code
+                                         check results
+        :return: list of profiles in code_check_list which meet the user criteria
         """
         user_profiles = []
         profile = []
-        for idx, row in enumerate(code_check_list):
+        for row in code_check_list:
             profile.append(row[11])
         if self.profile_id[0] == 2:
             profile_starts_with = self.profile_id[1]
@@ -146,15 +140,13 @@ class GenerateOutputArray:
 
     def parse_ir_range(self, code_check_list):
         """
-            Parameters:
-                code_check_list (list):  nested list with each inner list having 10 items corresponding to the code
-                                         check results
+        Parses the code check list for IR results which match the user requested IR criteria
 
-            Returns:
-                 user_ir (list):     list of IRs in code_check_list which meet the user criteria
+        :param code_check_list: nested list with each inner list having 10 items corresponding to the code check results
+        :return: list of IRs in code_check_list which meet the user criteria
         """
         ir = []
-        for idx, row in enumerate(code_check_list):
+        for row in code_check_list:
             ir.append(row[5])
         if self.ir_range[0] == 2:
             ir_less_than = float(self.ir_range[1][1])
@@ -173,9 +165,8 @@ class GenerateOutputArray:
 
     def build_parsed_list(self):
         """
-            Returns:
-                 parsed_list (list):     nested list of code check results which meet the user name, profile, and IR
-                                         criteria
+        Builds a nested list of code check results for all rows wich match the user name, profile, and IR criteria
+        :return: nested list of code check results which meet the user name, profile, and IR criteria
         """
         code_check_list = self.code_check_array()
         code_dict = {}
@@ -218,26 +209,26 @@ class GenerateOutputArray:
             del row[12:14]
         parsed_list = list(zip(*parsed_list))
         col_new = [0, 1, 2, 3, 4, 5, 10, 11, 12, 13, 6, 7, 8, 14, 15, 16, 9, 17]
-        col_map = {i: v for i, v in enumerate(col_new)}
+        col_map = dict(enumerate(col_new))
         parsed_list = [parsed_list[col_map[i]] for i in range(len(parsed_list))]
         parsed_list = list(zip(*parsed_list))
         return parsed_list
 
     def sorted_list(self, sort_order, reverse):
         """
-            Parameter:
-                 sort_order (list):     list corresponding to the preferred user sort order for name, profile, and IR
-                 reverse (list):        list corresponding to the sort order and true/false for reverse flag
-            Returns:
-                 sorted_list (list):     nested list of code check results which meet the user name, profile, and IR
-                                         criteria. Sorted based on the user requested sort criteria
+        Sorts parsed list if the user requests the data to be sorted
+
+        :param sort_order: tuple of True/False and column index of item to be sorted
+        :param reverse: True/False for whether the data should be sorted ascending or descending
+        :return: sorted list matching the user criteria
         """
         parsed_list = self.build_parsed_list()
         reverse_idx = len(reverse[self.code_set_index]) - 1
         sorted_list = parsed_list
         for key, flag in reversed(sort_order[self.code_set_index]):
             if flag:
-                sorted_list = natsorted(sorted_list, key=itemgetter(key), reverse=reverse[self.code_set_index][reverse_idx])
+                sorted_list = natsorted(sorted_list, key=itemgetter(key),
+                                        reverse=reverse[self.code_set_index][reverse_idx])
             else:
                 pass
             reverse_idx -= 1
@@ -245,13 +236,9 @@ class GenerateOutputArray:
 
     def output_list(self):
         """
-            Parameter:
-                 sort_order (list):     list corresponding to the preferred user sort order for name, profile, and IR
-                 sort_request (bool):   True for a requested sort, false no sort
-            Returns:
-                 output_list (list):     nested list of code check results which meet the user name, profile, and IR
-                                         criteria. Sorted based on the user requested sort order if requested.
-                 errors (list):         list of errors during parsing of user requests, if any.
+        Function with compiles the final list matching all user input criteria
+
+        :return: list of items matching user input criteria
         """
         sort_request = self.results.sort
         sort_order = self.results.sort_order

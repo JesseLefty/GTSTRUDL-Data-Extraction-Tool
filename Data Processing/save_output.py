@@ -1,16 +1,29 @@
+"""
+This module saves the requested output as a .csv or .xlsx file. Iteratively processes all result sets in the
+selected results tree one at a time.
+"""
+import csv
+from tkinter import *
+from tkinter.ttk import *
+import openpyxl
 import config
 import extract_member_forces as emf
 from parse_file_for_input_data import ParseFileForData
 import extract_joint_reactions as ejr
 import extract_code_check as ecc
-import csv
-import openpyxl
-from tkinter import *
-from tkinter.ttk import *
+
 
 
 class RunProgram:
+    """
+    Runs the program and generates and output file with the requested results
 
+    :param tab_name: active tab name
+    :param output_format: user requested output format (.csv, .xlsx)
+    :param output_file_name: name of output file
+    :param result_set_index: result set being processed
+    :param initial_window: active window
+    """
     def __init__(self, tab_name, output_format, output_file_name, result_set_index, initial_window=None):
         self.initial_window = initial_window
         self.output_format = output_format
@@ -23,6 +36,12 @@ class RunProgram:
             self.generate_csv()
 
     def build_output(self, items):
+        """
+        builds dictionary or list of results which meet user input requirements.
+
+        :param items: current item being processed
+        :return: dictionary or list of parsed results corresponding the the specific item being saved.
+        """
         extracted_result_list, _, _ = ParseFileForData(items, self.tab_name).get_result_list_info()
         if self.tab_name == 'Member Force':
             parsed_results = emf.GenerateOutputArray(self.tab_name, items, extracted_result_list,
@@ -36,6 +55,9 @@ class RunProgram:
         return parsed_results
 
     def generate_xlsx(self):
+        """
+        saves the requested outputs as a .xlsx file
+        """
         wb = openpyxl.Workbook()
         for items in range(len(self.result_set_index)):
             parsed_results = self.build_output(items)
@@ -57,6 +79,9 @@ class RunProgram:
         self.display_success_or_error()
 
     def generate_csv(self):
+        """
+        saves requested results as .csv file
+        """
         with open(self.output_file_name, 'w', newline='') as w:
             csv.writer(w).writerow(config.result_configuration_parameters[self.tab_name]['Headings'])
             w.close()
@@ -71,6 +96,9 @@ class RunProgram:
         self.display_success_or_error()
 
     def display_success_or_error(self):
+        """
+        displays popup window when output is successfully saved.
+        """
         success_window = Toplevel(self.initial_window)
         success_window.geometry('200x60')
         success_window.title('Complete')

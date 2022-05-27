@@ -1,3 +1,6 @@
+"""
+Generates the Tkinter main loop and initializes ResultsParameters
+"""
 from tkinter import *
 from data_storage import ResultsParameters
 import shared_stuff

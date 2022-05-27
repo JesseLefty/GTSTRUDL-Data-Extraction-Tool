@@ -1,18 +1,21 @@
-import utilities
+"""
+This module generates a default dictionary of member force results from the .gto file, parses the default dictionary
+based on user input requirements, and provides a final dictionary containing only the subset of items matching the user
+requirements. This module works for member force result at a time.
+"""
 import re
+import utilities
 import shared_stuff
 
 
 class GenerateOutputArray:
     """
-            Formats the member force list and compiles a dictionary of requested joint, load combinations, members
-            and the corresponding results.
+        Formats the joint reaction list and compiles a list of results which meet the user requirements.
 
-            Parameters:
-                tab_name (str):             name of tab from which the user clicked 'generate'
-                mem_set_index (int):        index of the user generated result set for which the data is requested
-                member_forces (list):       flattened list of all lines in requested data block
-            """
+        :param  tab_name (str):             name of active tab
+        :param  mem_set_index (int):        index of the user generated result set for which the data is requested
+        :param  member_forces (list):     flattened list of all lines in requested data block
+        """
     def __init__(self, tab_name, mem_set_index, member_forces):
         self.mem_set_index = mem_set_index
         self.results = shared_stuff.data_store
@@ -24,17 +27,12 @@ class GenerateOutputArray:
 
     def member_force_array(self):
         """
-        Generates a formatted list of member forces with all elements in list containing beam, load, joint,
-        and 6 results. Subdivides each result set into 'blocks'. The size of each block is the number of rows for a
-        given member.
+        Generates a formatted dictionary of joint reactions with all elements in list containing joint, load, and 6
+        results. Also generates a list of joint names and corresponding load cases
 
-            Parameters:
-                self
-
-            Returns:
-                 full_d (dictionary):               dictionary of all member, load, joint (key) and results (values)
-                 beam_names (list):                 list all beam names in the results set
-                 load_names (list):                 list all load names in teh results set
+        :return full_d (list):      dictionary of formatted member force
+        :return beam_names (list): list joint meeting user beam spec criteria
+        :return load_names (list):  list of loads meeting user load_spec criteria
         """
         beam_names = []
         beam_index = []
@@ -93,16 +91,15 @@ class GenerateOutputArray:
 
     def user_input_sorting(self, beam_names, load_names):
         """
-        Takes the full list of beam and load names and generates a sub list based on the user specified beam_id
-        requirements. The returned values are nested lists in which the index of the nested list is the same for
-        each beam and load in the block.
+        Takes the full list of beam and load names and generates a sub list based on the user specified
+        requirements.
 
             Parameters:
                 beam_names:         full list of beam names for each block
-                load_names:         full list of load names for each block
+                load_names:          full list of load names for each block
 
             Returns:
-                 user_beam (list):       list of lists of beam names which meet the user criteria
+                 user_beams (list):     list of lists of beam names which meet the user criteria
                  user_loads (list):      list of lists of load names which meet the user criteria
         """
         beam_choice = self.beam_id[self.mem_set_index][0]
@@ -147,23 +144,23 @@ class GenerateOutputArray:
         if load:
             if load_choice == 2:
                 load_starts_with = self.load_id[self.mem_set_index][1]
-                for l_idx, loads in enumerate(load):
+                for loads in load:
                     matching_loads = [l for l in loads if l.startswith(load_starts_with)]
                     user_loads.append(matching_loads)
             elif load_choice == 3:
                 load_ends_with = self.load_id[self.mem_set_index][1]
-                for l_idx, loads in enumerate(load):
+                for loads in load:
                     matching_loads = [l for l in loads if l.endswith(load_ends_with)]
                     user_loads.append(matching_loads)
             elif load_choice == 4:
                 load_contains = self.load_id[self.mem_set_index][1]
-                for l_idx, loads in enumerate(load):
+                for loads in load:
                     matching_loads = [l for l in loads if load_contains in l]
                     user_loads.append(matching_loads)
             elif load_choice == 5:
                 load_text = self.load_id[self.mem_set_index][1].upper()
                 load_list = "".join(load_text).replace(" ", "").split(',')
-                for l_idx, loads in enumerate(load):
+                for loads in load:
                     beam_loads = [l for l in load_list if l in loads]
                     user_loads.append(beam_loads)
             else:
@@ -184,14 +181,10 @@ class GenerateOutputArray:
 
     def requested_member_force_array(self):
         """
-        Builds a dictionary key / value pairs which match the joint, load, and beam criteria requested by the user.
-            Parameters:
-                self
+        Builds a dictionary of key / value pairs which match the beam and load criteria requested by the user.
 
-            Returns:
-                 output (dict):     dictionary of key / value pairs which match all joint, load, and beam criteria
+        :return output (dict):     dictionary of key / value pairs which match all beam and load, criteria
                                     specified by the user
-                 errors (list):     list of beam and load errors (items requested by user not in result set)
         """
         d, all_beams, all_loads = self.member_force_array()
         user_beams, user_loads = self.user_input_sorting(all_beams, all_loads)
@@ -211,7 +204,7 @@ class GenerateOutputArray:
                 current_beam = beams[0]
                 indices = [0] if self.joint == 'START' else [1] if self.joint == 'END' else \
                     range(len(d_joints[current_beam]))
-                for l_idx, loads in enumerate(user_loads[b_idx]):
+                for loads in user_loads[b_idx]:
                     current_load = loads
                     for index in indices:
                         t = (current_beam, current_load, d_joints[current_beam][index])
