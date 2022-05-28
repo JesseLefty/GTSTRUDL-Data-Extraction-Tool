@@ -4,8 +4,42 @@ encountered and displays the error to the user.
 """
 from tkinter import *
 from tkinter.ttk import *
-
+from parse_file_for_input_data import ParseFileForData
 import utilities
+
+
+def is_valid_mem_force(input_file, search_string):
+    """
+    checks to make sure file contains 'output by member'. If not, produces error preventing user from continuing
+
+    :param input_file: .gto file being parsed
+    :param search_string: string to find in file
+    :return True true if search string is in file and before results, False otherwise
+    """
+    display_data = utilities.GenerateDisplayData(input_file)
+    first_member_force_result = display_data.get_display('Member Force')
+    string_position, result_position = None, None
+    if any('OUTPUT BY LOAD' in x for x in display_data.file_list):
+        return False
+    if first_member_force_result[0]:
+        for line, value in enumerate(display_data.file_list):
+            if (search_string in value) and ("$" not in value):
+                string_position = line
+            elif first_member_force_result[1][0] in value:
+                result_position = line
+            else:
+                pass
+            if string_position and result_position:
+                break
+        if string_position and result_position:
+            if string_position < result_position:
+                return True
+            else:
+                return False
+        else:
+            return False
+    else:
+        return True
 
 
 class ErrorHandling:
@@ -50,8 +84,8 @@ class ErrorHandling:
         result sets.
         """
         self.error_window.geometry('300x125')
-        Label(self.error_mid_frame, text=f'No result sets have been generated. Please generate results before storing'
-                                         f' the inputs', wraplength=280,
+        Label(self.error_mid_frame, text=f'No result sets have been created.\n'
+                                         f'Please create result sets before continuing', wraplength=280,
               justify='center', style='mid.TLabel').grid(row=0, column=0, sticky='nsew', padx=(10, 10))
 
     def no_directory(self):
@@ -61,7 +95,7 @@ class ErrorHandling:
         """
         self.error_window.geometry('300x125')
         Label(self.error_mid_frame,
-              text='No working directory has been selected. Please select directory before selecting file',
+              text='No working directory has been selected.\n Please select directory before selecting file',
               wraplength=280, justify='center',
               style='mid.TLabel').grid(row=0, column=0, sticky='nsew', padx=(10, 10))
 
@@ -131,3 +165,27 @@ class ErrorHandling:
                    f' {result_type} results',
               wraplength=280, justify='center',
               style='mid.TLabel').grid(row=0, column=0, sticky='nsew', padx=(10, 10))
+
+    def file_already_open(self, error):
+        """
+        used to indicate the excel file being generated is already opened somewhere
+        :param error: text describing the error
+        """
+        self.error_window.geometry('300x160')
+        Label(self.error_mid_frame,
+              text=f'Please close file before saving\n'
+                   f'{error}',
+              wraplength=280, justify='center',
+              style='mid.TLabel').grid(row=0, column=0, sticky='nsew', padx=(10, 10))
+
+    def no_output_by_member(self):
+        self.error_window.geometry('300x200')
+        Label(self.error_mid_frame,
+              text=f'Program cannot continue for one of the following reasons:\n'
+                   f'1. "OUTPUT BY LOAD" is specified (currently not supported)\n'
+                   f'2. "OUTPUT BY MEMBER" is not specified or that command is specified after "LIST FORCES"',
+              wraplength=280, justify='left',
+              style='mid.TLabel').grid(row=0, column=0, sticky='nsew', padx=(10, 10))
+
+
+

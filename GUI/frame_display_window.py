@@ -54,13 +54,11 @@ class GenerateTab:
                                                columns=config.available_results_headings,
                                                show='headings',
                                                height=5, style='mystyle.Treeview')
-
         if available_results:
             self.not_valid_list = False
         else:
-            available_results_list = 'No Member Forces Found in Output'
+            available_results_list = f'No {self.tab_name} Results found in output'
             self.not_valid_list = True
-
         list_yscroll = Scrollbar(self.available_result_set_frame)
         list_xscroll = Scrollbar(self.available_result_set_frame)
         list_xscroll.configure(command=self.available_results_tree.xview, orient=HORIZONTAL)
@@ -77,11 +75,11 @@ class GenerateTab:
             self.available_results_tree.column(col, width=tree_width[idx], minwidth=tree_width[idx],
                                                anchor=tree_anchor[idx], stretch=False)
 
-        for idx, value in enumerate(available_results, start=1):
-            if self.not_valid_list:
-                self.available_results_tree.insert(parent='', index='end', iid=idx, text=available_results_list,
-                                                   values=(idx, available_results_list))
-            else:
+        if self.not_valid_list:
+            self.available_results_tree.insert(parent='', index='end', iid=0, text=available_results_list,
+                                               values=("", available_results_list))
+        else:
+            for idx, value in enumerate(available_results, start=1):
                 self.available_results_tree.insert(parent='', index='end', iid=idx, text=value,
                                                    values=(idx, value, input_index[idx - 1]))
 

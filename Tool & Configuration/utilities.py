@@ -115,7 +115,7 @@ class GenerateDisplayData:
         """
         Generates data to display in the "available results" window
             Parameters:
-                self
+                tab_name: name of active tab
 
             Returns:
                 result (list): list containing the lines with the trigger string
@@ -148,7 +148,6 @@ class GenerateDisplayData:
                     result.append(text)
                 else:
                     pass
-
         return result, index
 
 

@@ -10,7 +10,7 @@ import shared_stuff
 import frame_display_window
 import error_handling
 import utilities
-from config import load_file_types
+from config import load_file_types, text_box_color_disable, text_box_color_enable
 
 
 def help_doc():
@@ -106,16 +106,15 @@ class FirstWindow:
         exit_button.grid(row=0, column=1, padx=5, pady=5)
         help_button = Button(continue_frame, text='Help (?)', command=help_doc)
         help_button.grid(row=0, column=0, padx=5, pady=5)
-        dir_open = Button(set_directory_frame, text="Select New", command=self.select_dir)
+        dir_open = Button(set_directory_frame, text="Select Dir.", command=lambda: (self.select_dir(),
+                                                                                    self.check_continue()))
         dir_open.grid(row=0, column=1, pady=5, padx=0, sticky='ne')
-        file_open = Button(set_directory_frame, text="Select File", command=self.select_file)
+        file_open = Button(set_directory_frame, text="Select File", command=lambda: (self.select_file(),
+                                                                                     self.check_continue()))
         file_open.grid(row=3, column=1, pady=10, padx=0, sticky='ne')
         self.continue_button = Button(continue_frame, text='Continue', command=self.tab_window_generate)
         self.continue_button.grid(row=0, column=2, padx=5, pady=5)
         self.continue_button['state'] = 'disabled'
-
-        self.show_file.bind('<<Modified>>', lambda event, : self.check_continue())
-        self.show_dir.bind('<<Modified>>', lambda event, : self.check_continue())
 
     def select_dir(self):
         """
@@ -149,59 +148,64 @@ class FirstWindow:
         sets the stats of the continue button. Status is enabled if both the directory and .gto file have been selected
         disabled otherwise.
         """
-        if self.show_dir.get("1.0", END) and self.show_file.get("1.0", END) != '\n':
+        if self.show_dir.get("1.0", END) != '\n' and self.show_file.get("1.0", END) != '\n':
             self.continue_button['state'] = 'enabled'
             self.initial_window.bind('<Return>', (lambda event, : self.continue_button.invoke()))
+        else:
+            self.continue_button['state'] = 'disabled'
 
     def tab_window_generate(self):
         """
         generates the three tab windows corresponding to the type of results which can be parsed through this program
         """
-        height = 370
-        width = 600
-        tab_window = Toplevel(self.initial_window)
-        tab_window.geometry('600x440')
-        utilities.center(tab_window)
-        tab_window.resizable(False, False)
+        if not error_handling.is_valid_mem_force(self.results.input_file, 'OUTPUT BY MEMBER'):
+            error_handling.ErrorHandling(self.initial_window).no_output_by_member()
+        else:
+            height = 370
+            width = 600
+            tab_window = Toplevel(self.initial_window)
+            tab_window.geometry('600x440')
+            utilities.center(tab_window)
+            tab_window.resizable(False, False)
 
-        my_notebook = Notebook(tab_window)
-        my_notebook.pack()
+            my_notebook = Notebook(tab_window)
+            my_notebook.pack()
 
-        member_force_frame = Frame(my_notebook, width=width, height=height)
-        joint_reaction_frame = Frame(my_notebook, width=width, height=height)
-        code_check_frame = Frame(my_notebook, width=width, height=height)
-        navigate_frame = Frame(tab_window, width=width, height=50)
+            member_force_frame = Frame(my_notebook, width=width, height=height)
+            joint_reaction_frame = Frame(my_notebook, width=width, height=height)
+            code_check_frame = Frame(my_notebook, width=width, height=height)
+            navigate_frame = Frame(tab_window, width=width, height=50)
 
-        member_force_frame.grid(row=0, column=0, sticky='n')
-        joint_reaction_frame.grid(row=0, column=0, sticky='n')
-        code_check_frame.grid(row=0, column=0, sticky='n')
-        navigate_frame.pack(side='right', padx=(0, 10))
+            member_force_frame.grid(row=0, column=0, sticky='n')
+            joint_reaction_frame.grid(row=0, column=0, sticky='n')
+            code_check_frame.grid(row=0, column=0, sticky='n')
+            navigate_frame.pack(side='right', padx=(0, 10))
 
-        member_force_frame.grid_propagate(0)
-        joint_reaction_frame.grid_propagate(0)
-        code_check_frame.grid_propagate(0)
+            member_force_frame.grid_propagate(0)
+            joint_reaction_frame.grid_propagate(0)
+            code_check_frame.grid_propagate(0)
 
-        my_notebook.add(member_force_frame, text='Member Forces')
-        my_notebook.add(joint_reaction_frame, text='Joint Reactions')
-        my_notebook.add(code_check_frame, text='Code Check')
+            my_notebook.add(member_force_frame, text='Member Forces')
+            my_notebook.add(joint_reaction_frame, text='Joint Reactions')
+            my_notebook.add(code_check_frame, text='Code Check')
 
-        back_button = Button(navigate_frame, text="Back", command=lambda: (self.initial_window.deiconify(),
-                                                                           tab_window.destroy(), self.reset()))
-        help_button = Button(navigate_frame, text='Help (?)', command=help_doc)
-        exit_button = Button(navigate_frame, text='Exit', command=self.initial_window.quit)
+            back_button = Button(navigate_frame, text="Back", command=lambda: (self.initial_window.deiconify(),
+                                                                               tab_window.destroy(), self.reset()))
+            help_button = Button(navigate_frame, text='Help (?)', command=help_doc)
+            exit_button = Button(navigate_frame, text='Exit', command=self.initial_window.quit)
 
-        help_button.grid(row=0, column=0, padx=5, pady=5)
-        exit_button.grid(row=0, column=1, padx=5, pady=5)
-        back_button.grid(row=0, column=2, padx=5, pady=5)
+            help_button.grid(row=0, column=0, padx=5, pady=5)
+            exit_button.grid(row=0, column=1, padx=5, pady=5)
+            back_button.grid(row=0, column=2, padx=5, pady=5)
 
-        self.initial_window.withdraw()
+            self.initial_window.withdraw()
 
-        frame_display_window.GenerateTab(member_force_frame, 'Member Force', self.initial_window,
-                                         self.results.input_file)
-        frame_display_window.GenerateTab(joint_reaction_frame, 'Joint Reaction', self.initial_window,
-                                         self.results.input_file)
-        frame_display_window.GenerateTab(code_check_frame, 'Code Check', self.initial_window,
-                                         self.results.input_file)
+            frame_display_window.GenerateTab(member_force_frame, 'Member Force', self.initial_window,
+                                             self.results.input_file)
+            frame_display_window.GenerateTab(joint_reaction_frame, 'Joint Reaction', self.initial_window,
+                                             self.results.input_file)
+            frame_display_window.GenerateTab(code_check_frame, 'Code Check', self.initial_window,
+                                             self.results.input_file)
 
     def reset(self):
         """
