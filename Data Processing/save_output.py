@@ -11,8 +11,7 @@ import extract_member_forces as emf
 from parse_file_for_input_data import ParseFileForData
 import extract_joint_reactions as ejr
 import extract_code_check as ecc
-
-
+from error_handling import ErrorHandling
 
 class RunProgram:
     """
@@ -58,42 +57,50 @@ class RunProgram:
         """
         saves the requested outputs as a .xlsx file
         """
-        wb = openpyxl.Workbook()
-        for items in range(len(self.result_set_index)):
-            parsed_results = self.build_output(items)
-            sheet_name = 'Result Set ' + str(items + 1)
-            sheet = wb.create_sheet(f'{sheet_name}')
-            for col, val in enumerate(config.result_configuration_parameters[self.tab_name]['Headings'], start=1):
-                sheet.cell(column=col, row=1, value=val)
-            if self.tab_name == 'Code Check':
-                for row, key in enumerate(parsed_results, start=2):
-                    for col, key in enumerate(parsed_results[row - 2], start=1):
-                        sheet.cell(column=col, row=row, value=parsed_results[row - 2][col - 1])
-            else:
-                d_list = [list(k) + v for k, v in parsed_results.items()]
-                for row, key in enumerate(parsed_results.items(), start=2):
-                    for col, key in enumerate(d_list[row - 2], start=1):
-                        sheet.cell(column=col, row=row, value=d_list[row - 2][col - 1])
-        del wb['Sheet']
-        wb.save(self.output_file_name)
-        self.display_success_or_error()
+        try:
+            wb = openpyxl.Workbook()
+            for items in range(len(self.result_set_index)):
+                parsed_results = self.build_output(items)
+                sheet_name = 'Result Set ' + str(items + 1)
+                sheet = wb.create_sheet(f'{sheet_name}')
+                for col, val in enumerate(config.result_configuration_parameters[self.tab_name]['Headings'], start=1):
+                    sheet.cell(column=col, row=1, value=val)
+                if self.tab_name == 'Code Check':
+                    for row, key in enumerate(parsed_results, start=2):
+                        for col, key in enumerate(parsed_results[row - 2], start=1):
+                            sheet.cell(column=col, row=row, value=parsed_results[row - 2][col - 1])
+                else:
+                    d_list = [list(k) + v for k, v in parsed_results.items()]
+                    for row, key in enumerate(parsed_results.items(), start=2):
+                        for col, key in enumerate(d_list[row - 2], start=1):
+                            sheet.cell(column=col, row=row, value=d_list[row - 2][col - 1])
+            del wb['Sheet']
+            wb.save(self.output_file_name)
+            self.display_success_or_error()
+        except PermissionError as e:
+            print(e)
+            ErrorHandling(self.initial_window).file_already_open(e)
 
     def generate_csv(self):
         """
         saves requested results as .csv file
         """
-        with open(self.output_file_name, 'w', newline='') as w:
-            csv.writer(w).writerow(config.result_configuration_parameters[self.tab_name]['Headings'])
-            w.close()
-            for items in range(len(self.result_set_index)):
-                parsed_results = self.build_output(items)
-                print(parsed_results)
-                with open(self.output_file_name, 'a', newline='') as a:
-                    if self.tab_name == 'Code Check':
-                        csv.writer(a).writerows(parsed_results)
-                    else:
-                        csv.writer(a).writerows((list(k) + v for k, v in parsed_results.items()))
-        self.display_success_or_error()
+        try:
+            with open(self.output_file_name, 'w', newline='') as w:
+                csv.writer(w).writerow(config.result_configuration_parameters[self.tab_name]['Headings'])
+                w.close()
+                for items in range(len(self.result_set_index)):
+                    parsed_results = self.build_output(items)
+                    print(parsed_results)
+                    with open(self.output_file_name, 'a', newline='') as a:
+                        if self.tab_name == 'Code Check':
+                            csv.writer(a).writerows(parsed_results)
+                        else:
+                            csv.writer(a).writerows((list(k) + v for k, v in parsed_results.items()))
+            self.display_success_or_error()
+        except PermissionError as e:
+            print(e)
+            ErrorHandling(self.initial_window).file_already_open(e)
 
     def display_success_or_error(self):
         """
