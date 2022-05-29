@@ -10,14 +10,15 @@ import shared_stuff
 import frame_display_window
 import error_handling
 import utilities
-from config import load_file_types, text_box_color_disable, text_box_color_enable
+from config import load_file_types
 
 
 def help_doc():
     """
     opens help documentation
     """
-    pass
+    help_pdf = r"Supporting Documents\code_check.csv"
+    os.startfile(help_pdf)
 
 
 class FirstWindow:
@@ -36,7 +37,6 @@ class FirstWindow:
         """
         Generates the landing window
         """
-
         self.initial_window.title("GTSTRUDL Data Extraction Tool")
         self.initial_window.geometry('600x440')
         self.initial_window.resizable(False, False)
@@ -69,9 +69,9 @@ class FirstWindow:
         program_description.grid(row=4, column=0)
 
         banner = Frame(self.initial_window, height=160, width=390)
+        banner.picture = PhotoImage(file="Supporting Documents/Banner.png")
         banner.grid(row=0, column=1, pady=(10, 5), padx=(0, 10), sticky='n')
-        banner_text = Label(banner, text='Future Banner Of Some Sort')
-        banner_text.grid(row=0, column=0, sticky='n')
+        Label(banner, image=banner.picture).grid(row=0, column=0, sticky='n')
         banner.grid_propagate(0)
 
         set_directory_frame = LabelFrame(self.initial_window, text='Select Directory & File', height=190, width=390)

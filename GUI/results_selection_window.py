@@ -71,7 +71,7 @@ class ResultsSelectionWindow:
         self.sort_cb = BooleanVar(value=False)
         self.fail_cb = BooleanVar(value=False)
         self.ir_range_rb = IntVar(value=1)
-        self.sort_order_dict = {'IR Value': 5, 'Name': 0, 'Profile': 7}
+        self.sort_order_dict = {'IR': 5, 'Name': 0, 'Profile': 7}
         self.set_num = self.results.set_index
         self.set_name = self.results.set_name
         if self.modify:
@@ -217,6 +217,8 @@ class ResultsSelectionWindow:
         """
         opens the results selection window specific to the code check results
         """
+        style = Style()
+        style.configure('mystyle.Treeview.Heading', font=('futura', 10, 'bold'))
         self.selection_window.geometry('400x460')
         self.continue_frame.grid(row=6)
         self.default_box_items.set(('IR Value', 'Profile', 'Name'))
@@ -237,11 +239,13 @@ class ResultsSelectionWindow:
         sort_cb.grid(row=0, column=1)
 
         sort_frame = LabelFrame(self.selection_window, text='Sort Criteria', height=160, width=380)
-        option_window_default = Listbox(sort_frame, height=5, width=15, font=('Arial', 10),
-                                        listvariable=self.default_box_items)
-        option_window_sort = Listbox(sort_frame, height=5, width=15, font=('Arial', 10),
-                                     listvariable=self.sort_box_items)
-        sort_button_window = Frame(sort_frame, width=120, height=140)
+        option_window_default = Treeview(sort_frame, columns=['Sort Options'],
+                                         show='headings',
+                                         height=4, style='mystyle.Treeview')
+        option_window_sort = Treeview(sort_frame, columns=['Sort Selection', 'Order'],
+                                         show='headings',
+                                         height=4, style='mystyle.Treeview')
+        sort_button_window = Frame(sort_frame, width=100, height=120)
         asc_rb = Radiobutton(sort_button_window, text="Asc.", variable=self.order_rb, value=False)
         dec_rb = Radiobutton(sort_button_window, text="Dec.", variable=self.order_rb, value=True)
 
@@ -261,7 +265,8 @@ class ResultsSelectionWindow:
 
         self.store_button.configure(command=lambda: (sort_window_get(),
                                                      ProcessData(self.tab_name, self.selection_idd,
-                                                                 modify=self.modify, selected_results_tree=self.selected_results_tree).store_results(
+                                                                 modify=self.modify,
+                                                                 selected_results_tree=self.selected_results_tree).store_results(
                                                          get_text(self.first_rb.get(), self.first_text),
                                                          get_text(self.second_rb.get(), self.second_text),
                                                          selected_result=self.selected_result,
@@ -306,21 +311,30 @@ class ResultsSelectionWindow:
             if sort_flag.get():
                 self.selection_window.geometry('400x630')
                 sort_frame.grid(row=6, column=0, columnspan=5, padx=self.padx, pady=self.pady)
-                option_window_default.grid(row=0, column=0, padx=self.padx, pady=self.pady, sticky='n')
-                option_window_sort.grid(row=0, column=4, padx=self.padx, pady=self.pady, sticky='n')
+                option_window_default.grid(row=0, column=0, padx=(5, 0), pady=self.pady, sticky='n')
+                option_window_sort.grid(row=0, column=4, padx=(0, 5), pady=self.pady, sticky='n')
                 sort_button_window.grid(row=0, column=1, columnspan=3, padx=self.padx, pady=self.pady, sticky='nsew')
                 sort_frame.grid_propagate(0)
                 sort_button_window.grid_propagate(0)
                 self.continue_frame.grid_configure(row=7)
+                for index, col in enumerate(['Sort Selection', 'Order']):
+                    option_window_sort.heading(col, text=col.title())
+                    width = [100, 50]
+                    anchor = [W, CENTER]
+                    option_window_sort.column(col, width=width[index], minwidth=25, anchor=anchor[index])
+                option_window_default.heading('Sort Options', text='Sort Options'.title())
+                option_window_default.column('Sort Options', width=90, minwidth=25, anchor=W)
+                for idx, value in enumerate(['IR', 'Profile', 'Name'], start=1):
+                    option_window_default.insert(parent='', index='end', value=value)
 
                 add_button.grid(row=0, column=0, columnspan=2, padx=self.padx, pady=self.pady)
                 remove_button.grid(row=1, column=0, columnspan=2, padx=self.padx, pady=self.pady)
 
-                dec_rb.grid(row=2, column=0, padx=self.padx, pady=self.pady)
-                asc_rb.grid(row=2, column=1, padx=self.padx, pady=self.pady)
+                dec_rb.grid(row=2, column=0, padx=(0, 5), pady=self.pady)
+                asc_rb.grid(row=2, column=1, padx=(5, 0), pady=self.pady)
 
-                option_window_sort.bind('<<ListboxSelect>>', lambda event: on_sort_select(event, 'sort'))
-                option_window_default.bind('<<ListboxSelect>>', lambda event: on_sort_select(event, 'default'))
+                option_window_sort.bind('<<TreeviewSelect>>', lambda event: on_sort_select(event, 'sort'))
+                option_window_default.bind('<<TreeviewSelect>>', lambda event: on_sort_select(event, 'default'))
 
             else:
                 sort_frame.grid_remove()
@@ -332,24 +346,28 @@ class ResultsSelectionWindow:
                 adds a selected sorting parameter to the selected sorting list box and removes it from the option
                 window
                 """
-                if not (option_window_sort.curselection() or option_window_default.curselection()):
+                if not (option_window_sort.selection() or option_window_default.selection()):
                     pass
                 else:
-                    sort_select = option_window_default.get(option_window_default.curselection())
-                    option_window_sort.insert('end', sort_select)
-                    option_window_default.delete(option_window_default.curselection())
+                    sort_select = option_window_default.item(option_window_default.focus())
+                    if self.order_rb.get():
+                        order = 'Dec.'
+                    else:
+                        order = 'Asc.'
+                    option_window_sort.insert(parent='', index='end', values=(sort_select["values"], order))
+                    option_window_default.delete(option_window_default.selection())
 
             def remove_sort():
                 """
                 removes a selected sorting parameter from the selected sorting list box and moves it to the option
                 window
                 """
-                if not (option_window_sort.curselection() or option_window_default.curselection()):
+                if not (option_window_sort.selection() or option_window_default.selection()):
                     pass
                 else:
-                    sort_select = option_window_sort.get(option_window_sort.curselection())
-                    option_window_default.insert('end', sort_select)
-                    option_window_sort.delete(option_window_sort.curselection())
+                    sort_select = option_window_sort.item(option_window_sort.focus())
+                    option_window_default.insert(parent='', index='end', values=sort_select['values'][0])
+                    option_window_sort.delete(option_window_sort.selection())
 
             def on_sort_select(event, name):
                 """
@@ -358,10 +376,10 @@ class ResultsSelectionWindow:
                 :param event: click event
                 :param name: name of window that was clicked
                 """
-                if name == 'sort' and event.widget.curselection():
+                if name == 'sort' and event.widget.selection():
                     add_button['state'] = 'disabled'
                     remove_button['state'] = 'enabled'
-                elif name == 'default' and event.widget.curselection():
+                elif name == 'default' and event.widget.selection():
                     add_button['state'] = 'enabled'
                     remove_button['state'] = 'disabled'
                 else:
@@ -414,13 +432,18 @@ class ResultsSelectionWindow:
             """
             sets the sort order and reverse variables based on the content in the sorting window
             """
-            sort_order = option_window_sort.get('0', END)
+            sort_order = option_window_sort.get_children()
             specific_sort = []
             reverse_order = []
             if sort_order:
                 for item in sort_order:
-                    specific_sort.append((self.sort_order_dict[item], True))
-                    reverse_order.append(self.order_rb.get())
+                    sort_criteria, order = option_window_sort.item(item)['values']
+                    specific_sort.append((self.sort_order_dict[sort_criteria], True))
+                    if order == 'Asc.':
+                        reverse = False
+                    else:
+                        reverse = True
+                    reverse_order.append(reverse)
             else:
                 pass
             self.sort_order = specific_sort
