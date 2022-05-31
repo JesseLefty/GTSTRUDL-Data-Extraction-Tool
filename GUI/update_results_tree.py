@@ -57,11 +57,15 @@ class UpdateResultTree:
                     ir_val = f'IR < {max_ir}'
                 else:
                     ir_val = 'All IRs'
+                if self.results.sort[idx]:
+                    sort_select = 'Yes'
+                else:
+                    sort_select = 'No'
                 values = (idd,
                           text,
                           f'{self.rb_config[self.results.name[idx][0]]} {self.results.name[idx][1]}',
                           f'{self.rb_config[self.results.profile[idx][0]]} {self.results.profile[idx][1]}',
                           f'{ir_val}',
-                          f'{self.results.sort[idx]}'
+                          f'{sort_select}'
                           )
             self.selected_results_tree.insert(parent=parent, index=index, iid=idd, text=text, values=values)

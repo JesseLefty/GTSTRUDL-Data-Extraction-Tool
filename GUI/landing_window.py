@@ -12,13 +12,15 @@ import error_handling
 import utilities
 from config import load_file_types
 
+basedir = os.path.dirname(__file__)
+
 
 def help_doc():
     """
     opens help documentation
     """
-    help_pdf = r"Supporting Documents\code_check.csv"
-    os.startfile(help_pdf)
+    help_pdf = "change_log.txt"
+    os.startfile(os.path.join(basedir, help_pdf))
 
 
 class FirstWindow:
@@ -37,9 +39,11 @@ class FirstWindow:
         """
         Generates the landing window
         """
+        icon = PhotoImage(file=os.path.join(basedir, 'Icon.png'))
         self.initial_window.title("GTSTRUDL Data Extraction Tool")
         self.initial_window.geometry('600x440')
         self.initial_window.resizable(False, False)
+        self.initial_window.iconphoto(True, icon)
         utilities.center(self.initial_window)
         program_description_frame = Frame(self.initial_window, height=430, width=180)
         program_title = Label(program_description_frame, text='GTSTRUDL Data Extraction Tool',
@@ -69,7 +73,7 @@ class FirstWindow:
         program_description.grid(row=4, column=0)
 
         banner = Frame(self.initial_window, height=160, width=390)
-        banner.picture = PhotoImage(file="Supporting Documents/Banner.png")
+        banner.picture = PhotoImage(file=os.path.join(basedir, 'Banner.png'))
         banner.grid(row=0, column=1, pady=(10, 5), padx=(0, 10), sticky='n')
         Label(banner, image=banner.picture).grid(row=0, column=0, sticky='n')
         banner.grid_propagate(0)
@@ -121,7 +125,15 @@ class FirstWindow:
         prompts the user to select a working directory
         """
         directory = filedialog.askdirectory()
-        self.results.directory = directory
+        self.results.directory = directory.rstrip()
+        if not self.results.input_file:
+            self.show_file.config(state='normal')
+            self.show_file.delete('1.0', END)
+            self.show_file.config(state='disabled')
+        else:
+            pass
+        print(f'directory = {self.results.directory}')
+        print(f'file = {self.results.input_file}')
         self.show_dir.config(state='normal')
         self.show_dir.delete('1.0', END)
         self.show_dir.insert(END, directory)
@@ -136,6 +148,9 @@ class FirstWindow:
                                                          filetypes=load_file_types)
             input_file_name = os.path.basename(input_file_path)
             self.results.input_file = input_file_path
+            self.results.directory = self.show_dir.get("1.0", END).rstrip()
+            print(f'directory = {self.results.directory}')
+            print(f'file = {self.results.input_file}')
             self.show_file.config(state='normal')
             self.show_file.delete('1.0', END)
             self.show_file.insert(END, input_file_name)

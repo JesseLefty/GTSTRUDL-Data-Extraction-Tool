@@ -89,7 +89,7 @@ class FindInputErrors:
                 pass
         elif name_choice == 3:
             name_ends_with = self.name_id[set_num][1]
-            if not any(item.startswith(name_ends_with) for item in flat_names):
+            if not any(item.endswith(name_ends_with) for item in flat_names):
                 name_error = name_ends_with
                 set_num_error = set_num + 1
             else:
@@ -121,7 +121,7 @@ class FindInputErrors:
                 pass
         elif load_choice == 3:
             load_ends_with = load_id[set_num][1]
-            if not any(item.startswith(load_ends_with) for item in flat_loads):
+            if not any(item.endswith(load_ends_with) for item in flat_loads):
                 load_error = load_ends_with
                 set_num_error = set_num + 1
             else:
@@ -242,7 +242,7 @@ class FindInputErrors:
         except ValueError:
             not_number = True
         if not_number and not ir_choice == 1:
-            ir_error = 'IRs must be numbers'
+            ir_error = 'IR selection not valid'
             set_num_error = set_num + 1
         else:
             if ir_choice == 1:
