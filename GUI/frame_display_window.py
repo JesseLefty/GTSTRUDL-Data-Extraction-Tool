@@ -106,6 +106,8 @@ class GenerateTab:
 
         self.selected_results_tree.bind('<<TreeviewSelect>>', self.on_tree_select)
         self.available_results_tree.bind('<<TreeviewSelect>>', self.on_list_select)
+        self.selected_results_tree.bind('<Double-1>', self.on_double_click_selected)
+        self.available_results_tree.bind('<Double-1>', self.on_double_click_available)
 
         self.new_result_set = Button(button_frame, text="Create New",
                                      command=lambda: ResultsSelectionWindow(self.tab_name,
@@ -146,6 +148,30 @@ class GenerateTab:
         self.new_result_set['state'] = 'disabled'
         self.delete_result['state'] = 'disabled'
         self.modify_result['state'] = 'disabled'
+
+    def on_double_click_selected(self, event):
+        """
+        resizes tkinter Treeview to original header sizing on double click
+
+        :param event: double click event
+        """
+        region = self.selected_results_tree.identify("region", event.x, event.y)
+        if region == "heading":
+            for idx, col in enumerate(config.requested_results_headings[self.tab_name]['headings'], start=0):
+                tree_width = config.requested_results_headings[self.tab_name]['column width']
+                self.selected_results_tree.column(col, width=tree_width[idx])
+
+    def on_double_click_available(self, event):
+        """
+        resizes tkinter Treeview to original header sizing on double click
+
+        :param event: double click event
+        """
+        region = self.available_results_tree.identify("region", event.x, event.y)
+        if region == "heading":
+            for idx, col in enumerate(config.available_results_headings, start=0):
+                tree_width = config.available_results_headings[self.tab_name]['column width']
+                self.available_results_tree.column(col, width=tree_width[idx])
 
     def on_list_select(self, event):
         """

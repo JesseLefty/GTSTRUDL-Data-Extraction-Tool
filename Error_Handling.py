@@ -4,7 +4,6 @@ encountered and displays the error to the user.
 """
 from tkinter import *
 from tkinter.ttk import *
-from parse_file_for_input_data import ParseFileForData
 import utilities
 
 
@@ -40,6 +39,21 @@ def is_valid_mem_force(input_file, search_string):
             return False
     else:
         return True
+
+
+def on_double_click(event, tree, header, width):
+    """
+    resizes tkinter Treeview to original header sizing on double click
+
+    :param event: double click event
+    :param tree: tkinter Treeview widget
+    :param header: Treeview header
+    :param width: Treeview header width
+    """
+    region = tree.identify("region", event.x, event.y)
+    if region == "heading":
+        for idx, col in enumerate(header, start=0):
+            tree.column(col, width=width[idx])
 
 
 class ErrorHandling:
@@ -152,6 +166,8 @@ class ErrorHandling:
             for index, set_num in enumerate(item):
                 error_tree.insert(parent='', index='end', iid=index, text=set_num, values=(set_num, box_one[index],
                                                                                            box_two[index]))
+
+        error_tree.bind('<Double-1>', lambda event: on_double_click(event, error_tree, tree_header, tree_width))
 
     def wrong_properties_file(self, result_type):
         """
