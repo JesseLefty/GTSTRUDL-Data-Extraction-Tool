@@ -2,9 +2,9 @@
 Generates the Tkinter main loop and initializes ResultsParameters
 """
 from tkinter import *
-from data_storage import ResultsParameters
-import shared_stuff
-from landing_window import FirstWindow
+from Tools.data_storage import ResultsParameters
+from Tools import shared_stuff
+from GUI.landing_window import FirstWindow
 
 if __name__ == '__main__':
     shared_stuff.data_store = ResultsParameters()

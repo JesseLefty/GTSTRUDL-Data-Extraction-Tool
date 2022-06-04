@@ -4,7 +4,7 @@ encountered and displays the error to the user.
 """
 from tkinter import *
 from tkinter.ttk import *
-import utilities
+from Tools.utilities import GenerateDisplayData, center
 
 
 def is_valid_mem_force(input_file, search_string):
@@ -15,7 +15,7 @@ def is_valid_mem_force(input_file, search_string):
     :param search_string: string to find in file
     :return True true if search string is in file and before results, False otherwise
     """
-    display_data = utilities.GenerateDisplayData(input_file)
+    display_data = GenerateDisplayData(input_file)
     first_member_force_result = display_data.get_display('Member Force')
     string_position, result_position = None, None
     if any('OUTPUT BY LOAD' in x for x in display_data.file_list):
@@ -68,7 +68,7 @@ class ErrorHandling:
         self.error_window = Toplevel(self.initial_window)
         self.error_window.geometry('400x200')
         self.error_window.resizable(False, False)
-        utilities.center(self.error_window)
+        center(self.error_window)
         self.error_window.title("ERROR!")
         self.error_top_frame = Frame(self.error_window, width=300, height=40)
         self.error_top_frame.pack(side='top', fill='x')
@@ -160,10 +160,20 @@ class ErrorHandling:
         error_tree.pack(side=LEFT, fill=X, expand=True, padx=(10, 0))
         if tab_name == 'Code Check':
             for index, set_num in enumerate(item):
+                if not box_one[index]:
+                    box_one[index] = '---'
+                if not box_two[index]:
+                    box_two[index] = '---'
+                if not ir_errors[index]:
+                    ir_errors[index] = '---'
                 error_tree.insert(parent='', index='end', iid=index, text=set_num, values=(set_num, box_one[index],
                                                                                            box_two[index], ir_errors[index]))
         else:
             for index, set_num in enumerate(item):
+                if not box_one[index]:
+                    box_one[index] = '---'
+                if not box_two[index]:
+                    box_two[index] = '---'
                 error_tree.insert(parent='', index='end', iid=index, text=set_num, values=(set_num, box_one[index],
                                                                                            box_two[index]))
 

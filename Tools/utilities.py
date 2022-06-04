@@ -123,14 +123,14 @@ class GenerateDisplayData:
         """
         if tab_name == 'Member Force':
             trigger_string = 'LIST FOR'
-            result = [row for row in self.file_list if trigger_string in row]
+            result = [row for row in self.file_list if trigger_string in row and '$' not in row]
             index = [v[:v.find("}") + 1].lstrip() for v in result]
             result = [v[v.find(trigger_string):] for v in result]
 
         elif tab_name == 'Joint Reaction':
             trigger_string = 'RESULTANT JOINT LOADS SUPPORTS'
             index_string = 'LIST REA'
-            index = [row for row in self.file_list if index_string in row]
+            index = [row for row in self.file_list if index_string in row and '$' not in row]
             index = [v[:v.find("}") + 1].lstrip() for v in index]
             result = [row for row in self.file_list if trigger_string in row]
             result = [v[v.find(trigger_string):] for v in result]

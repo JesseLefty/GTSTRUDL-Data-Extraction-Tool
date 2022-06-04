@@ -2,9 +2,9 @@
 This module provides the first pass parsing of the .gto file and generates information related to the member force
 results, joint reaction results, and code check results such as .gto file line number and .gto input syntax.
 """
-import utilities
-import shared_stuff
-from config import result_configuration_parameters
+from Tools.utilities import ReadInputFile
+from Tools import shared_stuff
+from Tools.config import result_configuration_parameters
 
 
 class ParseFileForData:
@@ -22,7 +22,7 @@ class ParseFileForData:
         self.set_num = set_num
         self.input_file = self.results.input_file
         self.result_set = self.results.set_index
-        self.file_list = utilities.ReadInputFile(self.input_file).file_list()
+        self.file_list = ReadInputFile(self.input_file).file_list()
 
     def get_result_positions(self):
         """
@@ -34,7 +34,7 @@ class ParseFileForData:
                     index_list (int): the index position of the specific result set being requested
         """
         trigger_string = result_configuration_parameters[self.tab_name]['Trigger String']
-        index_list = [i for i, e in enumerate(self.file_list) if trigger_string in e]
+        index_list = [i for i, e in enumerate(self.file_list) if trigger_string in e and '$' not in e]
         return index_list[self.result_set[self.set_num]]
 
     def get_result_list_info(self):
