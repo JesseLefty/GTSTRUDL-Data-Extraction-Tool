@@ -19,7 +19,7 @@ def help_doc():
     """
     opens help documentation
     """
-    help_pdf = "change_log.txt"
+    help_pdf = r"PDF\Data Extraction Tool User Guide.pdf"
     os.startfile(os.path.join(basedir, help_pdf))
 
 
@@ -39,7 +39,7 @@ class FirstWindow:
         """
         Generates the landing window
         """
-        icon = PhotoImage(file=os.path.join(basedir, 'Icon.png'))
+        icon = PhotoImage(file=os.path.join(basedir, r'Assets/Icon.png'))
         self.initial_window.title("GTSTRUDL Data Extraction Tool")
         self.initial_window.geometry('600x440')
         self.initial_window.resizable(False, False)
@@ -61,9 +61,9 @@ class FirstWindow:
                                                                     f' or as an excel workbook with each set of'
                                                                     f' desired data stored in a separate worksheet.',
                                     wraplength=160, justify='center')
-        program_version = Label(program_description_frame, text='Version: 0.2.1')
+        program_version = Label(program_description_frame, text='Version: 1.0.0')
         program_developer = Label(program_description_frame, text='Developed by Jesse Wagoner')
-        program_dev_date = Label(program_description_frame, text='3/22/2022')
+        program_dev_date = Label(program_description_frame, text='TBD')
         program_description_frame.grid(row=0, column=0, rowspan=4, padx=10, pady=10, sticky='nsew')
         program_description_frame.grid_propagate(0)
         program_title.grid(row=0, column=0)
@@ -73,7 +73,7 @@ class FirstWindow:
         program_description.grid(row=4, column=0)
 
         banner = Frame(self.initial_window, height=160, width=390)
-        banner.picture = PhotoImage(file=os.path.join(basedir, 'Banner.png'))
+        banner.picture = PhotoImage(file=os.path.join(basedir, r'Assets/Banner.png'))
         banner.grid(row=0, column=1, pady=(10, 5), padx=(0, 10), sticky='n')
         Label(banner, image=banner.picture).grid(row=0, column=0, sticky='n')
         banner.grid_propagate(0)
@@ -132,8 +132,6 @@ class FirstWindow:
             self.show_file.config(state='disabled')
         else:
             pass
-        print(f'directory = {self.results.directory}')
-        print(f'file = {self.results.input_file}')
         self.show_dir.config(state='normal')
         self.show_dir.delete('1.0', END)
         self.show_dir.insert(END, directory)
@@ -149,8 +147,6 @@ class FirstWindow:
             input_file_name = os.path.basename(input_file_path)
             self.results.input_file = input_file_path
             self.results.directory = self.show_dir.get("1.0", END).rstrip()
-            print(f'directory = {self.results.directory}')
-            print(f'file = {self.results.input_file}')
             self.show_file.config(state='normal')
             self.show_file.delete('1.0', END)
             self.show_file.insert(END, input_file_name)

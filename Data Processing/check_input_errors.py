@@ -237,7 +237,8 @@ class FindInputErrors:
             if error:
                 set_num_error = set_num + 1
         try:
-            [float(item) for item in ir_range[set_num][1]]
+            print(ir_range[set_num][1])
+            [float(item) for item in ir_range[set_num][1] if not item == '']
             not_number = False
         except ValueError:
             not_number = True

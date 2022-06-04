@@ -34,7 +34,7 @@ class ParseFileForData:
                     index_list (int): the index position of the specific result set being requested
         """
         trigger_string = result_configuration_parameters[self.tab_name]['Trigger String']
-        index_list = [i for i, e in enumerate(self.file_list) if trigger_string in e]
+        index_list = [i for i, e in enumerate(self.file_list) if trigger_string in e and '$' not in e]
         return index_list[self.result_set[self.set_num]]
 
     def get_result_list_info(self):

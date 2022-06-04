@@ -160,10 +160,20 @@ class ErrorHandling:
         error_tree.pack(side=LEFT, fill=X, expand=True, padx=(10, 0))
         if tab_name == 'Code Check':
             for index, set_num in enumerate(item):
+                if not box_one[index]:
+                    box_one[index] = '---'
+                if not box_two[index]:
+                    box_two[index] = '---'
+                if not ir_errors[index]:
+                    ir_errors[index] = '---'
                 error_tree.insert(parent='', index='end', iid=index, text=set_num, values=(set_num, box_one[index],
                                                                                            box_two[index], ir_errors[index]))
         else:
             for index, set_num in enumerate(item):
+                if not box_one[index]:
+                    box_one[index] = '---'
+                if not box_two[index]:
+                    box_two[index] = '---'
                 error_tree.insert(parent='', index='end', iid=index, text=set_num, values=(set_num, box_one[index],
                                                                                            box_two[index]))
 
