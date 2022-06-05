@@ -5,12 +5,12 @@ based on user actions.
 import json
 from tkinter import filedialog
 import os
-import check_input_errors
+from DataProcessing import check_input_errors
 import error_handling
-import save_output
-from config import output_file_types, store_file_types
-from update_results_tree import UpdateResultTree
-import shared_stuff
+from DataProcessing import save_output
+from Tools.config import output_file_types, store_file_types
+from GUI.update_results_tree import UpdateResultTree
+from Tools import shared_stuff
 
 
 class ProcessData:
