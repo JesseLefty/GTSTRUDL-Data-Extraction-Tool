@@ -4,8 +4,8 @@ based on user input requirements, and provides a final dictionary containing onl
 requirements. This module works for joint reaction result at a time.
 """
 import re
-import utilities
-import shared_stuff
+from Tools.utilities import TupleDict
+from Tools import shared_stuff
 
 
 class GenerateOutputArray:
@@ -45,7 +45,7 @@ class GenerateOutputArray:
         column_start = complete_column_start_idx[0:len(headers) + 3] + line_end
         value_columns = complete_column_start_idx[4: 4 + len(headers)] + line_end
         full_d = {}
-        full_d = utilities.TupleDict(full_d)
+        full_d = TupleDict(full_d)
         for row_num, line in enumerate(joint_reactions):
             column_1 = line[column_start[0]: column_start[1]].strip()
             if (column_1 or column_1.startswith('1')) and not column_1.startswith("****"):

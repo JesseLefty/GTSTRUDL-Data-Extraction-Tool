@@ -5,8 +5,8 @@ This module works for one code check result at a time.
 """
 from operator import itemgetter
 from natsort import natsorted
-import shared_stuff
-from config import codes
+from Tools import shared_stuff
+from Tools.config import codes
 
 
 class GenerateOutputArray:

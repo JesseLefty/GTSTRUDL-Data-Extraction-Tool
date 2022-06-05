@@ -6,12 +6,13 @@ import csv
 from tkinter import *
 from tkinter.ttk import *
 import openpyxl
-import config
-import extract_member_forces as emf
-from parse_file_for_input_data import ParseFileForData
-import extract_joint_reactions as ejr
-import extract_code_check as ecc
+from Tools import config
+from DataProcessing import extract_member_forces as emf
+from DataProcessing.parse_file_for_input_data import ParseFileForData
+from DataProcessing import extract_joint_reactions as ejr
+from DataProcessing import extract_code_check as ecc
 from error_handling import ErrorHandling
+
 
 class RunProgram:
     """

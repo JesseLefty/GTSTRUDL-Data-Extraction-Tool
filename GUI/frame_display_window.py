@@ -4,10 +4,10 @@ This module generates the content in each tab. This includes all buttons, text, 
 from tkinter import *
 from tkinter.ttk import *
 import error_handling
-import utilities
-import config
-from results_selection_window import ResultsSelectionWindow
-from process_data import ProcessData
+from Tools.utilities import GenerateDisplayData
+from Tools import config
+from GUI.results_selection_window import ResultsSelectionWindow
+from DataProcessing.process_data import ProcessData
 
 
 class GenerateTab:
@@ -48,8 +48,7 @@ class GenerateTab:
         self.selected_result_set_frame.grid_propagate(0)
         button_frame.grid_propagate(0)
 
-        available_results, input_index = utilities.GenerateDisplayData(self.input_file_path).get_display(
-            self.tab_name)
+        available_results, input_index = GenerateDisplayData(self.input_file_path).get_display(self.tab_name)
         self.available_results_tree = Treeview(self.available_result_set_frame,
                                                columns=config.available_results_headings,
                                                show='headings',
