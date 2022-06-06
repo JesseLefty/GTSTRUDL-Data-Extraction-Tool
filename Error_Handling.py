@@ -69,7 +69,6 @@ class ErrorHandling:
         self.error_window.geometry('400x200')
         self.error_window.resizable(False, False)
         center(self.error_window)
-        self.error_window.title("ERROR!")
         self.error_top_frame = Frame(self.error_window, width=300, height=40)
         self.error_top_frame.pack(side='top', fill='x')
         self.error_bottom_frame = Frame(self.error_window, width=300, height=40)
@@ -97,8 +96,9 @@ class ErrorHandling:
         Used to indicate no result sets have been generated if the user tries to store properties file before generating
         result sets.
         """
+        self.error_window.title('No Result Set')
         self.error_window.geometry('300x125')
-        Label(self.error_mid_frame, text=f'No result sets have been created.\n'
+        Label(self.error_mid_frame, text=f'No result sets have been created. '
                                          f'Please create result sets before continuing', wraplength=280,
               justify='center', style='mid.TLabel').grid(row=0, column=0, sticky='nsew', padx=(10, 10))
 
@@ -107,9 +107,10 @@ class ErrorHandling:
         Used to indicate no working director has been selected if user tires to select a file prior to selecting a
         directory
         """
+        self.error_window.title("No Directory")
         self.error_window.geometry('300x125')
         Label(self.error_mid_frame,
-              text='No working directory has been selected.\n Please select directory before selecting file',
+              text='No working directory has been selected. Please select directory before selecting file',
               wraplength=280, justify='center',
               style='mid.TLabel').grid(row=0, column=0, sticky='nsew', padx=(10, 10))
 
@@ -125,6 +126,7 @@ class ErrorHandling:
         """
         style = Style()
         style.configure('mystyle.Treeview.Heading', font=('futura', 10, 'bold'))
+        self.error_window.title('Invalid Result Parameters')
         self.error_window.geometry('400x300')
         tree_width = [40, 165, 165]
         tree_anchor = [CENTER, CENTER, CENTER]
@@ -186,6 +188,7 @@ class ErrorHandling:
         :param result_type: active tab name
         """
         self.error_window.geometry('300x160')
+        self.error_window.title('Invalid Properties File')
         Label(self.error_mid_frame,
               text=f'Selected property file is incorrect for {result_type} results. Please select a file that contains'
                    f' {result_type} results',
@@ -198,6 +201,7 @@ class ErrorHandling:
         :param error: text describing the error
         """
         self.error_window.geometry('300x160')
+        self.error_window.title('Open File Error')
         Label(self.error_mid_frame,
               text=f'Please close file before saving\n'
                    f'{error}',
@@ -206,6 +210,7 @@ class ErrorHandling:
 
     def no_output_by_member(self):
         self.error_window.geometry('300x200')
+        self.error_window.title('Invalid Member Force Format')
         Label(self.error_mid_frame,
               text=f'Program cannot continue for one of the following reasons:\n'
                    f'1. "OUTPUT BY LOAD" is specified (currently not supported)\n'

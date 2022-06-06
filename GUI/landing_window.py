@@ -40,37 +40,40 @@ class FirstWindow:
         Generates the landing window
         """
         icon = PhotoImage(file=os.path.join(basedir, r'../Assets/Icon.png'))
-        self.initial_window.title("GTSTRUDL Data Extraction Tool")
+        self.initial_window.title("Data Extraction Tool")
         self.initial_window.geometry('600x440')
         self.initial_window.resizable(False, False)
         self.initial_window.iconphoto(True, icon)
         center(self.initial_window)
         program_description_frame = Frame(self.initial_window, height=430, width=180)
-        program_title = Label(program_description_frame, text='GTSTRUDL Data Extraction Tool',
+        program_title = Label(program_description_frame, text='Data Extraction Tool',
                               font=('Helvetica', 12, 'bold'), wraplength=160, justify='center')
-        program_description = Label(program_description_frame, text=f'GTSTRUDL Data Extraction Tool was developed'
-                                                                    f' to provide a means of parsing GTSTRUDL'
-                                                                    f' output files (.gto) for analysis results'
+        program_description = Label(program_description_frame, text=f'Data Extraction Tool was developed'
+                                                                    f' to provide a simplified method for extracting '
+                                                                    f'results '
+                                                                    f' from GTSTRUDL'
+                                                                    f' output files (.gto) which are'
                                                                     f' commonly used in structural analysis '
                                                                     f' calculations and reports.\n'
                                                                     f'\n'
                                                                     f'This program allows the user to choose specific'
-                                                                    f' criteria for which the .gto file should be parsed'
-                                                                    f' and output'
-                                                                    f' that data as either a comma separated value file'
-                                                                    f' or as an excel workbook with each set of'
+                                                                    f' criteria (results parameters) for which the '
+                                                                    f'.gto file should be searched '
+                                                                    f' The requested results are formatted and saved as'
+                                                                    f' either a comma separated value file'
+                                                                    f' or as an Excel workbook with each set of'
                                                                     f' desired data stored in a separate worksheet.',
-                                    wraplength=160, justify='center')
-        program_version = Label(program_description_frame, text='Version: 1.0.0')
+                                    wraplength=160, justify='left', relief='ridge')
+        program_version = Label(program_description_frame, text='Version: 1.0')
         program_developer = Label(program_description_frame, text='Developed by Jesse Wagoner')
-        program_dev_date = Label(program_description_frame, text='TBD')
+        program_dev_date = Label(program_description_frame, text='July 2022')
         program_description_frame.grid(row=0, column=0, rowspan=4, padx=10, pady=10, sticky='nsew')
         program_description_frame.grid_propagate(0)
-        program_title.grid(row=0, column=0)
+        program_title.grid(row=0, column=0, pady=5)
         program_version.grid(row=1, column=0)
         program_developer.grid(row=2, column=0)
         program_dev_date.grid(row=3, column=0)
-        program_description.grid(row=4, column=0)
+        program_description.grid(row=4, column=0, pady=10)
 
         banner = Frame(self.initial_window, height=160, width=390)
         banner.picture = PhotoImage(file=os.path.join(basedir, r'../Assets/Banner.png'))
@@ -141,7 +144,9 @@ class FirstWindow:
         """
         prompts user to select .gto file to parse from working directory
         """
-        try:
+        if not self.results.directory:
+            error_handling.ErrorHandling(self.initial_window).no_directory()
+        else:
             input_file_path = filedialog.askopenfilename(initialdir=self.results.directory, title="select file",
                                                          filetypes=load_file_types)
             input_file_name = os.path.basename(input_file_path)
@@ -151,8 +156,6 @@ class FirstWindow:
             self.show_file.delete('1.0', END)
             self.show_file.insert(END, input_file_name)
             self.show_file.config(state='disabled')
-        except NameError:
-            error_handling.ErrorHandling(self.initial_window).no_directory()
 
     def check_continue(self):
         """
