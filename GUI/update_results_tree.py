@@ -1,8 +1,8 @@
 """
 This module updates the selected results window Treeview after the user makes changes to the results selection
 """
-from config import rb_options
-import shared_stuff
+from Tools.config import rb_options
+from Tools import shared_stuff
 
 
 class UpdateResultTree:

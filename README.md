@@ -1,4 +1,4 @@
-# GTSTRUDL Data Extraction Tool
+#Data Extraction Tool
 Extracts data from .gto file
 
 

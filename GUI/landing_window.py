@@ -6,11 +6,11 @@ from tkinter import *
 from tkinter.ttk import *
 import os
 from tkinter import filedialog
-import shared_stuff
-import frame_display_window
+from Tools import shared_stuff
+from GUI import frame_display_window
 import error_handling
-import utilities
-from config import load_file_types
+from Tools.utilities import center
+from Tools.config import load_file_types
 
 basedir = os.path.dirname(__file__)
 
@@ -39,12 +39,12 @@ class FirstWindow:
         """
         Generates the landing window
         """
-        icon = PhotoImage(file=os.path.join(basedir, r'Assets/Icon.png'))
+        icon = PhotoImage(file=os.path.join(basedir, r'../Assets/Icon.png'))
         self.initial_window.title("GTSTRUDL Data Extraction Tool")
         self.initial_window.geometry('600x440')
         self.initial_window.resizable(False, False)
         self.initial_window.iconphoto(True, icon)
-        utilities.center(self.initial_window)
+        center(self.initial_window)
         program_description_frame = Frame(self.initial_window, height=430, width=180)
         program_title = Label(program_description_frame, text='GTSTRUDL Data Extraction Tool',
                               font=('Helvetica', 12, 'bold'), wraplength=160, justify='center')
@@ -73,7 +73,7 @@ class FirstWindow:
         program_description.grid(row=4, column=0)
 
         banner = Frame(self.initial_window, height=160, width=390)
-        banner.picture = PhotoImage(file=os.path.join(basedir, r'Assets/Banner.png'))
+        banner.picture = PhotoImage(file=os.path.join(basedir, r'../Assets/Banner.png'))
         banner.grid(row=0, column=1, pady=(10, 5), padx=(0, 10), sticky='n')
         Label(banner, image=banner.picture).grid(row=0, column=0, sticky='n')
         banner.grid_propagate(0)
@@ -176,7 +176,7 @@ class FirstWindow:
             width = 600
             tab_window = Toplevel(self.initial_window)
             tab_window.geometry('600x440')
-            utilities.center(tab_window)
+            center(tab_window)
             tab_window.resizable(False, False)
 
             my_notebook = Notebook(tab_window)

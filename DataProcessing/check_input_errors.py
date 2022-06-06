@@ -2,11 +2,11 @@
 This module checks the user inputs for any errors. If errors are found, returns a list of those errors to report to the
 user
 """
-from parse_file_for_input_data import ParseFileForData
-import extract_member_forces as emf
-import extract_joint_reactions as ejr
-import extract_code_check as ecc
-import shared_stuff
+from DataProcessing.parse_file_for_input_data import ParseFileForData
+from DataProcessing import extract_member_forces as emf
+from DataProcessing import extract_joint_reactions as ejr
+from DataProcessing import extract_code_check as ecc
+from Tools import shared_stuff
 from error_handling import ErrorHandling
 
 
@@ -237,7 +237,6 @@ class FindInputErrors:
             if error:
                 set_num_error = set_num + 1
         try:
-            print(ir_range[set_num][1])
             [float(item) for item in ir_range[set_num][1] if not item == '']
             not_number = False
         except ValueError:
