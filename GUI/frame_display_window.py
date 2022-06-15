@@ -169,7 +169,7 @@ class GenerateTab:
         region = self.available_results_tree.identify("region", event.x, event.y)
         if region == "heading":
             for idx, col in enumerate(config.available_results_headings, start=0):
-                tree_width = config.available_results_headings[self.tab_name]['column width']
+                tree_width = [40, 260, 100]
                 self.available_results_tree.column(col, width=tree_width[idx])
 
     def on_list_select(self, event):

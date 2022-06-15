@@ -71,7 +71,6 @@ class FindInputErrors:
             _, names, loads = ejr.GenerateOutputArray(self.tab_name, set_num, extracted_result_list).joint_reaction_list()
         flat_names = [item for sub_list in names for item in sub_list]
         flat_loads = [item for sub_list in loads for item in sub_list]
-        print(f'flat loads = {flat_loads}')
         name_choice = self.name_id[set_num][0]
         load_choice = load_id[set_num][0]
         name_error = []
