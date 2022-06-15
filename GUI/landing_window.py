@@ -226,3 +226,10 @@ class FirstWindow:
         resets the stored results data when the user exits out to the landing window
         """
         self.results.reset()
+        self.show_file.config(state='normal')
+        self.show_dir.config(state='normal')
+        self.show_file.delete('1.0', END)
+        self.show_dir.delete('1.0', END)
+        self.show_file.config(state='disabled')
+        self.show_dir.config(state='disabled')
+        self.continue_button['state'] = 'disabled'

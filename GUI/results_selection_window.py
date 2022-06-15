@@ -34,7 +34,7 @@ def get_text(rb_val, text_val):
         beam_id = 'ALL'
     else:
         beam_id = text_val.get('1.0', 'end-1c')
-    return rb_val, beam_id
+    return rb_val, beam_id.upper()
 
 
 class ResultsSelectionWindow:
@@ -202,7 +202,7 @@ class ResultsSelectionWindow:
 
     def joint_reaction_window(self):
         """
-        opents the results selection window specific to the joint reaction results
+        opens the results selection window specific to the joint reaction results
         """
         self.selection_window.geometry('400x300')
         self.store_button.configure(command=lambda: (
@@ -243,8 +243,8 @@ class ResultsSelectionWindow:
                                          show='headings',
                                          height=4, style='mystyle.Treeview')
         option_window_sort = Treeview(sort_frame, columns=['Sort Selection', 'Order'],
-                                         show='headings',
-                                         height=4, style='mystyle.Treeview')
+                                      show='headings',
+                                      height=4, style='mystyle.Treeview')
         sort_button_window = Frame(sort_frame, width=100, height=120)
         asc_rb = Radiobutton(sort_button_window, text="Asc.", variable=self.order_rb, value=False)
         dec_rb = Radiobutton(sort_button_window, text="Dec.", variable=self.order_rb, value=True)
@@ -274,6 +274,7 @@ class ResultsSelectionWindow:
                                                          sort=self.sort_cb.get(), fail=self.fail_cb.get(),
                                                          sort_order=self.sort_order, reverse=self.reverse),
                                                      self.selection_window.destroy()))
+
         if self.modify:
             if self.results.ir_range[self.selection_idd][0] == 2:
                 ir_range_text_max.insert('1.0', self.mod_ir_range_text[1])
