@@ -22,11 +22,16 @@ class GenerateOutputArray:
         self.results = shared_stuff.data_store
         self.results.tab_name = tab_name
         self.code_set_index = code_set_index
-        self.code_check = code_check
         self.name_id = self.results.name[self.code_set_index]
         self.profile_id = self.results.profile[self.code_set_index]
         self.ir_range = self.results.ir_range[self.code_set_index]
         self.fail_id = self.results.fail[self.code_set_index]
+        for index, line in enumerate(code_check):
+            if '/---------/' in line:
+                self.code_check = code_check[index:]
+                break
+            else:
+                self.code_check = code_check
 
     def code_check_array(self):
         """
@@ -52,22 +57,11 @@ class GenerateOutputArray:
             column_8 = line[col_idx[7]: col_idx[8] + 1].strip()
             column_9 = line[col_idx[8]: col_idx[9] + 1].strip()
             column_10 = line[col_idx[9]:].strip()
-            if any(code in column_1 for code in codes):
-                code_case = True
-                if len(column_5) == 0:
-                    column_5 = "N/A"
-                if len(column_6) == 0:
-                    column_6 = "0"
-                code_check_list.append([column_1] + [column_2] + [column_3] + [column_4] + [column_5] + [column_6] +
-                                       [column_7] + [column_8] + [column_9] + [column_10])
-            else:
-                code_case = False
-            if column_1 and not (column_1.startswith("****") or code_case):
+            if column_1 and not (column_1.startswith("****")):
                 code_check_list.append([column_1] + [column_2] + [column_3] + [column_4] + [column_5] + [column_6] +
                                        [column_7] + [column_8] + [column_9] + [column_10])
         code_check_list.pop()
         code_check_list = [x + y for x, y in zip(code_check_list[0::2], code_check_list[1::2])]
-
         return code_check_list
 
     def parse_names(self, code_check_list):

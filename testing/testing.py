@@ -27,7 +27,7 @@ class TestUtilities:
 
         assert test_index1[2] == "LIST FORCES GRP 'SBRACE'"
         assert result1[2] == '{  673}'
-        assert test_index2[0] == "RESULTANT JOINT LOADS SUPPORTS"
+        assert test_index2[0] == "LIST REACTIONS"
         assert result2[0] == '{  670}'
         assert test_index3[1] == "CHECK MEM GRP 'FBRACE' GRP 'STWF' 149 151 AS COLUMN"
         assert result3[1] == '{  703}'

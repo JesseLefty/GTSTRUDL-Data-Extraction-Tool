@@ -36,9 +36,9 @@ class GenerateOutputArray:
         joint_names = []
         joint_index = []
         load_cases = []
-        header_line = self.joint_reactions[0]
-        headers = re.split(r'\s{2,}', header_line)[1:]
-        joint_reactions = self.joint_reactions[1:]
+        header_line = self.joint_reactions[1]
+        headers = [item for item in re.split(r'\s{2,}', header_line) if item != ""]
+        joint_reactions = self.joint_reactions[2:]
         complete_column_start_idx = [0, 10, 19, 28, 44, 59, 75, 91, 107]
         line_end = [123]
         #TODO: Get rid of these magic numbers

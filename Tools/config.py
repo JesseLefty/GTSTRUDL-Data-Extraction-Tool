@@ -31,20 +31,17 @@ requested_results_headings = {'Member Force':
                               }
 
 result_configuration_parameters = {'Member Force':
-                                       {'Trigger String': 'LIST FOR',
-                                        'Skip Lines': 22,
-                                        'End Trigger': '1',
+                                       {'Trigger String': 'MEMBER FORCES',
+                                        'End Trigger': ['MEMBER FORCES', 'RESULTANT JOINT LOADS SUPPORTS', '1'],
                                         'Headings': ['MEMBER', 'LOAD', 'JOINT', 'FOR X', 'FOR Y', 'FOR Z', 'MOM X',
                                                      'MOM Y', 'MOM Z']},
                                    'Joint Reaction':
                                        {'Trigger String': 'RESULTANT JOINT LOADS SUPPORTS',
-                                        'Skip Lines': 3,
-                                        'End Trigger': '1',
+                                        'End Trigger': ['MEMBER FORCES', 'RESULTANT JOINT LOADS SUPPORTS', '1'],
                                         'Headings': ['JOINT', 'LOAD', 'FOR X', 'FOR Y', 'FOR Z', 'MOM X', 'MOM Y',
                                                      'MOM Z']},
                                    'Code Check':
                                        {'Trigger String': 'DESIGN TRACE OUTPUT',
-                                        'Skip Lines': 13,
                                         'End Trigger': 'END OF TRACE OUTPUT',
                                         'Headings': ['MEMBER', 'TABLE', 'LOAD CASE', 'SECTION LOCATION',
                                                      'STRESS PROVISION', 'STRESS IR', 'CODE', 'PROFILE',

@@ -52,22 +52,23 @@ class ParseFileForData:
                 first_useful_line (int):            index at start of requested data block
         """
         index_for_result_set = self.get_result_positions()
-        first_useful_line = index_for_result_set + result_configuration_parameters[self.tab_name]['Skip Lines']
         end_index = 0
         extracted_result_list = []
         stop = False
         end_trigger = result_configuration_parameters[self.tab_name]['End Trigger']
-        for i, line in enumerate(self.file_list[first_useful_line:]):
+        for i, line in enumerate(self.file_list[index_for_result_set + 1:]):
             if self.tab_name == 'Code Check':
-                if end_trigger in self.file_list[first_useful_line + i]:
+                if end_trigger in line:
                     stop = True
             else:
-                if self.file_list[first_useful_line + i].startswith(end_trigger):
+                if line.startswith(tuple(end_trigger)):
+                    stop = True
+                elif any(item in line for item in end_trigger[:-1]):
                     stop = True
             if stop:
-                end_index = first_useful_line + i
+                end_index = index_for_result_set + i
                 extracted_result_list.append(line)
                 break
             extracted_result_list.append(line)
         extracted_result_list = [x for x in extracted_result_list if x != ""]
-        return extracted_result_list, end_index, first_useful_line
+        return extracted_result_list, end_index, index_for_result_set
