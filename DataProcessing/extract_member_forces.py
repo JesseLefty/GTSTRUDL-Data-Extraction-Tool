@@ -36,9 +36,9 @@ class GenerateOutputArray:
         """
         beam_names = []
         beam_index = []
-        header_line = self.member_forces[0]
-        headers = re.split(r'\s{2,}', header_line)[1:]
-        member_forces = self.member_forces[1:]
+        header_line = self.member_forces[1]
+        headers = [item for item in re.split(r'\s{2,}', header_line) if item != ""]
+        member_forces = self.member_forces[2:]
         complete_column_start_idx = [0, 10, 19, 28, 44, 60, 76, 92, 108]
         line_end = [124]
         #TODO: Get rid of these magic numbers

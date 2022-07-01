@@ -3,6 +3,7 @@ This module contains a collection of utilities commonly used in the program
 """
 from tkinter import *
 from tkinter.ttk import *
+from Tools.config import result_configuration_parameters
 
 
 def center(win, x_offset=0, y_offset=0):
@@ -121,40 +122,35 @@ class GenerateDisplayData:
                 result (list): list containing the lines with the trigger string
                 index (list):  list containing the GTSTRUDL output line number
         """
-        if tab_name == 'Member Force':
-            trigger_string = 'LIST FOR'
-            result = [row for row in self.file_list if trigger_string in row and '$' not in row]
-            index = [v[:v.find("}") + 1].lstrip() for v in result]
-            result = [v[v.find(trigger_string):] for v in result]
+        trigger_string = result_configuration_parameters[tab_name]['Trigger String']
+        result = []
+        index = []
+        for idx, row in enumerate(self.file_list):
+            if trigger_string in row:
+                display_line = self.find_input_line(idx, '{')
+                text = display_line[display_line.find(">") + 2:]
+                line_num = display_line[:display_line.find("}") + 1].lstrip()
+                index.append(line_num)
+                result.append(text)
+            else:
+                pass
 
-        elif tab_name == 'Joint Reaction':
-            trigger_string = 'RESULTANT JOINT LOADS SUPPORTS'
-            index_string = 'LIST REA'
-            index = [row for row in self.file_list if index_string in row and '$' not in row]
-            index = [v[:v.find("}") + 1].lstrip() for v in index]
-            result = [row for row in self.file_list if trigger_string in row]
-            result = [v[v.find(trigger_string):] for v in result]
-
-        else:
-            trigger_string = 'DESIGN TRACE OUTPUT'
-            result = []
-            index = []
-            display_text = None
-            for idx, row in enumerate(self.file_list):
-                if trigger_string in row:
-                    for num, text in enumerate(self.file_list[idx::-1]):
-                        if "{" in text:
-                            display_text = text
-                            break
-                        else:
-                            pass
-                    text = display_text[display_text.find(">") + 2:]
-                    line_num = display_text[:display_text.find("}") + 1].lstrip()
-                    index.append(line_num)
-                    result.append(text)
-                else:
-                    pass
         return result, index
+
+    def find_input_line(self, idx, trigger_text):
+        """
+        traverses the file_list in reverse starting from idx until trigger text is found
+
+        :param idx: list index where trigger string was found
+        :param trigger_text: text to search for in list after finding trigger string
+
+        :return: returns the row containing the trigger text
+        """
+        for text in self.file_list[idx::-1]:
+            if trigger_text in text:
+                return text
+            else:
+                pass
 
 
 class TupleDict(dict):
