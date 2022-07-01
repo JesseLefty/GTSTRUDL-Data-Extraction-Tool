@@ -139,9 +139,15 @@ class GenerateDisplayData:
             trigger_string = 'DESIGN TRACE OUTPUT'
             result = []
             index = []
+            display_text = None
             for idx, row in enumerate(self.file_list):
                 if trigger_string in row:
-                    display_text = self.file_list[idx - 4]
+                    for num, text in enumerate(self.file_list[idx::-1]):
+                        if "{" in text:
+                            display_text = text
+                            break
+                        else:
+                            pass
                     text = display_text[display_text.find(">") + 2:]
                     line_num = display_text[:display_text.find("}") + 1].lstrip()
                     index.append(line_num)

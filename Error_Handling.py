@@ -13,7 +13,7 @@ def is_valid_mem_force(input_file, search_string):
 
     :param input_file: .gto file being parsed
     :param search_string: string to find in file
-    :return True true if search string is in file and before results, False otherwise
+    :return True if search string is in file and before results, False otherwise
     """
     display_data = GenerateDisplayData(input_file)
     first_member_force_result = display_data.get_display('Member Force')
@@ -30,7 +30,7 @@ def is_valid_mem_force(input_file, search_string):
                 pass
             if string_position and result_position:
                 break
-        if string_position and result_position:
+        if result_position and string_position is not None:
             if string_position < result_position:
                 return True
             else:
