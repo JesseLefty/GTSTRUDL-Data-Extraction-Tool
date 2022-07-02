@@ -4,7 +4,7 @@ This module generates the content in each tab. This includes all buttons, text, 
 from tkinter import *
 from tkinter.ttk import *
 import error_handling
-from Tools.utilities import GenerateDisplayData
+from Tools.utilities import GenerateDisplayData, preview_util
 from Tools import config
 from GUI.results_selection_window import ResultsSelectionWindow
 from DataProcessing.process_data import ProcessData
@@ -107,6 +107,7 @@ class GenerateTab:
         self.available_results_tree.bind('<<TreeviewSelect>>', self.on_list_select)
         self.selected_results_tree.bind('<Double-1>', self.on_double_click_selected)
         self.available_results_tree.bind('<Double-1>', self.on_double_click_available)
+        self.available_results_tree.bind('<Button-3>', self.available_results_tree_menu)
 
         self.new_result_set = Button(button_frame, text="Create New",
                                      command=lambda: ResultsSelectionWindow(self.tab_name,
@@ -147,6 +148,43 @@ class GenerateTab:
         self.new_result_set['state'] = 'disabled'
         self.delete_result['state'] = 'disabled'
         self.modify_result['state'] = 'disabled'
+
+    def preview(self, event):
+        """
+        Generates preview of selected available result in new window.
+
+        :param event: user click on 'preview' in drop down menu
+        """
+        set_num = int(self.available_results_tree.identify_row(event.y)) - 1
+        extracted_result_list = preview_util(set_num, self.tab_name)
+        preview_window = Toplevel(self.initial_window)
+        preview_window.geometry('1100x640')
+        preview_box = Text(preview_window, width=140, heigh=40, wrap=NONE)
+        preview_box_scrolly = Scrollbar(preview_window)
+        preview_box_scrollx = Scrollbar(preview_window)
+        preview_box_scrollx.configure(command=preview_box.xview, orient=HORIZONTAL)
+        preview_box_scrolly.configure(command=preview_box.yview)
+        preview_box.configure(xscrollcommand=preview_box_scrollx.set, yscrollcommand=preview_box_scrolly.set)
+        preview_box_scrolly.pack(side=RIGHT, fill=Y)
+        preview_box_scrollx.pack(side=BOTTOM, fill=X)
+        preview_box.pack(fill=BOTH, expand=True)
+        for row in extracted_result_list:
+            preview_box.insert(END, row + '\n')
+        preview_box['state'] = ['disabled']
+        preview_window.grab_set()
+
+    def available_results_tree_menu(self, event):
+        """
+        Generates a drop down menu for available results tree when right mouse button is pressed on one of the results
+
+        :param event: user right click
+        """
+        if self.not_valid_list:
+            pass
+        else:
+            available_result_menu = Menu(self.initial_window, tearoff=False)
+            available_result_menu.add_command(label='Preview', command=lambda: self.preview(event))
+            available_result_menu.tk_popup(event.x_root, event.y_root)
 
     def on_double_click_selected(self, event):
         """

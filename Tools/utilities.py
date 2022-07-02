@@ -4,6 +4,7 @@ This module contains a collection of utilities commonly used in the program
 from tkinter import *
 from tkinter.ttk import *
 from Tools.config import result_configuration_parameters
+from Tools import shared_stuff
 
 
 def center(win, x_offset=0, y_offset=0):
@@ -167,3 +168,31 @@ class TupleDict(dict):
         if super(TupleDict, self).__contains__(key):
             return True
         return any(key in k for k in self)
+
+
+def preview_util(set_num, tab_name):
+    results = shared_stuff.data_store
+    input_file = results.input_file
+    file_list = ReadInputFile(input_file).file_list()
+    trigger_string = result_configuration_parameters[tab_name]['Trigger String']
+    index_list = [i for i, e in enumerate(file_list) if trigger_string in e and '$' not in e]
+    preview_index = index_list[set_num]
+    index_for_result_set = preview_index
+    extracted_result_list = []
+    stop = False
+    end_trigger = result_configuration_parameters[tab_name]['End Trigger']
+    for i, line in enumerate(file_list[index_for_result_set + 1:]):
+        if tab_name == 'Code Check':
+            if end_trigger in line:
+                stop = True
+        else:
+            if line.startswith(tuple(end_trigger)):
+                stop = True
+            elif any(item in line for item in end_trigger[:-1]):
+                stop = True
+        if stop:
+            extracted_result_list.append(line)
+            break
+        extracted_result_list.append(line)
+    extracted_result_list = [x for x in extracted_result_list if x != ""]
+    return extracted_result_list
