@@ -1,0 +1,85 @@
+﻿End-User License Agreement (EULA) of Data Extraction Tool
+
+
+This End-User License Agreement ("EULA") is a legal agreement between you and Jesse Wagoner (“The Developer”). 
+
+
+This EULA agreement governs your acquisition and use of our Data Extraction Tool ("Software") directly from The Developer.
+
+
+Please read this EULA agreement carefully before completing the installation process and using the Data Extraction Tool Software. It provides a license to use the Data Extraction Tool Software and contains warranty information and liability disclaimers.
+
+
+By clicking "accept" or installing and/or using the Data Extraction Tool Software, you are confirming your acceptance of the Software and agreeing to become bound by the terms of this EULA agreement.
+
+
+If you are entering into this EULA agreement on behalf of a company or other legal entity, you represent that you have the authority to bind such entity and its affiliates to these terms and conditions. If you do not have such authority or if you do not agree with the terms and conditions of this EULA agreement, do not install or use the Software, and you must not accept this EULA agreement.
+
+
+This EULA agreement shall apply only to the Software supplied by The Developer herewith regardless of whether other Software is referred to or described herein. The terms also apply to any The Developer updates, supplements, Internet-based services, and support services for the Software, unless other terms accompany those items on delivery. If so, those terms apply.
+
+
+License Grant
+
+
+The Developer hereby grants you a personal, non-transferable, non-exclusive license to use the Data Extraction Tool Software on your devices in accordance with the terms of this EULA agreement.
+
+
+You are permitted to load the Data Extraction Tool Software (for example a PC, laptop, mobile or tablet) under your control. You are responsible for ensuring your device meets the minimum requirements of the Data Extraction Tool Software.
+
+
+You are not permitted to:
+
+
+Edit, alter, modify, adapt, translate or otherwise change the whole or any part of the Software nor permit the whole or any part of the Software to be combined with or become incorporated in any other Software, nor decompile, disassemble or reverse engineer the Software or attempt to do any of the following:
+* Reproduce, copy, distribute, resell or otherwise use the Software for any commercial purpose
+* Allow any third party to use the Software on behalf of or for the benefit of any third party
+* Use the Software in any way which breaches any applicable local, national or international law
+* Use the Software for any purpose that The Developer considers is a breach of this EULA agreement
+
+
+
+
+Intellectual Property and Ownership
+
+
+The Developer shall at all times retain ownership of the Software as originally downloaded by you and all subsequent downloads of the Software by you. The Software (and the copyright, and other intellectual property rights of whatever nature in the Software, including any modifications made thereto) are and shall remain the property of The Developer.
+
+
+The Developer reserves the right to grant licenses to use the Software to third parties.
+
+
+Termination
+
+
+This EULA agreement is effective from the date you first use the Software and shall continue until terminated. You may terminate it at any time upon written notice to The Developer.
+
+
+It will also terminate immediately if you fail to comply with any term of this EULA agreement. Upon such termination, the licenses granted by this EULA agreement will immediately terminate and you agree to stop all access and use of the Software. The provisions that by their nature continue and survive will survive any termination of this EULA agreement.
+
+
+Disclaimer of Warranties
+
+
+You acknowledge and agree that the Software is provided on an “as is” and “as available” basis, and that your use of or reliance upon the Software and any third party content and services accessed thereby is at your sole risk and discretion. The Developer disclaims any and all representations, warranties and guarantees regarding the Software and third party content and services, whether express, implied or statutory, and including, without limitation, the implied warranties of merchantability, fitness for a particular purpose, and non-infringement.
+
+
+Furthermore, The Developer makes no warranty that (I) the Software or third party content and services will meet your requirements; (II) the Software or third party content and services will be uninterrupted, accurate, reliable, timely, secure or error-free; (III) the quality of any products, services, information or other material accessed or obtained by you through the Software will be as represented or meet your expectations; or (IV) any errors in the Software or third party content and services will be corrected. No advice or information, whether oral or written, obtained by you from The Developer or from the Software shall create any.
+
+
+Limitation of Liability
+
+
+Notwithstanding any damages that you might incur, the entire liability of The Developer under any provision of this Agreement and your exclusive remedy for all of the foregoing shall be limited to the amount actually paid by you for the Software.
+
+
+To the maximum extent permitted by applicable law, in no event shall The Developer be liable for any special, incidental, indirect, or consequential damages whatsoever (including, but not limited to, damages for loss of profits, loss of data or other information, for business interruption, for personal injury, loss of privacy arising out of or in any way related to the use of or inability to use the Software, third-party content and/or third-party hardware used with the Software, or otherwise in connection with any provision of this Agreement), even if The Developer has been advised of the possibility of such damages and even if the remedy fails of its essential purpose.
+
+
+Some states/jurisdictions do not allow the exclusion or limitation of incidental or consequential damages, so the above limitation or exclusion may not apply to you.
+
+
+Governing Law
+
+
+This EULA agreement, and any dispute arising out of or in connection with this EULA agreement, shall be governed by and construed in accordance with the laws of the United States of America.
