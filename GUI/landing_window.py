@@ -19,7 +19,7 @@ def help_doc():
     """
     opens help documentation
     """
-    help_pdf = r"../PDF\Data Extraction Tool User Guide.pdf"
+    help_pdf = r"../PDF\Data Extraction Tool User Guide R0.pdf"
     os.startfile(os.path.join(basedir, help_pdf))
 
 

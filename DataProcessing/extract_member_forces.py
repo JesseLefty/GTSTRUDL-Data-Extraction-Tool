@@ -209,4 +209,6 @@ class GenerateOutputArray:
                     for index in indices:
                         t = (current_beam, current_load, d_joints[current_beam][index])
                         output[t] = d[t]
+            for k, v in output.items():
+                output[k] = [float(x) if not x == ' ' else x for x in v]
         return output

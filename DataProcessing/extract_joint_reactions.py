@@ -194,4 +194,6 @@ class GenerateOutputArray:
                     current_load = loads
                     t = (current_joint, current_load)
                     output[t] = d[t]
+        for k, v in output.items():
+            output[k] = [float(x) if not x == ' ' else x for x in v]
         return output

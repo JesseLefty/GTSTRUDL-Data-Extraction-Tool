@@ -159,6 +159,7 @@ class GenerateTab:
         extracted_result_list = preview_util(set_num, self.tab_name)
         preview_window = Toplevel(self.initial_window)
         preview_window.geometry('1100x640')
+        preview_window.title(self.available_results_tree.item(self.available_results_tree.identify_row(event.y))['text'])
         preview_box = Text(preview_window, width=140, heigh=40, wrap=NONE)
         preview_box_scrolly = Scrollbar(preview_window)
         preview_box_scrollx = Scrollbar(preview_window)
