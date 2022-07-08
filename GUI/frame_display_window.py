@@ -8,6 +8,24 @@ from Tools.utilities import GenerateDisplayData, preview_util
 from Tools import config
 from GUI.results_selection_window import ResultsSelectionWindow
 from DataProcessing.process_data import ProcessData
+from DataProcessing.generate_input_file import print_input_file
+
+
+def add_scroll_bar(location, bind_to, orientation: str, side: str, fill: str) -> Scrollbar:
+    """
+    Adds a scrollbar to the specified location and binds it to a widget
+
+    :param location: Tkinter widget or toplevel window where the scrollbar is added
+    :param bind_to: Tkinter widget that the scrollbar is bound to
+    :param orientation: orientation of the scrollbar (horizontal or vertical)
+    :param side: side of the widget that the scrollbar is placed (TOP, BOTTOM, LEFT, RIGHT)
+    :param fill: direction of fill of the scrollbar (X or Y)
+
+    :return: Tkinter Scrollbar instance
+    """
+    scrollbar = Scrollbar(location, command=bind_to, orient=orientation)
+    scrollbar.pack(side=side, fill=fill)
+    return scrollbar
 
 
 class GenerateTab:
@@ -20,7 +38,7 @@ class GenerateTab:
     :param input_file_path: file path of user selected .gto file
     """
 
-    def __init__(self, frame, tab_name, initial_window, input_file_path=False):
+    def __init__(self, frame, tab_name: str, initial_window, input_file_path=False):
 
         self.frame = frame
         self.tab_name = tab_name
@@ -58,12 +76,8 @@ class GenerateTab:
         else:
             available_results_list = f'No {self.tab_name} Results found in output'
             self.not_valid_list = True
-        list_yscroll = Scrollbar(self.available_result_set_frame)
-        list_xscroll = Scrollbar(self.available_result_set_frame)
-        list_xscroll.configure(command=self.available_results_tree.xview, orient=HORIZONTAL)
-        list_yscroll.configure(command=self.available_results_tree.yview, orient=VERTICAL)
-        list_yscroll.pack(side=RIGHT, fill=Y)
-        list_xscroll.pack(side=BOTTOM, fill=X)
+        list_xscroll = add_scroll_bar(self.available_result_set_frame, self.available_results_tree.xview, HORIZONTAL, BOTTOM, X)
+        list_yscroll = add_scroll_bar(self.available_result_set_frame, self.available_results_tree.yview, VERTICAL, RIGHT, Y)
         self.available_results_tree.pack(side=LEFT, expand=True)
         self.available_results_tree.configure(xscrollcommand=list_xscroll.set, yscrollcommand=list_yscroll.set)
 
@@ -87,13 +101,9 @@ class GenerateTab:
                                               show='headings',
                                               height=3, style='mystyle.Treeview')
 
-        tree_scrollx = Scrollbar(self.selected_result_set_frame)
-        tree_scrolly = Scrollbar(self.selected_result_set_frame)
-        tree_scrollx.configure(command=self.selected_results_tree.xview, orient=HORIZONTAL)
-        tree_scrolly.configure(command=self.selected_results_tree.yview)
+        tree_scrollx = add_scroll_bar(self.selected_result_set_frame, self.selected_results_tree.xview, HORIZONTAL, BOTTOM, X)
+        tree_scrolly = add_scroll_bar(self.selected_result_set_frame, self.selected_results_tree.yview, VERTICAL, RIGHT, Y)
         self.selected_results_tree.configure(xscrollcommand=tree_scrollx.set, yscrollcommand=tree_scrolly.set)
-        tree_scrolly.pack(side=RIGHT, fill=Y)
-        tree_scrollx.pack(side=BOTTOM, fill=X)
         self.selected_results_tree.pack(side=LEFT, fill=X, expand=True)
 
         for idx, col in enumerate(config.requested_results_headings[self.tab_name]['headings'], start=0):
@@ -142,8 +152,10 @@ class GenerateTab:
                                                                selected_results_tree=self.selected_results_tree).store_inputs(),
                                                    self.check_for_results()))
 
-        store_properties.grid(row=0, column=0, padx=(10, 405), pady=5)
+        store_properties.grid(row=0, column=0, padx=(10, 10), pady=5)
         generate_button.grid(row=0, column=3, padx=5, pady=5)
+        create_input_file = Button(bottom_bar_frame, text="Save Input File", command=lambda: print_input_file(self.selected_results_tree, self.tab_name))
+        create_input_file.grid(row=0, column=1, padx=(10, 355), pady=5)
 
         self.new_result_set['state'] = 'disabled'
         self.delete_result['state'] = 'disabled'
@@ -161,13 +173,9 @@ class GenerateTab:
         preview_window.geometry('1100x640')
         preview_window.title(self.available_results_tree.item(self.available_results_tree.identify_row(event.y))['text'])
         preview_box = Text(preview_window, width=140, heigh=40, wrap=NONE)
-        preview_box_scrolly = Scrollbar(preview_window)
-        preview_box_scrollx = Scrollbar(preview_window)
-        preview_box_scrollx.configure(command=preview_box.xview, orient=HORIZONTAL)
-        preview_box_scrolly.configure(command=preview_box.yview)
+        preview_box_scrolly = add_scroll_bar(preview_window, preview_box.yview, VERTICAL, RIGHT, Y)
+        preview_box_scrollx = add_scroll_bar(preview_window, preview_box.xview, HORIZONTAL, BOTTOM, X)
         preview_box.configure(xscrollcommand=preview_box_scrollx.set, yscrollcommand=preview_box_scrolly.set)
-        preview_box_scrolly.pack(side=RIGHT, fill=Y)
-        preview_box_scrollx.pack(side=BOTTOM, fill=X)
         preview_box.pack(fill=BOTH, expand=True)
         for row in extracted_result_list:
             preview_box.insert(END, row + '\n')
@@ -180,12 +188,12 @@ class GenerateTab:
 
         :param event: user right click
         """
-        if self.not_valid_list:
-            pass
-        else:
+        if not self.not_valid_list:
             available_result_menu = Menu(self.initial_window, tearoff=False)
             available_result_menu.add_command(label='Preview', command=lambda: self.preview(event))
             available_result_menu.tk_popup(event.x_root, event.y_root)
+        else:
+            pass
 
     def on_double_click_selected(self, event):
         """

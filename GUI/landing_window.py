@@ -172,7 +172,7 @@ class FirstWindow:
         """
         generates the three tab windows corresponding to the type of results which can be parsed through this program
         """
-        if not error_handling.is_valid_mem_force(self.results.input_file, 'OUTPUT BY MEMBER'):
+        if not error_handling.is_valid_mem_force(self.results.input_file, ['OUTPUT BY MEMBER', 'OUTPUT BY JOINT']):
             error_handling.ErrorHandling(self.initial_window).no_output_by_member()
         else:
             height = 370
