@@ -8,7 +8,6 @@ from Tools.utilities import GenerateDisplayData, preview_util
 from Tools import config
 from GUI.results_selection_window import ResultsSelectionWindow
 from DataProcessing.process_data import ProcessData
-from DataProcessing.generate_input_file import print_input_file
 
 
 def add_scroll_bar(location, bind_to, orientation: str, side: str, fill: str) -> Scrollbar:
@@ -152,10 +151,8 @@ class GenerateTab:
                                                                selected_results_tree=self.selected_results_tree).store_inputs(),
                                                    self.check_for_results()))
 
-        store_properties.grid(row=0, column=0, padx=(10, 10), pady=5)
+        store_properties.grid(row=0, column=0, padx=(10, 435), pady=5)
         generate_button.grid(row=0, column=3, padx=5, pady=5)
-        create_input_file = Button(bottom_bar_frame, text="Save Input File", command=lambda: print_input_file(self.selected_results_tree, self.tab_name))
-        create_input_file.grid(row=0, column=1, padx=(10, 355), pady=5)
 
         self.new_result_set['state'] = 'disabled'
         self.delete_result['state'] = 'disabled'
