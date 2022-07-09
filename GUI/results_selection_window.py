@@ -4,7 +4,7 @@ Generates the results selection window when user wants to add new result or modi
 from tkinter import *
 from tkinter.ttk import *
 from Tools.utilities import center, CreateToolTip
-from Tools.config import requested_results_headings, text_box_color_disable, text_box_color_enable
+from Tools.config import requested_results_headings, text_box_color_disable, text_box_color_enable, sort_order_dict
 from DataProcessing.process_data import ProcessData
 from Tools import shared_stuff
 
@@ -71,7 +71,6 @@ class ResultsSelectionWindow:
         self.sort_cb = BooleanVar(value=False)
         self.fail_cb = BooleanVar(value=False)
         self.ir_range_rb = IntVar(value=1)
-        self.sort_order_dict = {'IR': 5, 'Name': 0, 'Profile': 7}
         self.set_num = self.results.set_index
         self.set_name = self.results.set_name
         if self.modify:
@@ -439,7 +438,7 @@ class ResultsSelectionWindow:
             if sort_order:
                 for item in sort_order:
                     sort_criteria, order = option_window_sort.item(item)['values']
-                    specific_sort.append((self.sort_order_dict[sort_criteria], True))
+                    specific_sort.append((sort_order_dict[sort_criteria], True))
                     if order == 'Asc.':
                         reverse = False
                     else:

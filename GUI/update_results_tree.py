@@ -1,8 +1,8 @@
 """
 This module updates the selected results window Treeview after the user makes changes to the results selection
 """
-from Tools.config import rb_options
 from Tools import shared_stuff
+from Tools.result_printing_tools import ProcessResultsPrinting, convert_bool_to_yes_no
 
 
 class UpdateResultTree:
@@ -21,7 +21,6 @@ class UpdateResultTree:
         self.results.tab_name = self.tab_name
         print(f'update results value = {self.results.results_parameters}')
         self.set_name = self.results.set_name
-    rb_config = rb_options
 
     def update_result_tree(self):
         """
@@ -29,42 +28,39 @@ class UpdateResultTree:
         """
         parent = ''
         index = 'end'
+        print_data = ProcessResultsPrinting(self.tab_name)
         for item in self.selected_results_tree.get_children():
             self.selected_results_tree.delete(item)
+
         for idx in range(len(self.results.set_name)):
             idd = idx + 1
-            text = self.set_name[idx]
+            text = print_data.get_set_name(idx)
+            name_option, name_choices = print_data.get_name_spec(idx)
+
             if self.tab_name == 'Member Force':
+                load_option, load_choices = print_data.get_load_spec(idx)
+                joint_option = print_data.get_joint_sepc(idx)
                 values = (idd,
                           text,
-                          self.results.joint[idx],
-                          f'{self.rb_config[self.results.name[idx][0]]} {self.results.name[idx][1]}',
-                          f'{self.rb_config[self.results.load[idx][0]]} {self.results.load[idx][1]}'
-                          )
+                          joint_option,
+                          f'{name_option} {name_choices}',
+                          f'{load_option} {load_choices}')
+
             elif self.tab_name == 'Joint Reaction':
+                load_option, load_choices = print_data.get_load_spec(idx)
                 values = (idd,
                           text,
-                          f'{self.rb_config[self.results.name[idx][0]]} {self.results.name[idx][1]}',
-                          f'{self.rb_config[self.results.load[idx][0]]} {self.results.load[idx][1]}'
-                          )
+                          f'{name_option} {name_choices}',
+                          f'{load_option} {load_choices}')
+
             else:
-                min_ir, max_ir = self.results.ir_range[idx][1]
-                if min_ir and max_ir:
-                    ir_val = f'{min_ir} < IR < {max_ir}'
-                elif min_ir and not max_ir:
-                    ir_val = f'IR > {min_ir}'
-                elif max_ir and not min_ir:
-                    ir_val = f'IR < {max_ir}'
-                else:
-                    ir_val = 'All IRs'
-                if self.results.sort[idx]:
-                    sort_select = 'Yes'
-                else:
-                    sort_select = 'No'
+                profile_option, profile_choices = print_data.get_profile_spec(idx)
+                ir_val = print_data.get_ir_spec(idx)
+                sort_select = convert_bool_to_yes_no(self.results.sort[idx])
                 values = (idd,
                           text,
-                          f'{self.rb_config[self.results.name[idx][0]]} {self.results.name[idx][1]}',
-                          f'{self.rb_config[self.results.profile[idx][0]]} {self.results.profile[idx][1]}',
+                          f'{name_option} {name_choices}',
+                          f'{profile_option} {profile_choices}',
                           f'{ir_val}',
                           f'{sort_select}'
                           )

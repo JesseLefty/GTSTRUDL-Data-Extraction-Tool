@@ -13,6 +13,10 @@ rb_options = {1: '',
               4: 'Contains: ',
               5: 'List: '}
 
+sort_order_dict = {'IR': 5, 'Name': 0, 'Profile': 7}
+
+sort_direction_dict = {True: 'Ascending', False: 'Descending'}
+
 requested_results_headings = {'Member Force':
                                   {'headings': ['Set #', 'Set Name', 'Joint Spec.', 'Name Spec.', 'Load Spec.'],
                                    'column width': [40, 200, 107, 107, 107],
