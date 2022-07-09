@@ -22,7 +22,7 @@ def is_valid_mem_force(input_file, search_string):
         return False
     if first_member_force_result[0]:
         for line, value in enumerate(display_data.file_list):
-            if (search_string in value) and ("$" not in value):
+            if (any(s in value for s in search_string)) and ("$" not in value):
                 string_position = line
             elif first_member_force_result[1][0] in value:
                 result_position = line

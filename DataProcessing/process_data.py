@@ -11,6 +11,7 @@ from DataProcessing import save_output
 from Tools.config import output_file_types, store_file_types
 from GUI.update_results_tree import UpdateResultTree
 from Tools import shared_stuff
+from DataProcessing.generate_input_report import GenerateInputReport
 
 
 class ProcessData:
@@ -233,6 +234,7 @@ class ProcessData:
             try:
                 save_output.RunProgram(self.tab_name, out_format, output_file_path, self.results.set_index,
                                        self.initial_window)
+                GenerateInputReport(self.tab_name).print_input_file(output_file_path)
 
             except FileNotFoundError as e:
                 print(e)
