@@ -1,3 +1,7 @@
+"""
+This module provides tools for generating an 'input file' based on the what options the user has selected when
+generating results
+"""
 from Tools import shared_stuff
 from Tools.config import rb_options, sort_order_dict, sort_direction_dict
 

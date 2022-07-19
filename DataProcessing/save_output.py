@@ -92,7 +92,6 @@ class RunProgram:
                 w.close()
                 for items in range(len(self.result_set_index)):
                     parsed_results = self.build_output(items)
-                    print(parsed_results)
                     with open(self.output_file_name, 'a', newline='') as a:
                         if self.tab_name == 'Code Check':
                             csv.writer(a).writerows(parsed_results)

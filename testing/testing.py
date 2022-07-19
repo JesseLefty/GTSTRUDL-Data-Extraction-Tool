@@ -63,7 +63,26 @@ class TestCheckInputErrors:
         test_dict = check_input_errors.FindInputErrors('Member Force')
         test_dict.find_error(0)
         print(test_dict.error_dict)
-        assert test_dict.error_dict[1] == ([], 'nonsense')
+        assert test_dict.error_dict[1] == (False, ['NONSENSE'])
         assert test_dict.is_input_error(None) is True
+
+    def test_is_valid_user_criteria(self):
+        user_choice = [1, 2, 3, 4, 5]
+        available_results = ['BEAM1', 'BEAM10', 'BEAM20', 'LOAD1', 'LOAD10', 'LOAD20']
+        user_criteria_valid = ['ALL', 'B', '10', '1', 'Beam10, Load20, Beam1']
+        test_valid_results = [True, True, True, True, True]
+        user_criteria_invalid = ['ALL', 'A', '15', 'Z', 'BEAM10, LOAD020, BEAM1']
+        test_invalid_results = [True, False, False, False, False]
+        invalid_results_list = [[], ['A'], ['15'], ['Z'], ['LOAD020']]
+
+        for index, item in enumerate(user_choice):
+            print(index, item, user_criteria_valid[index])
+            print(check_input_errors.is_user_criteria_valid(item, available_results, user_criteria_valid[index]))
+            assert check_input_errors.is_user_criteria_valid(item, available_results, user_criteria_valid[index]) == \
+                   test_valid_results[index]
+            assert check_input_errors.is_user_criteria_valid(item, available_results, user_criteria_invalid[index]) == \
+                   test_invalid_results[index]
+            assert check_input_errors.get_invalid_results(item, available_results, user_criteria_invalid[index]) == \
+                   invalid_results_list[index]
 
 
