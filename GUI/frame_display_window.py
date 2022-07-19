@@ -151,7 +151,7 @@ class GenerateTab:
                                                                selected_results_tree=self.selected_results_tree).store_inputs(),
                                                    self.check_for_results()))
 
-        store_properties.grid(row=0, column=0, padx=(10, 435), pady=5)
+        store_properties.grid(row=0, column=0, padx=(10, 405), pady=5)
         generate_button.grid(row=0, column=3, padx=5, pady=5)
 
         self.new_result_set['state'] = 'disabled'
