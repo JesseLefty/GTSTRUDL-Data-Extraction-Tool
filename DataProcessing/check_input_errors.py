@@ -3,11 +3,11 @@ This module checks the user inputs for any errors. If errors are found, returns 
 user
 """
 from DataProcessing.parse_file_for_input_data import ParseFileForData
-from DataProcessing import extract_member_forces as emf
 from DataProcessing import extract_joint_reactions as ejr
 from DataProcessing import extract_code_check as ecc
 from Tools import shared_stuff
 from error_handling import ErrorHandling
+from Tools.available_result_tools import column_contents
 
 
 def is_user_criteria_valid(user_choice: int, available_results: list, user_criteria: str) -> bool:
@@ -24,13 +24,13 @@ def is_user_criteria_valid(user_choice: int, available_results: list, user_crite
     user_criteria_up = user_criteria.upper()
     if user_choice == 1:
         return True
-    elif user_choice == 2:
+    if user_choice == 2:
         return any(True for item in available_results if item.startswith(user_criteria_up))
-    elif user_choice == 3:
+    if user_choice == 3:
         return any(True for item in available_results if item.endswith(user_criteria_up))
-    elif user_choice == 4:
+    if user_choice == 4:
         return any(True for item in available_results if user_criteria_up in item)
-    elif user_choice == 5:
+    if user_choice == 5:
         name_list = "".join(user_criteria_up).replace(" ", "").split(',')
         for item in name_list:
             if item not in available_results:
@@ -114,23 +114,22 @@ class FindInputErrors:
         loads = None
         extracted_result_list, _, _ = ParseFileForData(set_num, self.tab_name).get_result_list_info()
         if self.tab_name == 'Member Force':
-            _, names, loads = emf.GenerateOutputArray(self.tab_name, set_num, extracted_result_list).member_force_array()
+            names = column_contents(0, 9, extracted_result_list[1:-1])
+            loads = list(set(column_contents(10, 19, extracted_result_list[1:-1])))
         elif self.tab_name == 'Joint Reaction':
             _, names, loads = ejr.GenerateOutputArray(self.tab_name, set_num, extracted_result_list).joint_reaction_list()
-        flat_names = [item for sub_list in names for item in sub_list]
-        flat_loads = [item for sub_list in loads for item in sub_list]
         name_choice = self.name_id[set_num][0]
         name_spec = self.name_id[set_num][1]
         load_choice = self.results.load[set_num][0]
         load_spec = self.results.load[set_num][1]
         set_num_error = False
-        if not is_user_criteria_valid(name_choice, flat_names, name_spec):
-            name_error = get_invalid_results(name_choice, flat_names, name_spec)
+        if not is_user_criteria_valid(name_choice, names, name_spec):
+            name_error = get_invalid_results(name_choice, names, name_spec)
             set_num_error = set_num + 1
         else:
             name_error = False
-        if not is_user_criteria_valid(load_choice, flat_loads, load_spec):
-            load_error = get_invalid_results(load_choice, flat_loads, load_spec)
+        if not is_user_criteria_valid(load_choice, loads, load_spec):
+            load_error = get_invalid_results(load_choice, loads, load_spec)
             set_num_error = set_num + 1
         else:
             load_error = False

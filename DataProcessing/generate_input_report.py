@@ -9,7 +9,8 @@ from Tools import shared_stuff
 from Tools.result_printing_tools import ProcessResultsPrinting, convert_bool_to_yes_no
 
 MAX_CHAR = 80
-SEP_LINE = f'*' * MAX_CHAR
+SEP_LINE = '*' * MAX_CHAR
+INDENT = 24
 
 
 class GenerateInputReport:
@@ -54,32 +55,32 @@ class GenerateInputReport:
         for items in range(self.num_sets):
             name_option, name_choices = self.report_info.get_name_spec(items)
             set_name.append(f'GTSTRUDL Input Command: {self.report_info.get_set_name(items)}')
-            name_spec.append(f'Name Criteria: {" "* (24-16)} {name_option} {name_choices}')
+            name_spec.append(f'Name Criteria: {" "* (INDENT-16)} {name_option} {name_choices}')
             if self.tab_name == 'Member Force':
                 load_option, load_choices = self.report_info.get_load_spec(items)
-                joint_spec.append(f'Joint Criteria: {" "* (24-17)} {self.report_info.get_joint_sepc(items)}')
-                load_spec.append(f'Load Case Criteria: {" "* (24-21)} {load_option} {load_choices}')
+                joint_spec.append(f'Joint Criteria: {" "* (INDENT-17)} {self.report_info.get_joint_sepc(items)}')
+                load_spec.append(f'Load Case Criteria: {" "* (INDENT-21)} {load_option} {load_choices}')
                 input_result_parameters = [set_name, load_spec, name_spec, joint_spec]
             elif self.tab_name == 'Joint Reaction':
                 load_option, load_choices = self.report_info.get_load_spec(items)
-                load_spec.append(f'Load Case Criteria: {" "* (24-21)} {load_option} {load_choices}')
+                load_spec.append(f'Load Case Criteria: {" "* (INDENT-21)} {load_option} {load_choices}')
                 input_result_parameters = [set_name, load_spec, name_spec]
             else:
                 ir_val = self.report_info.get_ir_spec(items)
                 profile_option, profile_choices = self.report_info.get_profile_spec(items)
                 sort_criteria = self.report_info.get_sort_criteria(items)
                 sort_direction = self.report_info.get_sort_direction(items)
-                profile_spec.append(f'Profile Criteria: {" "* (24-19)} {profile_option} {profile_choices}')
-                sort_spec.append(f'Sort Select: {" "* (24-14)} {convert_bool_to_yes_no(self.results_parameters.sort[items])}')
-                ir_range.append(f'IR Range Criteria: {" "* (24-20)} {ir_val}')
+                profile_spec.append(f'Profile Criteria: {" "* (INDENT-19)} {profile_option} {profile_choices}')
+                sort_spec.append(f'Sort Select: {" "* (INDENT-14)} {convert_bool_to_yes_no(self.results_parameters.sort[items])}')
+                ir_range.append(f'IR Range Criteria: {" "* (INDENT-20)} {ir_val}')
                 sort_criteria_print.append(f'Sort Criteria Selection: {list(zip(sort_criteria, sort_direction))}')
                 input_result_parameters = [set_name, name_spec, profile_spec, ir_range, sort_spec, sort_criteria_print]
         flattened_input_parameters = [item for items in input_result_parameters for item in items]
 
-        for set in range(self.num_sets):
+        for result_set in range(self.num_sets):
             formatted_input_result_parameters.append([SEP_LINE])
-            formatted_input_result_parameters.append([f'{" "* 27} Result Set # {set + 1}'])
-            formatted_input_result_parameters.append(flattened_input_parameters[set::self.num_sets])
+            formatted_input_result_parameters.append([f'{" "* 27} Result Set # {result_set + 1}'])
+            formatted_input_result_parameters.append(flattened_input_parameters[result_set::self.num_sets])
             formatted_input_result_parameters.append([SEP_LINE])
         return formatted_input_result_parameters
 
@@ -99,4 +100,3 @@ class GenerateInputReport:
             file.writelines('\n'.join(final_output))
             file.write('\n')
             file.write(f'This input report corresponds to processed results in {os.path.basename(output_file_path)}')
-
