@@ -3,7 +3,7 @@ Generates the results selection window when user wants to add new result or modi
 """
 from tkinter import *
 from tkinter.ttk import *
-from Tools.utilities import center, CreateToolTip
+from Tools.utilities import center, CreateToolTip, UserSelectionOption
 from Tools.config import requested_results_headings, text_box_color_disable, text_box_color_enable, sort_order_dict
 from DataProcessing.process_data import ProcessData
 from Tools import shared_stuff
@@ -16,7 +16,7 @@ def disable_text_box(rb_value, textbox):
     :param rb_value: value of radio button associated with text box
     :param textbox: Tkinter textbox object being enabled or disabled
     """
-    if rb_value == 1:
+    if rb_value == UserSelectionOption.ALL:
         textbox.delete('0.0', END)
         textbox.configure(state='disabled', background=text_box_color_disable)
 
@@ -30,7 +30,7 @@ def get_text(rb_val, text_val):
     :param rb_val: value of radio button associated with text box
     :param text_val: text object containing the value
     """
-    if rb_val == 1:
+    if rb_val == UserSelectionOption.ALL:
         beam_id = 'ALL'
     else:
         beam_id = text_val.get('1.0', 'end-1c')
@@ -275,15 +275,15 @@ class ResultsSelectionWindow:
                                                      self.selection_window.destroy()))
 
         if self.modify:
-            if self.results.ir_range[self.selection_idd][0] == 2:
+            if self.results.ir_range[self.selection_idd][0] == UserSelectionOption.LESS_THAN:
                 ir_range_text_max.insert('1.0', self.mod_ir_range_text[1])
                 ir_range_text_min.config(state='disabled')
                 ir_range_text_min.configure(background=text_box_color_disable)
-            elif self.results.ir_range[self.selection_idd][0] == 3:
+            elif self.results.ir_range[self.selection_idd][0] == UserSelectionOption.GREATER_THAN:
                 ir_range_text_min.insert('1.0', self.mod_ir_range_text[0])
                 ir_range_text_max.config(state='disabled')
                 ir_range_text_max.configure(background=text_box_color_disable)
-            elif self.results.ir_range[self.selection_idd][0] == 4:
+            elif self.results.ir_range[self.selection_idd][0] == UserSelectionOption.BETWEEN:
                 ir_range_text_min.insert('1.0', self.mod_ir_range_text[0])
                 ir_range_text_max.insert('1.0', self.mod_ir_range_text[1])
             else:
@@ -391,7 +391,7 @@ class ResultsSelectionWindow:
 
             :param ir_range_rb_val: value of IR range radio button
             """
-            if ir_range_rb_val == 1:
+            if ir_range_rb_val == UserSelectionOption.ALL:
                 ir_range_id = ('', '')
             else:
                 ir_range_id = (ir_range_text_min.get('1.0', 'end-1c'), ir_range_text_max.get('1.0', 'end-1c'))
@@ -403,19 +403,19 @@ class ResultsSelectionWindow:
 
             :param ir_range_rb_val: value of radio button associated with IR range text boxes
             """
-            if ir_range_rb_val == 2:
+            if ir_range_rb_val == UserSelectionOption.LESS_THAN:
                 ir_range_text_min.delete('0.0', END)
                 ir_range_text_min['state'] = 'disabled'
                 ir_range_text_min.configure(background=text_box_color_disable)
                 ir_range_text_max['state'] = 'normal'
                 ir_range_text_max.configure(background=text_box_color_enable)
-            elif ir_range_rb_val == 3:
+            elif ir_range_rb_val == UserSelectionOption.GREATER_THAN:
                 ir_range_text_max.delete('0.0', END)
                 ir_range_text_max['state'] = 'disabled'
                 ir_range_text_max.configure(background=text_box_color_disable)
                 ir_range_text_min['state'] = 'normal'
                 ir_range_text_min.configure(background=text_box_color_enable)
-            elif ir_range_rb_val == 1:
+            elif ir_range_rb_val == UserSelectionOption.ALL:
                 ir_range_text_max.delete('0.0', END)
                 ir_range_text_min.delete('0.0', END)
                 ir_range_text_max.configure(background=text_box_color_disable)

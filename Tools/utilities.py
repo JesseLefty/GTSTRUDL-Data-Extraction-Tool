@@ -5,6 +5,7 @@ from tkinter import *
 from tkinter.ttk import *
 from Tools.config import result_configuration_parameters
 from Tools import shared_stuff
+from enum import IntEnum, Enum
 
 
 def center(win, x_offset=0, y_offset=0):
@@ -196,3 +197,22 @@ def preview_util(set_num, tab_name):
         extracted_result_list.append(line)
     extracted_result_list = [x for x in extracted_result_list if x != ""]
     return extracted_result_list
+
+
+class UserSelectionOption(IntEnum):
+
+    ALL = 1
+    STARTSWITH = 2
+    ENDSWITH = 3
+    CONTAINS = 4
+    LIST = 5
+    LESS_THAN = 2
+    GREATER_THAN = 3
+    BETWEEN = 4
+
+
+class TabName(Enum):
+
+    MEMBER_FORCE = 'Member Force'
+    JOINT_REACTION = 'Joint Reaction'
+    CODE_CHECK = 'Code Check'

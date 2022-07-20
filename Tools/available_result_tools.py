@@ -1,6 +1,7 @@
 """
 This module contains functions used throughout the available results processing modules to parse user inputs
 """
+from Tools.utilities import UserSelectionOption
 
 
 def column_contents(column_start: int, column_end: int, block: list[str]):
@@ -16,9 +17,9 @@ def column_contents(column_start: int, column_end: int, block: list[str]):
     contents = []
     exclude = ('****',)
     for line in block:
-        column_contents = line[column_start:column_end].strip()
-        if column_contents and not column_contents.startswith(exclude):
-            contents.append(column_contents)
+        items_in_column = line[column_start:column_end].strip()
+        if items_in_column and not items_in_column.startswith(exclude):
+            contents.append(items_in_column)
 
     return contents
 
@@ -35,33 +36,33 @@ def valid_names(names: list[str], user_selection: tuple[int, str], set_index: in
     """
     item_choice = user_selection[set_index][0]
     item_input = user_selection[set_index][1]
-    valid_names = []
-    if item_choice == 2:
+    valid_names_list = []
+    if item_choice == UserSelectionOption.STARTSWITH:
         for name in names:
             if name.startswith(item_input):
-                valid_names.append(name)
+                valid_names_list.append(name)
             else:
                 pass
-    elif item_choice == 3:
+    elif item_choice == UserSelectionOption.ENDSWITH:
         for name in names:
             if name.endswith(item_input):
-                valid_names.append(name)
+                valid_names_list.append(name)
             else:
                 pass
-    elif item_choice == 4:
+    elif item_choice == UserSelectionOption.CONTAINS:
         for name in names:
             if item_input in name:
-                valid_names.append(name)
+                valid_names_list.append(name)
             else:
                 pass
-    elif item_choice == 5:
+    elif item_choice == UserSelectionOption.LIST:
         beam_list = "".join(item_input.upper()).replace(" ", "").split(',')
         for item in beam_list:
-            valid_names.append(item)
+            valid_names_list.append(item)
     else:
-        valid_names = names
+        valid_names_list = names
 
-    return valid_names
+    return valid_names_list
 
 
 def valid_loads(load_names: list[list[str]], user_selection: tuple[int, str], set_index: int):
@@ -77,19 +78,19 @@ def valid_loads(load_names: list[list[str]], user_selection: tuple[int, str], se
     load_choice = user_selection[set_index][0]
     load_input = user_selection[set_index][1]
     user_loads = []
-    if load_choice == 2:
+    if load_choice == UserSelectionOption.STARTSWITH:
         for loads in load_names:
             matching_loads = [l for l in loads if l.startswith(load_input)]
             user_loads.append(matching_loads)
-    elif load_choice == 3:
+    elif load_choice == UserSelectionOption.ENDSWITH:
         for loads in load_names:
             matching_loads = [l for l in loads if l.endswith(load_input)]
             user_loads.append(matching_loads)
-    elif load_choice == 4:
+    elif load_choice == UserSelectionOption.CONTAINS:
         for loads in load_names:
             matching_loads = [l for l in loads if load_input in l]
             user_loads.append(matching_loads)
-    elif load_choice == 5:
+    elif load_choice == UserSelectionOption.LIST:
         load_list = "".join(load_input.upper()).replace(" ", "").split(',')
         for loads in load_names:
             matching_loads = [l for l in load_list if l in loads]
