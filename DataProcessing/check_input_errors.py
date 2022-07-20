@@ -3,11 +3,11 @@ This module checks the user inputs for any errors. If errors are found, returns 
 user
 """
 from DataProcessing.parse_file_for_input_data import ParseFileForData
-from DataProcessing import extract_joint_reactions as ejr
 from DataProcessing import extract_code_check as ecc
 from Tools import shared_stuff
 from error_handling import ErrorHandling
 from Tools.available_result_tools import column_contents
+from Tools.utilities import UserSelectionOption, TabName
 
 
 def is_user_criteria_valid(user_choice: int, available_results: list, user_criteria: str) -> bool:
@@ -22,15 +22,15 @@ def is_user_criteria_valid(user_choice: int, available_results: list, user_crite
     :return: True if available results contains matching user criteria, else False
     """
     user_criteria_up = user_criteria.upper()
-    if user_choice == 1:
+    if user_choice == UserSelectionOption.ALL.value:
         return True
-    if user_choice == 2:
+    if user_choice == UserSelectionOption.STARTSWITH:
         return any(True for item in available_results if item.startswith(user_criteria_up))
-    if user_choice == 3:
+    if user_choice == UserSelectionOption.ENDSWITH:
         return any(True for item in available_results if item.endswith(user_criteria_up))
-    if user_choice == 4:
+    if user_choice == UserSelectionOption.CONTAINS:
         return any(True for item in available_results if user_criteria_up in item)
-    if user_choice == 5:
+    if user_choice == UserSelectionOption.LIST:
         name_list = "".join(user_criteria_up).replace(" ", "").split(',')
         for item in name_list:
             if item not in available_results:
@@ -49,19 +49,20 @@ def get_invalid_results(user_choice: int, available_results: list, user_criteria
     :return: list containing invalid user criteria
     """
     user_criteria_up = user_criteria.upper()
-    if user_choice == 1:
+    if user_choice == UserSelectionOption.ALL:
         return []
-    elif 1 < user_choice < 5:
-        return [user_criteria_up]
-    elif user_choice == 5:
+    elif user_choice == UserSelectionOption.LIST:
         name_list = "".join(user_criteria_up).replace(" ", "").split(',')
         return [item for item in name_list if item not in available_results]
+    else:
+        return [user_criteria_up]
 
 
 class FindInputErrors:
 
     """
     Checks user inputs for errors (i.e. input values that have no corresponding valid results in the input file.
+
     :param tab_name     Name of active tab
     """
 
@@ -79,7 +80,7 @@ class FindInputErrors:
         :param initial_window: Tkinter instance of current active window
         :return: True if error exists, False if no error
         """
-        if self.tab_name in ['Member Force', 'Joint Reaction']:
+        if self.tab_name in [TabName.MEMBER_FORCE.value, TabName.JOINT_REACTION.value]:
             for num in range(self.num_of_sets):
                 self.find_error(num)
             if self.error_dict.keys():
@@ -90,7 +91,7 @@ class FindInputErrors:
                 return True
             else:
                 return False
-        elif self.tab_name == 'Code Check':
+        elif self.tab_name == TabName.CODE_CHECK.value:
             for num in range(self.num_of_sets):
                 self.code_errors(num)
             if self.error_dict.keys():
@@ -113,11 +114,12 @@ class FindInputErrors:
         names = None
         loads = None
         extracted_result_list, _, _ = ParseFileForData(set_num, self.tab_name).get_result_list_info()
-        if self.tab_name == 'Member Force':
+        if self.tab_name == TabName.MEMBER_FORCE.value:
             names = column_contents(0, 9, extracted_result_list[1:-1])
             loads = list(set(column_contents(10, 19, extracted_result_list[1:-1])))
-        elif self.tab_name == 'Joint Reaction':
-            _, names, loads = ejr.GenerateOutputArray(self.tab_name, set_num, extracted_result_list).joint_reaction_list()
+        elif self.tab_name == TabName.JOINT_REACTION.value:
+            names = column_contents(0, 9, extracted_result_list[1:-1])
+            loads = list(set(column_contents(19, 27, extracted_result_list[1:-1])))
         name_choice = self.name_id[set_num][0]
         name_spec = self.name_id[set_num][1]
         load_choice = self.results.load[set_num][0]
@@ -181,25 +183,25 @@ class FindInputErrors:
             not_number = False
         except ValueError:
             not_number = True
-        if not_number and not ir_choice == 1:
+        if not_number and not ir_choice == UserSelectionOption.ALL:
             ir_error = 'IR selection not valid'
             set_num_error = set_num + 1
         else:
-            if ir_choice == 1:
+            if ir_choice == UserSelectionOption.ALL:
                 pass
-            elif ir_choice == 2:
+            elif ir_choice == UserSelectionOption.LESS_THAN:
                 ir_less_than = float(ir_max)
                 user_ir = [p for p in ir_col if float(p) < ir_less_than]
                 if not user_ir:
                     ir_error = f'< {ir_less_than}'
                     set_num_error = set_num + 1
-            elif ir_choice == 3:
+            elif ir_choice == UserSelectionOption.GREATER_THAN:
                 ir_greater_than = float(ir_min)
                 user_ir = [p for p in ir_col if float(p) > ir_greater_than]
                 if not user_ir:
                     ir_error = f'> {ir_greater_than}'
                     set_num_error = set_num + 1
-            elif ir_choice == 4:
+            elif ir_choice == UserSelectionOption.BETWEEN:
                 lower_ir = float(ir_min)
                 upper_ir = float(ir_min)
                 if lower_ir > upper_ir or (lower_ir or upper_ir) < 0:

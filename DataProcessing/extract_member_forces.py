@@ -95,17 +95,15 @@ class GenerateOutputArray:
             else:
                 d_joints[key[0]] = [key[2]]
         for b_idx, beams in enumerate(user_beams):
-            current_beam = beams
             indices = [0] if self.joint == 'START' else [1] if self.joint == 'END' else \
-                range(len(d_joints[current_beam]))
+                range(len(d_joints[beams]))
             for loads in user_loads[b_idx]:
-                current_load = loads
                 for index in indices:
-                    if index == len(d_joints[current_beam]):
+                    if index == len(d_joints[beams]):
                         index = 0
                     else:
                         pass
-                    t = (current_beam, current_load, d_joints[current_beam][index])
+                    t = (beams, loads, d_joints[beams][index])
                     output[t] = d[t]
         for k, v in output.items():
             output[k] = [float(x) if not x == ' ' else x for x in v]
