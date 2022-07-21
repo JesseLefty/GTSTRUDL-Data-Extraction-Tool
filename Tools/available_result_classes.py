@@ -92,9 +92,9 @@ class JointReactionBlock(OutputResult):
             block_name_and_indices[item] = (block_start_indices[index], block_start_indices[index+1])
         return block_name_and_indices
 
-    def get_block(self, member_name):
-        block_start = self.block_index_dictionary[member_name][0]
-        block_end = self.block_index_dictionary[member_name][1]
+    def get_block(self, joint_name):
+        block_start = self.block_index_dictionary[joint_name][0]
+        block_end = self.block_index_dictionary[joint_name][1]
         block = [item for item in self.output_result[block_start:block_end] if "****" not in item]
         return block
 
