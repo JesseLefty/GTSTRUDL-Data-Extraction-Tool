@@ -53,7 +53,7 @@ class TestCheckInputErrors:
 
     test_results_parameters = shared_stuff.data_store
     test_results_parameters.input_file = test_input_file
-    # todo: build a fake results parameters set (or two) in this class and test each function against that
+
     def test_is_input_error(self):
         self.test_results_parameters.tab_name = 'Member Force'
         self.test_results_parameters.load = [(2, 'nonsense')]
@@ -66,7 +66,7 @@ class TestCheckInputErrors:
         assert test_dict.error_dict[1] == (False, ['NONSENSE'])
         assert test_dict.is_input_error(None) is True
 
-    def test_is_valid_user_criteria(self):
+    def test_is_user_criteria_valid(self):
         user_choice = [1, 2, 3, 4, 5]
         available_results = ['BEAM1', 'BEAM10', 'BEAM20', 'LOAD1', 'LOAD10', 'LOAD20']
         user_criteria_valid = ['ALL', 'B', '10', '1', 'Beam10, Load20, Beam1']
@@ -84,5 +84,8 @@ class TestCheckInputErrors:
                    test_invalid_results[index]
             assert check_input_errors.get_invalid_results(item, available_results, user_criteria_invalid[index]) == \
                    invalid_results_list[index]
+
+
+
 
 

@@ -6,11 +6,11 @@ from DataProcessing.parse_file_for_input_data import ParseFileForData
 from DataProcessing import extract_code_check as ecc
 from Tools import shared_stuff
 from error_handling import ErrorHandling
-from Tools.available_result_tools import column_contents
+from Tools.available_result_tools import column_contents, get_items_in_col
 from Tools.utilities import UserSelectionOption, TabName
 
 
-def is_user_criteria_valid(user_choice: int, available_results: list, user_criteria: str) -> bool:
+def is_user_criteria_valid(available_results: list, user_choice: int, user_criteria: str) -> bool:
     """
     Takes the user choice and available results list and returns a parsed list containing only the results that match
     the user choice criteria
@@ -38,7 +38,7 @@ def is_user_criteria_valid(user_choice: int, available_results: list, user_crite
         return True
 
 
-def get_invalid_results(user_choice: int, available_results: list, user_criteria: str) -> list:
+def get_invalid_results(available_results: list, user_choice: int, user_criteria: str) -> list:
     """
     returns a list of invalid user criteria
 
@@ -58,8 +58,58 @@ def get_invalid_results(user_choice: int, available_results: list, user_criteria
         return [user_criteria_up]
 
 
-class FindInputErrors:
+def input_text_error(valid_options: list, user_choice: int, user_spec: str):
+    """
 
+    :param valid_options: list of valid options in result set
+    :param user_choice: int representing the results selection window user choice
+    :param user_spec: str containing the user requested criteria
+
+    :return: False if no errors were found, otherwise a list of errors
+    """
+    if is_user_criteria_valid(valid_options, user_choice, user_spec):
+        return False
+    else:
+        input_error = get_invalid_results(valid_options, user_choice, user_spec)
+        return input_error
+
+
+def ir_errors(ir_list: list, ir_choice: int, ir_spec: tuple):
+    """
+
+    :param ir_list: list of valid IRs in result set
+    :param ir_choice: int representing the results selection window choice
+    :param ir_spec: tuple of the user IR selection values
+
+    :return: str to display in error window if errors are found, otherwise returns False
+    """
+    upper_ir = ir_spec[1]
+    lower_ir = ir_spec[0]
+    try:
+        [float(item) for item in ir_spec if not item == '']
+    except ValueError:
+        if not ir_choice == UserSelectionOption.ALL:
+            return 'IR selection not valid'
+    if ir_choice == UserSelectionOption.LESS_THAN:
+        user_ir = [p for p in ir_list if float(p) < float(upper_ir)]
+        if not user_ir:
+            return f'< {upper_ir}'
+    elif ir_choice == UserSelectionOption.GREATER_THAN:
+        user_ir = [p for p in ir_list if float(p) > float(lower_ir)]
+        if not user_ir:
+            return f'> {lower_ir}'
+    elif ir_choice == UserSelectionOption.BETWEEN:
+        if float(lower_ir) > float(upper_ir) or (float(lower_ir) or float(upper_ir)) < 0:
+            return 'Invalid IR range'
+        else:
+            user_ir = [p for p in ir_list if float(lower_ir) < float(p) < float(upper_ir)]
+            if not user_ir:
+                return f'between {lower_ir} and {upper_ir}'
+    else:
+        return False
+
+
+class FindInputErrors:
     """
     Checks user inputs for errors (i.e. input values that have no corresponding valid results in the input file.
 
@@ -80,30 +130,30 @@ class FindInputErrors:
         :param initial_window: Tkinter instance of current active window
         :return: True if error exists, False if no error
         """
+        for num in range(self.num_of_sets):
+            self.find_error(num)
+        sets_with_errors = [k for k, v in self.error_dict.items() if any(item for item in v)]
+        if not sets_with_errors:
+            return False
         if self.tab_name in [TabName.MEMBER_FORCE.value, TabName.JOINT_REACTION.value]:
-            for num in range(self.num_of_sets):
-                self.find_error(num)
-            if self.error_dict.keys():
-                sets_with_errors = self.error_dict.keys()
-                name_error = [item[0] for item in self.error_dict.values()]
-                load_error = [item[1] for item in self.error_dict.values()]
-                ErrorHandling(initial_window).item_not_found(sets_with_errors, name_error, load_error, self.tab_name)
-                return True
-            else:
-                return False
+            name_error = []
+            load_error = []
+            for set_num in sets_with_errors:
+                name_error.append(self.error_dict[set_num][0])
+                load_error.append(self.error_dict[set_num][1])
+            ErrorHandling(initial_window).item_not_found(sets_with_errors, name_error, load_error, self.tab_name)
+            return True
         elif self.tab_name == TabName.CODE_CHECK.value:
-            for num in range(self.num_of_sets):
-                self.code_errors(num)
-            if self.error_dict.keys():
-                sets_with_errors = self.error_dict.keys()
-                name_error = [item[0] for item in self.error_dict.values()]
-                profile_error = [item[1] for item in self.error_dict.values()]
-                ir_error = [item[2] for item in self.error_dict.values()]
-                ErrorHandling(initial_window).item_not_found(sets_with_errors, name_error, profile_error, self.tab_name,
-                                                             ir_errors=ir_error)
-                return True
-            else:
-                return False
+            name_error = []
+            profile_error = []
+            ir_error = []
+            for set_num in sets_with_errors:
+                name_error.append(self.error_dict[set_num][0])
+                profile_error.append(self.error_dict[set_num][1])
+                ir_error.append(self.error_dict[set_num][2])
+            ErrorHandling(initial_window).item_not_found(sets_with_errors, name_error, profile_error, self.tab_name,
+                                                         ir_errors=ir_error)
+            return True
 
     def find_error(self, set_num):
         """
@@ -111,108 +161,24 @@ class FindInputErrors:
 
         :param set_num: user result set number
         """
-        names = None
-        loads = None
         extracted_result_list, _, _ = ParseFileForData(set_num, self.tab_name).get_result_list_info()
-        if self.tab_name == TabName.MEMBER_FORCE.value:
+        if self.tab_name in [TabName.MEMBER_FORCE.value, TabName.JOINT_REACTION.value]:
+            if self.tab_name == TabName.MEMBER_FORCE.value:
+                load_col = 10, 19
+            else:
+                load_col = 19, 27
             names = column_contents(0, 9, extracted_result_list[1:-1])
-            loads = list(set(column_contents(10, 19, extracted_result_list[1:-1])))
-        elif self.tab_name == TabName.JOINT_REACTION.value:
-            names = column_contents(0, 9, extracted_result_list[1:-1])
-            loads = list(set(column_contents(19, 27, extracted_result_list[1:-1])))
-        name_choice = self.name_id[set_num][0]
-        name_spec = self.name_id[set_num][1]
-        load_choice = self.results.load[set_num][0]
-        load_spec = self.results.load[set_num][1]
-        set_num_error = False
-        if not is_user_criteria_valid(name_choice, names, name_spec):
-            name_error = get_invalid_results(name_choice, names, name_spec)
-            set_num_error = set_num + 1
-        else:
-            name_error = False
-        if not is_user_criteria_valid(load_choice, loads, load_spec):
-            load_error = get_invalid_results(load_choice, loads, load_spec)
-            set_num_error = set_num + 1
-        else:
-            load_error = False
-        if set_num_error:
+            loads = list(set(column_contents(load_col[0], load_col[1], extracted_result_list[1:-1])))
+            name_error = input_text_error(names, self.name_id[set_num][0], self.name_id[set_num][1])
+            load_error = input_text_error(loads, self.results.load[set_num][0], self.results.load[set_num][1])
             self.error_dict[set_num + 1] = (name_error, load_error)
         else:
-            pass
-
-    def code_errors(self, set_num):
-        """
-        Checks user code check inputs for errors and returns error dictionary of invalid items
-
-        :param set_num:
-        :return: user result set number
-        """
-        extracted_result_list, _, _ = ParseFileForData(set_num, self.tab_name).get_result_list_info()
-        code_check_list = ecc.GenerateOutputArray(self.tab_name, set_num, extracted_result_list).code_check_array()
-        name_col = []
-        profile_col = []
-        ir_col = []
-        ir_error = []
-        set_num_error = []
-        for row in code_check_list:
-            name_col.append(row[0])
-            profile_col.append(row[11])
-            ir_col.append(row[5])
-        name_choice = self.name_id[set_num][0]
-        name_spec = self.name_id[set_num][1]
-        profile_choice = self.results.profile[set_num][0]
-        profile_spec = self.results.profile[set_num][1]
-        ir_choice = self.results.ir_range[set_num][0]
-        ir_max = self.results.ir_range[set_num][1][1]
-        ir_min = self.results.ir_range[set_num][1][0]
-
-        if not is_user_criteria_valid(name_choice, name_col, name_spec):
-            name_error = get_invalid_results(name_choice, name_col, name_spec)
-            set_num_error = set_num + 1
-        else:
-            name_error = False
-
-        if not is_user_criteria_valid(profile_choice, profile_col, profile_spec):
-            profile_error = get_invalid_results(profile_choice, profile_col, profile_spec)
-            set_num_error = set_num + 1
-        else:
-            profile_error = False
-
-        try:
-            [float(item) for item in self.results.ir_range[set_num][1] if not item == '']
-            not_number = False
-        except ValueError:
-            not_number = True
-        if not_number and not ir_choice == UserSelectionOption.ALL:
-            ir_error = 'IR selection not valid'
-            set_num_error = set_num + 1
-        else:
-            if ir_choice == UserSelectionOption.ALL:
-                pass
-            elif ir_choice == UserSelectionOption.LESS_THAN:
-                ir_less_than = float(ir_max)
-                user_ir = [p for p in ir_col if float(p) < ir_less_than]
-                if not user_ir:
-                    ir_error = f'< {ir_less_than}'
-                    set_num_error = set_num + 1
-            elif ir_choice == UserSelectionOption.GREATER_THAN:
-                ir_greater_than = float(ir_min)
-                user_ir = [p for p in ir_col if float(p) > ir_greater_than]
-                if not user_ir:
-                    ir_error = f'> {ir_greater_than}'
-                    set_num_error = set_num + 1
-            elif ir_choice == UserSelectionOption.BETWEEN:
-                lower_ir = float(ir_min)
-                upper_ir = float(ir_min)
-                if lower_ir > upper_ir or (lower_ir or upper_ir) < 0:
-                    ir_error = 'Invalid IR range'
-                    set_num_error = set_num + 1
-                else:
-                    user_ir = [p for p in ir_col if lower_ir < float(p) < upper_ir]
-                    if not user_ir:
-                        ir_error = f'between {lower_ir} and {upper_ir}'
-                        set_num_error = set_num + 1
-        if set_num_error:
+            code_check_list = ecc.GenerateOutputArray(self.tab_name, set_num, extracted_result_list).code_check_array()
+            name_col = get_items_in_col(code_check_list, 0)
+            profile_col = get_items_in_col(code_check_list, 11)
+            ir_col = get_items_in_col(code_check_list, 5)
+            name_error = input_text_error(name_col, self.name_id[set_num][0], self.name_id[set_num][1])
+            profile_error = input_text_error(profile_col, self.results.profile[set_num][0],
+                                             self.results.profile[set_num][1])
+            ir_error = ir_errors(ir_col, self.results.ir_range[set_num][0], self.results.ir_range[set_num][1])
             self.error_dict[set_num + 1] = (name_error, profile_error, ir_error)
-        else:
-            pass

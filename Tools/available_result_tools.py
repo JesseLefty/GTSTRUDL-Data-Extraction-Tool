@@ -99,3 +99,10 @@ def valid_loads(load_names: list[list[str]], user_selection: tuple[int, str], se
         user_loads = load_names
 
     return user_loads
+
+
+def get_items_in_col(list_of_items: list, col_num: int):
+    item_list = []
+    for row in list_of_items:
+        item_list.append(row[col_num])
+    return item_list
