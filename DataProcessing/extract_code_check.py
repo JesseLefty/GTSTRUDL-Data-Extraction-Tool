@@ -5,15 +5,8 @@ This module works for one code check result at a time.
 """
 from operator import itemgetter
 from natsort import natsorted
-from Tools.available_result_tools import valid_names, UserSelectionOption
+from Tools.available_result_tools import valid_names, UserSelectionOption, get_items_in_col
 from Tools import shared_stuff
-
-
-def get_items_in_col(list_of_items: list, col_num: int):
-    item_list = []
-    for row in list_of_items:
-        item_list.append(row[col_num])
-    return item_list
 
 
 class GenerateOutputArray:
