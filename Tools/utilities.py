@@ -128,7 +128,7 @@ class GenerateDisplayData:
         result = []
         index = []
         for idx, row in enumerate(self.file_list):
-            if trigger_string in row:
+            if trigger_string in row.upper():
                 display_line = self.find_input_line(idx, '{')
                 text = display_line[display_line.find(">") + 2:]
                 line_num = display_line[:display_line.find("}") + 1].lstrip()

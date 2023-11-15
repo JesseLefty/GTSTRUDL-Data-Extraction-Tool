@@ -59,7 +59,7 @@ class GenerateOutputArray:
                 if column_2 == "":
                     formatted_array.insert(1, load)
                 for ih, col_id in enumerate(value_columns):
-                    if col_id > len(row) + 1:
+                    if col_id > len(row) + 10:
                         numbers.append(False)
                     elif "." in row[column_start[ih + 3]:col_id]:
                         numbers.append(True)
